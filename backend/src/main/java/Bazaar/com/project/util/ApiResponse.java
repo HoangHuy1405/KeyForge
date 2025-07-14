@@ -28,4 +28,18 @@ public class ApiResponse<T> {
                 .data(data)
                 .build();
     }
+    public static <T> ApiResponse<T> error(String message) {
+        return ApiResponse.<T>builder()
+                .status("error")
+                .message(message)
+                .data(null)
+                .build();
+    }
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return ApiResponse.<T>builder()
+                .status("error")
+                .message(message)
+                .data(data)
+                .build();
+    }
 }
