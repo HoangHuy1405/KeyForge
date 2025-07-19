@@ -1,8 +1,11 @@
 package Bazaar.com.project.model;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -23,5 +26,13 @@ public abstract class BaseEntity {
     @GeneratedValue(generator = "uuid2")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
-    protected UUID id;
+    private UUID id;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = true, updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 }
