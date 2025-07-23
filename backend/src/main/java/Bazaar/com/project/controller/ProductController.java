@@ -12,18 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import Bazaar.com.project.model.Product;
 import Bazaar.com.project.service.interfaces.ProductService;
 import Bazaar.com.project.util.ApiResponse;
-// import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
-// import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-
 
 @RestController
 @RequestMapping("/products")
@@ -75,18 +71,6 @@ public class ProductController {
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
-    // @ExceptionHandler(EntityNotFoundException.class) 
-    // public ResponseEntity<ApiResponse<?>> handleNotFound(EntityNotFoundException ex) { 
-    //     var result = new ApiResponse<>(
-    //         HttpStatus.INTERNAL_SERVER_ERROR, 
-    //         "handleNotFound", 
-    //         null, 
-    //         ex.getMessage());
-        
-    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
-    // } 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);

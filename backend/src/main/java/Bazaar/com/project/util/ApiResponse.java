@@ -6,15 +6,11 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-// import lombok.AllArgsConstructor;
-// import lombok.Builder;
-// import lombok.Data;
-// import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-// @Data
-// @AllArgsConstructor
-// @NoArgsConstructor
-// @Builder
 // public class ApiResponse<T> {
 //     private String status;
 //     private String message;
@@ -50,13 +46,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 //     }
 // }
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @JsonPropertyOrder({ "status", "errorCode", "timestamp", "message", "data" })
 public class ApiResponse<T> {
 	private String status;
 	private String message;
 	private T data;
 	private String errorCode;
-	private LocalDateTime timestamp = LocalDateTime.now();
+	private LocalDateTime timestamp;
 
 	public ApiResponse(HttpStatus httpStatus, String message, T data, String errorCode) {
 		this.status = httpStatus.is2xxSuccessful() ? "success" : "error";
@@ -64,45 +64,5 @@ public class ApiResponse<T> {
 		this.data = data;
 		this.errorCode = errorCode;
 		this.timestamp = LocalDateTime.now();
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public T getData() {
-		return data;
-	}
-
-	public void setData(T data) {
-		this.data = data;
-	}
-
-	public String getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
-	}
-
-	public LocalDateTime getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(LocalDateTime timestamp) {
-		this.timestamp = timestamp;
 	}
 }

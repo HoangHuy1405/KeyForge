@@ -3,6 +3,7 @@ package Bazaar.com.project.controller;
 import Bazaar.com.project.dto.LoginRequest;
 import Bazaar.com.project.dto.LoginResponse;
 import Bazaar.com.project.dto.RegisterRequest;
+import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.service.auth.AuthCommandHandler;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.auth.command.LoginByUsernameOrEmailCommand;
@@ -65,9 +66,13 @@ public class AuthController {
                     request.email(),
                     request.phoneNum())
         );
-
+        ApiResponse<User> response = new ApiResponse<>(
+                HttpStatus.CREATED,
+                "User registered successfully",
+                user,
+                null
+        );
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(user, "User registered successfully"));
+                .body(response);
     }
-
 }

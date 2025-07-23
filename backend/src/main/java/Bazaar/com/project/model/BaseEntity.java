@@ -3,8 +3,8 @@ package Bazaar.com.project.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import jakarta.persistence.Column;
@@ -28,8 +28,14 @@ public abstract class BaseEntity {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     private UUID id;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = true, updatable = false)
+    // @CreatedDate
+    @CreationTimestamp
+    @Column(
+        name = "created_at", 
+        nullable = false, 
+        updatable = false,
+        columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+    )
     private Instant createdAt;
 
     @LastModifiedDate
