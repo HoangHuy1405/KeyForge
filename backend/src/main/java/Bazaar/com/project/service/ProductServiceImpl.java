@@ -24,7 +24,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findProductById(UUID id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+                .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
     }
     @Override
     public List<Product> getAllProduct() {
