@@ -3,6 +3,7 @@ package Bazaar.com.project.model;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
+import Bazaar.com.project.model.UserAggregate.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
