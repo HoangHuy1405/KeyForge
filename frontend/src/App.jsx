@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import Homepage from './features/Homepage';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
+import 'react-toastify/ReactToastify.css';
 
 const router = createBrowserRouter([
   {
@@ -17,18 +18,19 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
       <ToastContainer
-        position="top"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
+      position="top-center"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick={false}
+      rtl={false}
+      pauseOnFocusLoss
+      draggable={false}
+      pauseOnHover={false}
+      theme="light"
+      transition={Bounce}
       />
     </>
   );

@@ -3,15 +3,15 @@ package Bazaar.com.project.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Table(name = "Local_accounts")
 @Builder
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class LocalAccount extends Account {
     @Column(unique = true, nullable = false)
     private String username;

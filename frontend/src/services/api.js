@@ -40,6 +40,7 @@ const processQueue = (error, token = null) => {
 instance.interceptors.response.use(
   (response) => {
     const apiResponse = response.data;
+    console.log(apiResponse)
 
     if (apiResponse.status === 'success') {
       return apiResponse.data;
@@ -95,7 +96,17 @@ instance.interceptors.response.use(
       }
     }
 
+
     // Network hoặc các lỗi khác
+    if (error.response && error.response.data) {
+      const { message, errorCode, timestamp } = error.response.data;
+      return Promise.reject({
+        message: message || "Unknown server error",
+        errorCode: errorCode || "UNKNOWN_ERROR",
+        timestamp
+      });
+    }
+
     return Promise.reject({
       message: error.message || 'Network error',
       errorCode: 'NETWORK_ERROR',

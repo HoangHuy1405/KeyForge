@@ -53,8 +53,14 @@ public class AuthController {
 
         //Gắn refresh token vào cookie
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        ApiResponse<LoginResponse> apiResponse = new ApiResponse<>(
+                HttpStatus.OK,
+                "Login success",
+                new LoginResponse(accessToken),
+                null
+        );
 
-        return ResponseEntity.ok(new LoginResponse(accessToken));
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @PostMapping("/register")

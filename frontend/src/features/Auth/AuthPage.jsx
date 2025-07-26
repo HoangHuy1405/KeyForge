@@ -2,6 +2,7 @@ import { useState } from "react";
 import LoginForm from "./Partial/LoginForm";
 import RegisterForm from "./Partial/RegisterForm";
 import { registerUser, loginUser } from "../../services/AuthService";
+import { toast } from 'react-toastify';
 
 function AuthPage() {
   const [mode, setMode] = useState("login"); // login | register
@@ -9,32 +10,34 @@ function AuthPage() {
   const handleLogin = async (data) => {
     console.log("Login form submitted:", data);
     try {
-      const token = await loginUser(data.identifier, data.password);
+      const { accessToken } = await loginUser(data.identifier, data.password);
 
+      console.log("Login successful, token:", accessToken);
+
+      toast.success("Đăng nhập thành công!");
       // Giả sử backend trả về { token: '...' }
-      localStorage.setItem("accessToken", token);
+      localStorage.setItem("accessToken", accessToken);
 
       // TODO: chuyển hướng hoặc set user context
       // navigate('/dashboard'); // nếu dùng React Router
 
-      console.log("Login thành công");
+      
     } catch (error) {
-      console.error("Login thất bại:", error);
-      alert(error.message || "Đăng nhập thất bại");
+      console.error("Đăng nhập thất bại:", error.message);
+      toast.error(error.message);
     }
   };
 
   const handleRegister = async (data) => {
-    console.log("Register form submitted:", data);
     try {
       await registerUser(
         data.username, 
         data.password,
         data.fullname,
         data.email,
-        data.phonenum
+        data.phoneNum
       );
-      alert("Đăng ký thành công!");
+      toast.success("Đăng ký thành công!");
 
       // Optionally tự động đăng nhập:
       // const token = await loginUser(data.identifier, data.password);
@@ -43,8 +46,8 @@ function AuthPage() {
       // Chuyển sang màn đăng nhập
       // setMode("login"); // nếu bạn dùng toggle form
     } catch (error) {
-      console.error("Đăng ký thất bại:", error);
-      alert(error.message || "Đăng ký thất bại");
+      console.error("Đăng ký thất bại:", error.message);
+      toast.error(error.message);
     }
   };
 
