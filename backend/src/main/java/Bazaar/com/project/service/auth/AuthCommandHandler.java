@@ -1,6 +1,8 @@
 package Bazaar.com.project.service.auth;
 
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.LocalAccount;
+import Bazaar.com.project.model.User.User;
+import Bazaar.com.project.repository.LocalAccountRepository;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.auth.command.LoginByUsernameOrEmailCommand;
@@ -13,34 +15,35 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthCommandHandler {
     @Autowired
-    private UserRepository userRepository;
+    private LocalAccountRepository localAccountRepository;
 
     public User handle(LoginByUsernameOrEmailCommand command){
-        var user = userRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
+        var account = localAccountRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
                 .orElseThrow(CannotLoginException::new);
 
-        if (!user.verifyPassword(command.password()))
+        if (!account.verifyPassword(command.password()))
             throw new CannotLoginException();
 
-        return user;
+        return account.getUser();
     }
 
     public User handle(CreateUserCommand command){
-        if (userRepository.existsByEmail(command.email()))
-            throw new EmailAlreadyExistException();
-
-        if (userRepository.existsByUsername(command.username()))
+        if (localAccountRepository.existsByUsername(command.username()))
             throw new UsernameAlreadyExistException();
 
-        User user = User.builder()
+        if (localAccountRepository.existsByEmail(command.email()))
+            throw new EmailAlreadyExistException();
+
+        LocalAccount account = LocalAccount.builder()
                 .username(command.username())
-                .password(command.password())
                 .email(command.email())
-                .fullname(command.fullname())
-                .phoneNum(command.phoneNum())
+                .password(command.password())
                 .build();
 
-        return userRepository.save(user);
+        User user = account.createUser(command.fullname(), command.phoneNum());
+        localAccountRepository.save(account);
+
+        return user;
     }
 
 }

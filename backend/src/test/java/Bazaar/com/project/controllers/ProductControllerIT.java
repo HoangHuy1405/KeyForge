@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Bazaar.com.project.model.Product;
 import Bazaar.com.project.model.ProductStatus;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
 
@@ -46,7 +46,7 @@ public class ProductControllerIT {
 
         User seller = new User();
         seller.setFullname("Test Seller");
-        seller.setEmail("seller@example.com");
+//        seller.setEmail("seller@example.com");
         seller = userRepository.save(seller);
         this.testSeller = seller;
 

@@ -1,6 +1,6 @@
 package Bazaar.com.project.util;
 
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
