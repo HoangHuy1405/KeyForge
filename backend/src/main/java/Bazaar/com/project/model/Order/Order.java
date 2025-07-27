@@ -10,7 +10,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
@@ -32,9 +34,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Order extends BaseEntity {
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "buyer_id", nullable = false)
-    @NotBlank(message = "Buyer is required")
+    @NotNull(message = "Buyer is required")
     private User buyer;
     
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,8 +65,8 @@ public class Order extends BaseEntity {
 
     public void changeStatus(OrderStatus newStatus) {
         // Example rule: can't go back from DELIVERED to PROCESSING
-        if (this.status == OrderStatus.DELIVERED && newStatus != OrderStatus.CANCELLED) {
-            throw new IllegalStateException("Cannot change status from DELIVERED to " + newStatus);
+        if (newStatus == this.status) {
+            throw new IllegalStateException("The status is already set to " + newStatus);
         }
         this.status = newStatus;
     }

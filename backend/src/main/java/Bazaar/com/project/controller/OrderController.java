@@ -1,5 +1,6 @@
 package Bazaar.com.project.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import Bazaar.com.project.dto.OrderRequestDto;
+import Bazaar.com.project.dto.OrderDto.OrderRequestDto;
+import Bazaar.com.project.dto.OrderDto.OrderResponseDto;
+import Bazaar.com.project.dto.OrderDto.OrderStatusUpdateRequest;
 import Bazaar.com.project.service.interfaces.OrderService;
 import Bazaar.com.project.util.ApiResponse;
 import jakarta.validation.Valid;
@@ -16,20 +19,22 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
 
+
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("api/orders")
 public class OrderController {
     @Autowired
-    private OrderService orderSerivce;
+    private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderRequestDto>> placeOrder(@Valid @RequestBody OrderRequestDto orderDto) {
-        OrderRequestDto newOrder =  orderSerivce.placeOrder(orderDto);
-        ApiResponse<OrderRequestDto> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<OrderResponseDto>> placeOrder(@Valid @RequestBody OrderRequestDto orderDto) {
+        OrderResponseDto newOrder =  orderService.placeOrder(orderDto);
+        ApiResponse<OrderResponseDto> response = new ApiResponse<>(
             HttpStatus.CREATED,
             "Order created successfully",
             newOrder,
@@ -39,11 +44,38 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrderRequestDto>> getOrder(@PathVariable UUID id) {
-        OrderRequestDto order = orderSerivce.findOrderById(id);
-        ApiResponse<OrderRequestDto> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<OrderResponseDto>> getOrder(@PathVariable UUID id) {
+        OrderResponseDto order = orderService.findOrderById(id);
+        ApiResponse<OrderResponseDto> response = new ApiResponse<>(
             HttpStatus.OK,
             "Order fetched successfully",
+            order,
+            String.valueOf(HttpStatus.OK.value())
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<OrderResponseDto>> cancelOrder(@PathVariable UUID id) {
+        OrderResponseDto order = orderService.cancelOrder(id);
+        ApiResponse<OrderResponseDto> response = new ApiResponse<>(
+            HttpStatus.OK,
+            "Order cancelled successfully",
+            order,
+            String.valueOf(HttpStatus.OK.value())
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<OrderResponseDto>> updateStatus(
+        @PathVariable UUID id, 
+        @RequestBody OrderStatusUpdateRequest request) 
+    {
+        OrderResponseDto order = orderService.changeStatus(id, request.getStatus());
+        ApiResponse<OrderResponseDto> response = new ApiResponse<>(
+            HttpStatus.OK,
+            "Status updated successfully",
             order,
             String.valueOf(HttpStatus.OK.value())
         );

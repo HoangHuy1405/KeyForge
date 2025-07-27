@@ -9,7 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import Bazaar.com.project.model.Product;
+import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
+import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
 import Bazaar.com.project.service.interfaces.ProductService;
 import Bazaar.com.project.util.ApiResponse;
 import jakarta.validation.Valid;
@@ -22,15 +23,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
     @Autowired
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Product>> create(@Valid @RequestBody Product product) {
-        Product newProduct = this.productService.createProduct(product);
-        ApiResponse<Product> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<ProductResponseDto>> create(@Valid @RequestBody ProductCreateRequestDto productDto) {
+        ProductResponseDto newProduct = this.productService.createProduct(productDto);
+        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
             HttpStatus.CREATED,
             "Product created successfully",
             newProduct, 
@@ -39,9 +40,9 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> getProduct(@PathVariable UUID id) {
-        Product product = productService.findProductById(id);
-        ApiResponse<Product> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<ProductResponseDto>> getProduct(@PathVariable UUID id) {
+        ProductResponseDto product = productService.findProductById(id);
+        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
             HttpStatus.OK,
             "Product fetched successfully",
             product, 
@@ -50,9 +51,9 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Product>>> getAllProduct() {
-        List<Product> products = productService.getAllProduct();
-        ApiResponse<List<Product>> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getAllProduct() {
+        List<ProductResponseDto> products = productService.getAllProduct();
+        ApiResponse<List<ProductResponseDto>> response = new ApiResponse<>(
             HttpStatus.OK,
             "Products fetched successfully",
             products, 
@@ -60,10 +61,12 @@ public class ProductController {
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    // TODO: need to have ProductUpdateResponseDto
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> updateProduct(@PathVariable UUID id, @RequestBody Product product) {
-        Product updatedProduct = productService.updateProduct(id, product);
-        ApiResponse<Product> response = new ApiResponse<>(
+    public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(@PathVariable UUID id, @RequestBody ProductCreateRequestDto product) {
+        ProductResponseDto updatedProduct = productService.updateProduct(id, product);
+        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
             HttpStatus.OK,
             "Product updated successfully",
             updatedProduct, 

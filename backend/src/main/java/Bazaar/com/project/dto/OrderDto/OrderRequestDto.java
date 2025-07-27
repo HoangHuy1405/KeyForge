@@ -1,6 +1,7 @@
-package Bazaar.com.project.dto;
+package Bazaar.com.project.dto.OrderDto;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OrderRequestDto {
     @NotNull(message = "Buyer ID is required")
-    private Long buyerId;
+    private UUID buyerId;
     @NotEmpty(message = "Order items are required")
     private List<OrderItemRequestDto> items;
     @NotBlank(message = "Shipping address is required")
