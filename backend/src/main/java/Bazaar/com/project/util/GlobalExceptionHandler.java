@@ -14,21 +14,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ApiResponse<Void>> handle(NoSuchElementException ex) {
+    @ExceptionHandler(value = {
+            NoResourceFoundException.class,
+            NoSuchElementException.class
+    })
+    public ResponseEntity<ApiResponse<Object>> handleNotFoundException(Exception ex) {
         logger.warn("Resource not found: {}", ex.getMessage());
 
-        ApiResponse<Void> response = new ApiResponse<>(
+        ApiResponse<Object> response = new ApiResponse<Object>(
             HttpStatus.NOT_FOUND,
             ex.getMessage(),
             null,
-            String.valueOf(HttpStatus.NOT_FOUND.value())
+            HttpStatus.NOT_FOUND.value()
         );
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -40,7 +45,7 @@ public class GlobalExceptionHandler {
             HttpStatus.UNAUTHORIZED,
             ex.getMessage(),
             null,
-            String.valueOf(HttpStatus.UNAUTHORIZED.value())
+            HttpStatus.UNAUTHORIZED.value()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
@@ -53,7 +58,7 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT,
             ex.getMessage(),
             null,
-            String.valueOf(HttpStatus.CONFLICT.value())
+            HttpStatus.CONFLICT.value()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -66,7 +71,7 @@ public class GlobalExceptionHandler {
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Internal server error",
             null,
-            String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -75,7 +80,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> 
         handleValidationExceptions(MethodArgumentNotValidException ex) { 
         List<String> errorList = ex.getBindingResult().getFieldErrors().stream() 
-            .map(error -> error.getField() + ": " + error.getDefaultMessage()) 
+            // .map(error -> error.getField() + ": " + error.getDefaultMessage()) 
+            .map(error -> error.getDefaultMessage()) 
             .collect(Collectors.toList()); 
 
         String errors = String.join("; ", errorList); 
@@ -83,8 +89,9 @@ public class GlobalExceptionHandler {
             HttpStatus.BAD_REQUEST, 
             errors, 
             null, 
-            "VALIDATION_ERROR"); 
-            
+            HttpStatus.BAD_REQUEST.value()    
+        ); 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); 
     }
+    
 }

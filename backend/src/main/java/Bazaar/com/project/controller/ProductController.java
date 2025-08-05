@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
 import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
 import Bazaar.com.project.service.interfaces.ProductService;
-import Bazaar.com.project.util.ApiResponse;
+import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,60 +29,34 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponseDto>> create(@Valid @RequestBody ProductCreateRequestDto productDto) {
+    @ApiMessage("Product created successfully")
+    public ResponseEntity<ProductResponseDto> create(@Valid @RequestBody ProductCreateRequestDto productDto) {
         ProductResponseDto newProduct = this.productService.createProduct(productDto);
-        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
-            HttpStatus.CREATED,
-            "Product created successfully",
-            newProduct, 
-            String.valueOf(HttpStatus.CREATED.value())
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponseDto>> getProduct(@PathVariable UUID id) {
+    @ApiMessage("Product fetched successfully")
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID id) {
         ProductResponseDto product = productService.findProductById(id);
-        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
-            HttpStatus.OK,
-            "Product fetched successfully",
-            product, 
-            String.valueOf(HttpStatus.OK.value())
-        );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(product);
     }
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getAllProduct() {
+    @ApiMessage("Products fetched successfully")
+    public ResponseEntity<List<ProductResponseDto>> getAllProduct() {
         List<ProductResponseDto> products = productService.getAllProduct();
-        ApiResponse<List<ProductResponseDto>> response = new ApiResponse<>(
-            HttpStatus.OK,
-            "Products fetched successfully",
-            products, 
-            String.valueOf(HttpStatus.OK.value())
-        );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(products);
     }
-
     // TODO: need to have ProductUpdateResponseDto
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(@PathVariable UUID id, @RequestBody ProductCreateRequestDto product) {
+    @ApiMessage("Products updated successfully")
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID id, @RequestBody ProductCreateRequestDto product) {
         ProductResponseDto updatedProduct = productService.updateProduct(id, product);
-        ApiResponse<ProductResponseDto> response = new ApiResponse<>(
-            HttpStatus.OK,
-            "Product updated successfully",
-            updatedProduct, 
-            String.valueOf(HttpStatus.OK.value())
-        );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable UUID id) {
+    @ApiMessage("Products deleted successfully")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
-        ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.OK,
-                "Product deleted successfully",
-                null,
-                String.valueOf(HttpStatus.OK.value())
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(null);
     }
 }

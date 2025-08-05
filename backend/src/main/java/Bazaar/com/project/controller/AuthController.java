@@ -3,12 +3,11 @@ package Bazaar.com.project.controller;
 import Bazaar.com.project.dto.LoginRequest;
 import Bazaar.com.project.dto.LoginResponse;
 import Bazaar.com.project.dto.RegisterRequest;
-import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.service.auth.AuthCommandHandler;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.auth.command.LoginByUsernameOrEmailCommand;
-import Bazaar.com.project.util.ApiResponse;
 import Bazaar.com.project.util.JwtUtil;
+import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @ApiMessage("User registered successfully")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request){
         var user = this.authCommandHandler.handle(
             new CreateUserCommand(
@@ -66,13 +66,13 @@ public class AuthController {
                     request.email(),
                     request.phoneNum())
         );
-        ApiResponse<User> response = new ApiResponse<>(
-                HttpStatus.CREATED,
-                "User registered successfully",
-                user,
-                null
-        );
+        // ApiResponse<User> response = new ApiResponse<>(
+        //         HttpStatus.CREATED,
+        //         "User registered successfully",
+        //         user,
+        //         null
+        // );
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(response);
+                .body(user);
     }
 }
