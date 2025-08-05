@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Void> response = new ApiResponse<>(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "Internal server error",
+            ex.getMessage(),
             null,
             HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
@@ -80,8 +80,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> 
         handleValidationExceptions(MethodArgumentNotValidException ex) { 
         List<String> errorList = ex.getBindingResult().getFieldErrors().stream() 
-            // .map(error -> error.getField() + ": " + error.getDefaultMessage()) 
-            .map(error -> error.getDefaultMessage()) 
+            .map(error -> error.getField() + ": " + error.getDefaultMessage()) 
+            // .map(error -> error.getDefaultMessage()) 
             .collect(Collectors.toList()); 
 
         String errors = String.join("; ", errorList); 
