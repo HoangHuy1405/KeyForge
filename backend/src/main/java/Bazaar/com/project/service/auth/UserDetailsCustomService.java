@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+// For authentication 
 @Component("userDetailsService")
 public class UserDetailsCustomService implements UserDetailsService {
     @Autowired
@@ -20,14 +21,14 @@ public class UserDetailsCustomService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Bazaar.com.project.model.UserAggregate.User user = this.userService.fetchUserByUsername(username);
-        if(user == null) {
-            throw new UsernameNotFoundException("Username or password is invalid");
+        Bazaar.com.project.model.UserAggregate.User user = this.userService.fetchUserByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Email or password is invalid");
         }
 
         return new User(
-            user.getUsername(), 
-            user.getPassword(),
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                user.getEmail(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

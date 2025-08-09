@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import Bazaar.com.project.dto.UserDto.UserCreateResponseDTO;
+import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.interfaces.UserService;
@@ -18,7 +20,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User fetchUserById(UUID id) {
         Optional<User> userOptional = this.userRepository.findById(id);
-        if(userOptional.isPresent()) {
+        if (userOptional.isPresent()) {
             return userOptional.get();
         }
         return null;
@@ -27,10 +29,53 @@ public class UserServiceImpl implements UserService {
     @Override
     public User fetchUserByUsername(String username) {
         Optional<User> userOptional = this.userRepository.findByUsername(username);
-        if(userOptional.isPresent()) {
+        if (userOptional.isPresent()) {
             return userOptional.get();
         }
         return null;
     }
-    
+
+    @Override
+    public User fetchUserByEmail(String email) {
+        Optional<User> userOptional = this.userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        }
+        return null;
+    }
+
+    @Override
+    public UserCreateResponseDTO convertToCreateDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserCreateResponseDTO dto = new UserCreateResponseDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setFullname(user.getFullname());
+        dto.setEmail(user.getEmail());
+        dto.setPhoneNum(user.getPhoneNum());
+        dto.setAddress(user.getDescription());
+        dto.setCreatedAt(user.getCreatedAt());
+        return dto;
+    }
+
+    public void updateUserToken(String token, String email) {
+        User currentUser = this.fetchUserByEmail(email);
+        if (currentUser != null) {
+            currentUser.setRefreshToken(token);
+            this.userRepository.save(currentUser);
+        }
+    }
+
+    @Override
+    public User getUserByRefreshTokenAndEmail(String refresh_token, String email) {
+        Optional<User> optUser = this.userRepository.findByRefreshTokenAndEmail(refresh_token, email);
+        if (!optUser.isPresent()) {
+            throw new UserNotFoundException(
+                    String.format("User with email %s and refresh token not found", email));
+        }
+        return optUser.get();
+    }
+
 }

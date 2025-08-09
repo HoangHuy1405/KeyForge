@@ -1,4 +1,4 @@
-package Bazaar.com.project.util;
+package Bazaar.com.project.exception;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import Bazaar.com.project.service.auth.exception.CannotLoginException;
 import Bazaar.com.project.service.auth.exception.EmailAlreadyExistException;
 import Bazaar.com.project.service.auth.exception.UsernameAlreadyExistException;
+import Bazaar.com.project.util.ApiResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,17 +24,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {
             NoResourceFoundException.class,
-            NoSuchElementException.class
+            NoSuchElementException.class,
+            UserNotFoundException.class
     })
     public ResponseEntity<ApiResponse<Object>> handleNotFoundException(Exception ex) {
         logger.warn("Resource not found: {}", ex.getMessage());
 
         ApiResponse<Object> response = new ApiResponse<Object>(
-            HttpStatus.NOT_FOUND,
-            ex.getMessage(),
-            null,
-            HttpStatus.NOT_FOUND.value()
-        );
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                null,
+                HttpStatus.NOT_FOUND.value());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -42,11 +44,10 @@ public class GlobalExceptionHandler {
         logger.warn("Login failed: {}", ex.getMessage());
 
         ApiResponse<Void> response = new ApiResponse<>(
-            HttpStatus.UNAUTHORIZED,
-            ex.getMessage(),
-            null,
-            HttpStatus.UNAUTHORIZED.value()
-        );
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage(),
+                null,
+                HttpStatus.UNAUTHORIZED.value());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
@@ -55,11 +56,10 @@ public class GlobalExceptionHandler {
         logger.warn("Register failed: {}", ex.getMessage());
 
         ApiResponse<Void> response = new ApiResponse<>(
-            HttpStatus.CONFLICT,
-            ex.getMessage(),
-            null,
-            HttpStatus.CONFLICT.value()
-        );
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                null,
+                HttpStatus.CONFLICT.value());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
@@ -68,30 +68,27 @@ public class GlobalExceptionHandler {
         logger.error("Unexpected error occurred", ex);
 
         ApiResponse<Void> response = new ApiResponse<>(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ex.getMessage(),
-            null,
-            HttpStatus.INTERNAL_SERVER_ERROR.value()
-        );
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                null,
+                HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class) 
-    public ResponseEntity<ApiResponse<Object>> 
-        handleValidationExceptions(MethodArgumentNotValidException ex) { 
-        List<String> errorList = ex.getBindingResult().getFieldErrors().stream() 
-            .map(error -> error.getField() + ": " + error.getDefaultMessage()) 
-            // .map(error -> error.getDefaultMessage()) 
-            .collect(Collectors.toList()); 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errorList = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                // .map(error -> error.getDefaultMessage())
+                .collect(Collectors.toList());
 
-        String errors = String.join("; ", errorList); 
+        String errors = String.join("; ", errorList);
         ApiResponse<Object> response = new ApiResponse<>(
-            HttpStatus.BAD_REQUEST, 
-            errors, 
-            null, 
-            HttpStatus.BAD_REQUEST.value()    
-        ); 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); 
+                HttpStatus.BAD_REQUEST,
+                errors,
+                null,
+                HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    
+
 }

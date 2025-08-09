@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "orderItems")
+@Table(name = "order_items")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -60,6 +60,7 @@ public class OrderItem extends BaseEntity {
             this.subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
         }
     }
+
     public void initializeFromProduct() {
         if (this.product != null) {
             this.unitPrice = this.product.getPrice();

@@ -15,7 +15,8 @@ public class OrderMapper {
             Product product = products.stream()
                     .filter(p -> p.getId().equals(dto.getProductId()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + dto.getProductId()));
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("Product not found with ID: " + dto.getProductId()));
 
             product.buyProduct(dto.getQuantity());
 
@@ -54,14 +55,15 @@ public class OrderMapper {
                 .totalAmount(order.getTotalAmount())
                 .paymentMethod(order.getPaymentMethod())
                 .status(order.getStatus())
-                .createdAt(order.getCreatedAt())
+                .createdAt(order.getCreatedAtLocal())
                 .items(items)
                 .build();
     }
+
     public static List<OrderResponseDto> toOrderResponseList(List<Order> orders) {
         return orders.stream()
-            .map(order -> toOrderResponseDto(order, toOrderItemResponses(order.getItems())))
-            .toList();
+                .map(order -> toOrderResponseDto(order, toOrderItemResponses(order.getItems())))
+                .toList();
     }
 
 }
