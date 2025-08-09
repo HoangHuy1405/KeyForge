@@ -38,10 +38,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User fetchUserByEmail(String email) {
         Optional<User> userOptional = this.userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
+        if (!userOptional.isPresent()) {
+            throw new UserNotFoundException(
+                    String.format("User cannot be found with email: %s", email));
         }
-        return null;
+        return userOptional.get();
     }
 
     @Override
