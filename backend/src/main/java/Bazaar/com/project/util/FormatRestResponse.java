@@ -1,0 +1,55 @@
+package Bazaar.com.project.util;
+
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import Bazaar.com.project.util.Annotation.ApiMessage;
+import jakarta.servlet.http.HttpServletResponse;
+
+@ControllerAdvice
+public class FormatRestResponse implements ResponseBodyAdvice<Object> {
+
+    @Override
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
+    public Object beforeBodyWrite(
+            Object body, 
+            MethodParameter returnType, 
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType, 
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
+
+        HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+        int status = servletResponse.getStatus();
+
+        ApiResponse<Object> res = new ApiResponse<>();
+        res.setStatusCode(status);
+        
+        if(body instanceof String) {
+            return body;
+        }
+        if(status >= 400) {
+        // case error
+            System.out.println(body);
+            return body;
+        } else {
+        // case success
+            res.setData(body);
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+            res.setMessage(apiMessage != null ? apiMessage.value() : "CALL API SUCCESS");
+        }
+        return res;
+    }
+    
+}

@@ -3,7 +3,8 @@ package Bazaar.com.project.model;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
-import Bazaar.com.project.model.User.User;
+import Bazaar.com.project.exception.InsufficientStockException;
+import Bazaar.com.project.model.UserAggregate.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -74,6 +75,15 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "seller_id", nullable = true)
     @NotNull(message = "Seller is required")
     private User seller;
+
+    public boolean isAvailable(int quantity) {
+        return quantity <= this.availableQuantity;
+    }
+
+    public void buyProduct(int quantity) {
+        if (!isAvailable(quantity)) {
+            throw new InsufficientStockException("Not enough stock for product: " + this.name);
+        }
+        this.availableQuantity -= quantity;
+    }
 }
-
-
