@@ -1,4 +1,4 @@
-package Bazaar.com.project.model.User;
+package Bazaar.com.project.model.UserAggregate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +22,7 @@ public class LocalAccount extends Account {
     @Column(unique = true, nullable = false)
     private String email;
 
-    public boolean verifyPassword(String rawPassword){
+    public boolean verifyPassword(String rawPassword) {
         return this.password.equals(rawPassword);
     }
 }

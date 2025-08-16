@@ -36,25 +36,28 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * ensures that all operations within the method:
-        Either complete entirely, or
-        Fail and rollback everything, if any part throws a runtime exception.
-
-        Without @Transactional, if an error happens after inventory is deducted but before 
-        the order is saved, you’ll end up with corrupt data (inventory deducted, but no order saved).
+     * Either complete entirely, or
+     * Fail and rollback everything, if any part throws a runtime exception.
+     * 
+     * Without @Transactional, if an error happens after inventory is deducted but
+     * before
+     * the order is saved, you’ll end up with corrupt data (inventory deducted, but
+     * no order saved).
      */
-    @Transactional 
+    @Transactional
     @Override
     public OrderResponseDto placeOrder(OrderRequestDto requestDto) {
         // 1. Fetch and validate the buyer
         User buyer = userRepository.findById(requestDto.getBuyerId())
-                    .orElseThrow(() -> new NoSuchElementException("Buyer not found with the id: " + requestDto.getBuyerId()));
+                .orElseThrow(
+                        () -> new NoSuchElementException("Buyer not found with the id: " + requestDto.getBuyerId()));
         // 2. Fetch products involved
         List<UUID> productIds = requestDto.getItems().stream()
-            .map(OrderItemRequestDto::getProductId)
-            .toList();
+                .map(OrderItemRequestDto::getProductId)
+                .toList();
         List<Product> products = productRepository.findAllById(productIds);
 
-         // 3. Map to OrderItems and calculate total
+        // 3. Map to OrderItems and calculate total
         List<OrderItem> orderItems = OrderMapper.toOrderItems(requestDto.getItems(), products);
         BigDecimal totalAmount = orderItems.stream()
                 .map(OrderItem::getSubtotal)
@@ -77,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
         // 5. Persist order
         Order savedOrder = orderRepository.save(order);
 
-        // 6.  response
+        // 6. response
         List<OrderItemResponseDto> itemResponses = OrderMapper.toOrderItemResponses(savedOrder.getItems());
         return OrderMapper.toOrderResponseDto(savedOrder, itemResponses);
     }
@@ -85,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto findOrderById(UUID id) {
         Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + id)); 
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + id));
 
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(order.getItems());
         return OrderMapper.toOrderResponseDto(order, itemResponseDtos);
@@ -94,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto cancelOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId)); 
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
         order.changeStatus(OrderStatus.CANCELLED);
         Order updatedOrder = orderRepository.save(order);
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
@@ -104,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto changeStatus(UUID orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId)); 
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
         order.changeStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
@@ -113,11 +116,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponseDto> getAllOrderFromUserId(UUID userId) {
-        if(!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new NoSuchElementException("User not found with ID: " + userId);
         }
         List<Order> orders = orderRepository.findByBuyerId(userId);
         return OrderMapper.toOrderResponseList(orders);
     }
-    
+
 }

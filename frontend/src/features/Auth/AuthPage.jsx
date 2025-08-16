@@ -1,29 +1,31 @@
-import { useState } from "react";
-import LoginForm from "./Partial/LoginForm";
-import RegisterForm from "./Partial/RegisterForm";
-import { registerUser, loginUser } from "../../services/AuthService";
+import { useState } from 'react';
+import LoginForm from './Partial/LoginForm';
+import RegisterForm from './Partial/RegisterForm';
+import { registerUser, loginUser } from '../../services/AuthService';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 function AuthPage() {
-  const [mode, setMode] = useState("login"); // login | register
+  const [mode, setMode] = useState('login'); // login | register
+  const navigate = useNavigate();
 
   const handleLogin = async (data) => {
-    console.log("Login form submitted:", data);
+    console.log('Login form submitted:', data);
     try {
       const { accessToken } = await loginUser(data.identifier, data.password);
 
-      console.log("Login successful, token:", accessToken);
+      console.log('Login successful, token:', accessToken);
 
-      toast.success("Đăng nhập thành công!");
+      toast.success('Đăng nhập thành công!');
       // Giả sử backend trả về { token: '...' }
-      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem('accessToken', accessToken);
 
       // TODO: chuyển hướng hoặc set user context
-      // navigate('/dashboard'); // nếu dùng React Router
-
-      
+      console.log('Navigate to homepage');
+      navigate('/'); // nếu dùng React Router
     } catch (error) {
-      console.error("Đăng nhập thất bại:", error.message);
+      console.log(error);
+      console.error('Đăng nhập thất bại:', error.message);
       toast.error(error.message);
     }
   };
@@ -31,13 +33,13 @@ function AuthPage() {
   const handleRegister = async (data) => {
     try {
       await registerUser(
-        data.username, 
+        data.username,
         data.password,
         data.fullname,
         data.email,
-        data.phoneNum
+        data.phoneNum,
       );
-      toast.success("Đăng ký thành công!");
+      toast.success('Đăng ký thành công!');
 
       // Optionally tự động đăng nhập:
       // const token = await loginUser(data.identifier, data.password);
@@ -46,21 +48,21 @@ function AuthPage() {
       // Chuyển sang màn đăng nhập
       // setMode("login"); // nếu bạn dùng toggle form
     } catch (error) {
-      console.error("Đăng ký thất bại:", error.message);
+      console.error('Đăng ký thất bại:', error.message);
       toast.error(error.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      {mode === "login" ? (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
+      {mode === 'login' ? (
         <>
           <LoginForm onLogin={handleLogin} />
           <p className="mt-4 text-sm">
-            Chưa có tài khoản?{" "}
+            Chưa có tài khoản?{' '}
             <button
               className="text-blue-600 hover:underline"
-              onClick={() => setMode("register")}
+              onClick={() => setMode('register')}
             >
               Đăng ký
             </button>
@@ -70,10 +72,10 @@ function AuthPage() {
         <>
           <RegisterForm onRegister={handleRegister} />
           <p className="mt-4 text-sm">
-            Đã có tài khoản?{" "}
+            Đã có tài khoản?{' '}
             <button
               className="text-blue-600 hover:underline"
-              onClick={() => setMode("login")}
+              onClick={() => setMode('login')}
             >
               Đăng nhập
             </button>

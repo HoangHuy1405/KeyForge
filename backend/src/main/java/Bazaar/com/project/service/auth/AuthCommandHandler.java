@@ -1,9 +1,8 @@
 package Bazaar.com.project.service.auth;
 
-import Bazaar.com.project.model.User.LocalAccount;
-import Bazaar.com.project.model.User.User;
+import Bazaar.com.project.model.UserAggregate.LocalAccount;
+import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.LocalAccountRepository;
-import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.auth.command.LoginByUsernameOrEmailCommand;
 import Bazaar.com.project.service.auth.exception.CannotLoginException;
@@ -17,7 +16,7 @@ public class AuthCommandHandler {
     @Autowired
     private LocalAccountRepository localAccountRepository;
 
-    public User handle(LoginByUsernameOrEmailCommand command){
+    public User handle(LoginByUsernameOrEmailCommand command) {
         var account = localAccountRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
                 .orElseThrow(CannotLoginException::new);
 
@@ -27,7 +26,7 @@ public class AuthCommandHandler {
         return account.getUser();
     }
 
-    public User handle(CreateUserCommand command){
+    public User handle(CreateUserCommand command) {
         if (localAccountRepository.existsByUsername(command.username()))
             throw new UsernameAlreadyExistException();
 

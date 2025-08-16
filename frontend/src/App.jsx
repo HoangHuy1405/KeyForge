@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Homepage from './features/Homepage';
 import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
@@ -9,7 +9,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <Homepage />,
   },
-    {
+  {
     path: '/auth',
     element: <AuthPage />,
   },
@@ -20,17 +20,17 @@ export default function App() {
     <>
       <RouterProvider router={router} />
       <ToastContainer
-      position="top-center"
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick={false}
-      rtl={false}
-      pauseOnFocusLoss
-      draggable={false}
-      pauseOnHover={false}
-      theme="light"
-      transition={Bounce}
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        transition={Bounce}
       />
     </>
   );

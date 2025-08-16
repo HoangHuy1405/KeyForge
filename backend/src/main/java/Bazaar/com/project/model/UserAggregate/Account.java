@@ -1,13 +1,12 @@
-package Bazaar.com.project.model.User;
+package Bazaar.com.project.model.UserAggregate;
 
 import Bazaar.com.project.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name="accounts")
+@Table(name = "accounts")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 public abstract class Account extends BaseEntity {
@@ -16,7 +15,7 @@ public abstract class Account extends BaseEntity {
     @JsonBackReference
     private User user;
 
-    public User createUser(String fullname, String phoneNum){
+    public User createUser(String fullname, String phoneNum) {
         this.user = User.builder()
                 .fullname(fullname)
                 .phoneNum(phoneNum)
