@@ -1,7 +1,6 @@
 package Bazaar.com.project.service.interfaces;
 
 import java.util.UUID;
-
 import Bazaar.com.project.dto.UserDto.UserCreateResponseDTO;
 import Bazaar.com.project.model.UserAggregate.User;
 

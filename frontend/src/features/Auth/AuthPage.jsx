@@ -12,17 +12,22 @@ function AuthPage() {
   const handleLogin = async (data) => {
     console.log('Login form submitted:', data);
     try {
-      const { accessToken } = await loginUser(data.identifier, data.password);
+      const { accessToken, user } = await loginUser(
+        data.identifier,
+        data.password,
+      );
 
       console.log('Login successful, token:', accessToken);
+      console.log('user: ', user);
 
       toast.success('Đăng nhập thành công!');
       // Giả sử backend trả về { token: '...' }
       localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
 
       // TODO: chuyển hướng hoặc set user context
       console.log('Navigate to homepage');
-      navigate('/'); // nếu dùng React Router
+      navigate('/profile'); // nếu dùng React Router
     } catch (error) {
       console.log(error);
       console.error('Đăng nhập thất bại:', error.message);

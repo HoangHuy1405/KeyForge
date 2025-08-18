@@ -5,7 +5,7 @@ const instance = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 // === Request Interceptor ===
@@ -17,7 +17,7 @@ instance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // === Avoid Race Condition ===
@@ -40,7 +40,7 @@ const processQueue = (error, token = null) => {
 instance.interceptors.response.use(
   (response) => {
     const apiResponse = response.data;
-    console.log(apiResponse)
+    console.log(apiResponse);
 
     if (apiResponse.status === 'success') {
       return apiResponse.data;
@@ -76,12 +76,13 @@ instance.interceptors.response.use(
         const res = await axios.post(
           'http://localhost:8080/refresh-token',
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const newToken = res.data.token;
         localStorage.setItem('accessToken', newToken);
-        instance.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        instance.defaults.headers.common['Authorization'] =
+          'Bearer ' + newToken;
 
         processQueue(null, newToken);
 
@@ -96,14 +97,13 @@ instance.interceptors.response.use(
       }
     }
 
-
     // Network hoặc các lỗi khác
     if (error.response && error.response.data) {
       const { message, errorCode, timestamp } = error.response.data;
       return Promise.reject({
-        message: message || "Unknown server error",
-        errorCode: errorCode || "UNKNOWN_ERROR",
-        timestamp
+        message: message || 'Unknown server error',
+        errorCode: errorCode || 'UNKNOWN_ERROR',
+        timestamp,
       });
     }
 
@@ -111,7 +111,7 @@ instance.interceptors.response.use(
       message: error.message || 'Network error',
       errorCode: 'NETWORK_ERROR',
     });
-  }
+  },
 );
 
 export default instance;

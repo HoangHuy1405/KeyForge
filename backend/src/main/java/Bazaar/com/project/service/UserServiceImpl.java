@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import Bazaar.com.project.dto.UserDto.UserCreateResponseDTO;
 import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.model.UserAggregate.User;
@@ -61,6 +60,7 @@ public class UserServiceImpl implements UserService {
         return dto;
     }
 
+    @Override
     public void updateUserToken(String token, String email) {
         User currentUser = this.fetchUserByEmail(email);
         if (currentUser != null) {
@@ -78,5 +78,4 @@ public class UserServiceImpl implements UserService {
         }
         return optUser.get();
     }
-
 }

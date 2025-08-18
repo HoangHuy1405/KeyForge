@@ -51,6 +51,8 @@ public class User extends BaseEntity {
     private String phoneNum;
 
     private String profilePhotoUrl;
+    private String profilePhotoPublicId; // canonical
+    private Long profilePhotoVersion;
 
     @Column(columnDefinition = "text")
     private String refreshToken;

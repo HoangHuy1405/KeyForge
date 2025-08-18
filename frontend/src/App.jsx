@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Homepage from './features/Homepage';
 import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
+import ProfilePage from './features/User/ProfilePage';
 import 'react-toastify/ReactToastify.css';
 
 const router = createBrowserRouter([
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
+  },
+  {
+    path: '/profile',
+    element: <ProfilePage />,
   },
 ]);
 
