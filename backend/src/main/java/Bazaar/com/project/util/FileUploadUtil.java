@@ -28,7 +28,8 @@ public class FileUploadUtil {
             throw new FuncErrorException("Max file size is 2MB");
         }
         final String fileName = file.getOriginalFilename();
-        final String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        // final String extension = fileName.substring(fileName.lastIndexOf(".") +
+        // 1).toLowerCase();
 
         if (!isAllowedExtension(fileName, pattern)) {
             throw new FuncErrorException("Only jpg, png, gif, bmp files are allowed");

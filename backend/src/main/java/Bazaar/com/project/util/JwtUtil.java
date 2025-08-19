@@ -1,8 +1,8 @@
 package Bazaar.com.project.util;
 
 import Bazaar.com.project.dto.AuthDto.ResLoginDTO;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
+// import io.jsonwebtoken.security.Keys;
+// import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +13,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+// import javax.crypto.SecretKey;
+// import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -33,13 +33,13 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    private SecretKey key;
+    // private SecretKey key;
 
-    @PostConstruct
-    public void init() {
-        byte[] secretBytes = secretString.getBytes(StandardCharsets.UTF_8);
-        this.key = Keys.hmacShaKeyFor(secretBytes);
-    }
+    // @PostConstruct
+    // public void init() {
+    // byte[] secretBytes = secretString.getBytes(StandardCharsets.UTF_8);
+    // this.key = Keys.hmacShaKeyFor(secretBytes);
+    // }
     // public String generateAccessToken(User user) {
     // Date now = new Date();
     // Date expiryDate = new Date(now.getTime() + accessTokenExpiration);

@@ -52,31 +52,6 @@ public class AuthController {
         @Value("${jwt.refresh.expiration}")
         private long refreshTokenExpiration;
 
-        // @PostMapping("/login")
-        // public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request,
-        // HttpServletResponse response) {
-        // var user = authCommandHandler.handle(
-        // new LoginByUsernameOrEmailCommand(request.identifier(), request.password())
-        // );
-
-        // String accessToken = jwtUtil.generateAccessToken(user);
-        // String refreshToken = jwtUtil.generateRefreshToken(user);
-
-        // // Gửi refresh token qua cookie
-        // ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-        // .httpOnly(true)
-        // .secure(true)
-        // .sameSite("Strict")
-        // .path("/auth/refresh-token")
-        // .maxAge(Duration.ofDays(7))
-        // .build();
-
-        // //Gắn refresh token vào cookie
-        // response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        // return ResponseEntity.ok(new LoginResponse(accessToken));
-        // }
-
         @PostMapping("/register")
         @ApiMessage("User registered successfully")
         public ResponseEntity<UserCreateResponseDTO> register(@Valid @RequestBody RegisterRequest request) {

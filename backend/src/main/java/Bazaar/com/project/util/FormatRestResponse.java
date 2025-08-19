@@ -7,6 +7,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
@@ -25,12 +26,12 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(
-            @NonNull Object body,
+            @Nullable Object body,
             @NonNull MethodParameter returnType,
             @NonNull MediaType selectedContentType,
-            Class<? extends HttpMessageConverter<?>> selectedConverterType,
-            ServerHttpRequest request,
-            ServerHttpResponse response) {
+            @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            @NonNull ServerHttpRequest request,
+            @NonNull ServerHttpResponse response) {
 
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         int status = servletResponse.getStatus();
