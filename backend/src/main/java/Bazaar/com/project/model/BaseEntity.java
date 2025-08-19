@@ -48,7 +48,7 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+        this.updatedBy = this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 

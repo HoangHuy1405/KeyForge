@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
 import Bazaar.com.project.dto.ProductDto.ProductMapper;
 import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
-import Bazaar.com.project.model.Product;
-import Bazaar.com.project.model.ProductStatus;
+import Bazaar.com.project.model.Product.Product;
+import Bazaar.com.project.model.Product.ProductStatus;
 import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto createProduct(ProductCreateRequestDto productDto) {
         User seller = userRepository.findById(productDto.getSellerId())
                 .orElseThrow(() -> new NoSuchElementException("Seller not found with ID: " + productDto.getSellerId()));
-        Product product = ProductMapper.toEntity(productDto, seller);
+        Product product = ProductMapper.toEntity(productDto, seller, ProductStatus.DRAFT);
         this.productRepository.save(product);
         return ProductMapper.toResponse(product);
     }
@@ -61,7 +61,6 @@ public class ProductServiceImpl implements ProductService {
                     product.setCategory(productDto.getCategory());
                     product.setStockQuantity(productDto.getStockQuantity());
                     product.setPrice(productDto.getPrice());
-                    product.setImageUrl(productDto.getImageUrl());
                     product.setLocation(productDto.getLocation());
                     product.setUpdatedAt(Instant.now()); // if you have an updatedAt field
                     return productRepository.save(product);

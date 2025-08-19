@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import Bazaar.com.project.model.Product;
 import Bazaar.com.project.model.Order.Order;
 import Bazaar.com.project.model.Order.OrderItem;
+import Bazaar.com.project.model.Product.Product;
 
 public class OrderMapper {
     public static List<OrderItem> toOrderItems(List<OrderItemRequestDto> itemDtos, List<Product> products) {

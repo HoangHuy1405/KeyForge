@@ -3,7 +3,7 @@ package Bazaar.com.project.model.Order;
 import java.math.BigDecimal;
 
 import Bazaar.com.project.model.BaseEntity;
-import Bazaar.com.project.model.Product;
+import Bazaar.com.project.model.Product.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

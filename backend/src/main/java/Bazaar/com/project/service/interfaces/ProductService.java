@@ -5,16 +5,24 @@ import java.util.UUID;
 
 import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
 import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
-import Bazaar.com.project.model.ProductStatus;
+import Bazaar.com.project.model.Product.ProductStatus;
 
 public interface ProductService {
     ProductResponseDto createProduct(ProductCreateRequestDto product);
+
     ProductResponseDto findProductById(UUID id);
+
     List<ProductResponseDto> getAllProduct();
+
     ProductResponseDto updateProduct(UUID id, ProductCreateRequestDto updatedProduct);
+
     void deleteProduct(UUID id);
+
     void increaseStock(UUID productId, int quantity);
+
     void decreaseStock(UUID productId, int quantity);
+
     List<ProductResponseDto> findProductsBySeller(UUID sellerId);
+
     void changeStatus(UUID id, ProductStatus status);
 }

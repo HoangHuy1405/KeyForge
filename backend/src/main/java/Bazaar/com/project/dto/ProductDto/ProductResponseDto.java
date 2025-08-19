@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import Bazaar.com.project.model.ProductStatus;
+import Bazaar.com.project.model.Product.ProductStatus;
 import lombok.Builder;
 import lombok.Data;
 

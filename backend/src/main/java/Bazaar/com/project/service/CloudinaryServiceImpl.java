@@ -1,5 +1,6 @@
 package Bazaar.com.project.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,32 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
         } catch (final Exception e) {
             throw new FuncErrorException("Failed to upload file: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteFile(final String publicId) {
+        try {
+            if (publicId == null || publicId.isBlank()) {
+                throw new IllegalArgumentException("publicId must not be null or blank");
+            }
+
+            // destroy the asset and purge from CDN
+            Map<String, Object> opts = new HashMap<>();
+            opts.put("invalidate", true);
+
+            Map<?, ?> result = cloudinary.uploader().destroy(publicId, opts);
+
+            String status = (String) result.get("result");
+            if (!"ok".equalsIgnoreCase(status) && !"not found".equalsIgnoreCase(status)) {
+                // Cloudinary returns "not found" if the publicId doesn’t exist, which you may
+                // choose to ignore
+                throw new FuncErrorException("Failed to delete file: status=" + status);
+            }
+
+        } catch (Exception e) {
+            throw new FuncErrorException("Failed to delete file: " + e.getMessage());
         }
     }
 

@@ -1,9 +1,13 @@
-package Bazaar.com.project.model;
+package Bazaar.com.project.model.Product;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import Bazaar.com.project.exception.InsufficientStockException;
+import Bazaar.com.project.model.BaseEntity;
 import Bazaar.com.project.model.UserAggregate.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +15,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -50,10 +56,6 @@ public class Product extends BaseEntity {
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private Integer stockQuantity;
 
-    @Column(name = "image_url")
-    @Size(max = 255, message = "Image URL must be at most 255 characters")
-    private String imageUrl;
-
     @Column(nullable = false, precision = 10, scale = 2)
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
@@ -75,6 +77,22 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "seller_id", nullable = true)
     @NotNull(message = "Seller is required")
     private User seller;
+
+    /**
+     * url =
+     * https://res.cloudinary.com/<cloudName>/<assetType>/upload/<optional-transforms>/v<version>/<publicId>
+     */
+    @Column(name = "thumbnail_url", length = 255)
+    private String thumbnailUrl;
+    @Column(name = "thumbnail_public_id", length = 255)
+    private String thumbnailPublicId;
+    @Column(name = "thumbnail_version")
+    private Long thumbnailVersion;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC, createdAt ASC")
+    @Builder.Default
+    private List<ProductImage> images = new ArrayList<>();
 
     public boolean isAvailable(int quantity) {
         return quantity <= this.availableQuantity;

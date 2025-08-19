@@ -13,8 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Bazaar.com.project.model.Product;
-import Bazaar.com.project.model.ProductStatus;
+import Bazaar.com.project.model.Product.Product;
+import Bazaar.com.project.model.Product.ProductStatus;
 import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
@@ -64,7 +64,6 @@ public class ProductControllerIT {
         newProduct.setDescription("New product description");
         newProduct.setCategory("new Category");
         newProduct.setStockQuantity(100);
-        newProduct.setImageUrl("image.png");
         newProduct.setPrice(BigDecimal.valueOf(200));
         newProduct.setAvailableQuantity(20);
         newProduct.setStatus(ProductStatus.ACTIVE);

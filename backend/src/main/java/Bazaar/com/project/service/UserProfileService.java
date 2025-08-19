@@ -83,7 +83,6 @@ public class UserProfileService {
     }
 
     // === helpers ===
-
     private UserProfileResponseDto toDto(User u, String avatarUrl) {
         java.util.UUID accountId = (u.getAccount() != null ? u.getAccount().getId() : null);
         return new UserProfileResponseDto(
