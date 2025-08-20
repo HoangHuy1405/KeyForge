@@ -63,7 +63,7 @@ public class OrderItem extends BaseEntity {
 
     public void initializeFromProduct() {
         if (this.product != null) {
-            this.unitPrice = this.product.getPrice();
+            this.unitPrice = this.product.getInventory().getPrice();
             calculateSubtotal();
         }
     }

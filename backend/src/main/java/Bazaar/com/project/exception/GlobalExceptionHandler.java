@@ -63,18 +63,6 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
 
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<ApiResponse<Void>> handle(Exception ex) {
-                logger.error("Unexpected error occurred", ex);
-
-                ApiResponse<Void> response = new ApiResponse<>(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                ex.getMessage(),
-                                null,
-                                HttpStatus.INTERNAL_SERVER_ERROR.value());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-
         @ExceptionHandler({ MethodArgumentNotValidException.class, IdInvalidException.class })
         public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
                 List<String> errorList = ex.getBindingResult().getFieldErrors().stream()
@@ -89,6 +77,18 @@ public class GlobalExceptionHandler {
                                 null,
                                 HttpStatus.BAD_REQUEST.value());
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Void>> handle(Exception ex) {
+                logger.error("Unexpected error occurred", ex);
+
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ex.getMessage(),
+                                null,
+                                HttpStatus.INTERNAL_SERVER_ERROR.value());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
 }

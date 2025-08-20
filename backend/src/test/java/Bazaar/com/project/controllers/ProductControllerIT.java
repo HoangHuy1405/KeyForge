@@ -1,7 +1,5 @@
 package Bazaar.com.project.controllers;
 
-import java.math.BigDecimal;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Bazaar.com.project.model.Product.Product;
-import Bazaar.com.project.model.Product.ProductStatus;
+import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
 import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
@@ -62,12 +60,7 @@ public class ProductControllerIT {
         Product newProduct = new Product();
         newProduct.setName("New Product");
         newProduct.setDescription("New product description");
-        newProduct.setCategory("new Category");
-        newProduct.setStockQuantity(100);
-        newProduct.setPrice(BigDecimal.valueOf(200));
-        newProduct.setAvailableQuantity(20);
         newProduct.setStatus(ProductStatus.ACTIVE);
-        newProduct.setLocation("TP HCM");
         newProduct.setSeller(testSeller);
 
         mockMvc.perform(post("/products")

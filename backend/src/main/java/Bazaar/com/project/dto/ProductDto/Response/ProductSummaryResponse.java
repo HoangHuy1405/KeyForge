@@ -1,0 +1,15 @@
+package Bazaar.com.project.dto.ProductDto.Response;
+
+import java.util.UUID;
+
+import Bazaar.com.project.model.Product.ProductEnum.ProductCategory;
+import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
+
+public record ProductSummaryResponse(
+        UUID id,
+        String name,
+        String thumbnailUrl,
+        ProductCategory category,
+        ProductStatus status,
+        Integer availableQuantity) {
+}

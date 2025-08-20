@@ -7,10 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
-import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
+import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateLogisticsRequest;
+import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
+import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
+import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
 import Bazaar.com.project.service.interfaces.ProductService;
 import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.validation.Valid;
@@ -28,31 +37,70 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    // Create Basic info (Step 1)
     @PostMapping
     @ApiMessage("Product created successfully")
-    public ResponseEntity<ProductResponseDto> create(@Valid @RequestBody ProductCreateRequestDto productDto) {
-        ProductResponseDto newProduct = this.productService.createProduct(productDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+    public ResponseEntity<ProductBasicResponse> create(@Valid @RequestBody CreateProductRequest productDto) {
+        ProductBasicResponse response = this.productService.createBasic(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    /*
+     * Update sections (Step 2–4)
+     */
+    @PutMapping("/{id}/details")
+    @ApiMessage("Product details updated successfully")
+    public ResponseEntity<DetailedResponse> updateDetails(
+            @PathVariable UUID id,
+            @RequestParam UUID sellerId, // in real app, take from auth context
+            @Valid @RequestBody UpdateDetailsRequest req) {
+        DetailedResponse response = productService.updateDetails(id, sellerId, req);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{id}/inventory")
+    @ApiMessage("Product inventory updated successfully")
+    public ResponseEntity<InventoryResponse> updateInventory(
+            @PathVariable UUID id,
+            @RequestParam UUID sellerId,
+            @Valid @RequestBody UpdateInventoryRequest req) {
+        InventoryResponse response = productService.updateInventory(id, sellerId, req);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{id}/logistics")
+    @ApiMessage("Product logistic updated successfully")
+    public ResponseEntity<LogisticsResponse> updateLogistics(
+            @PathVariable UUID id,
+            @RequestParam UUID sellerId,
+            @Valid @RequestBody UpdateLogisticsRequest req) {
+        LogisticsResponse response = productService.updateLogistics(id, sellerId, req);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /* Read (edit + detail) */
     @GetMapping("/{id}")
     @ApiMessage("Product fetched successfully")
-    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID id) {
-        ProductResponseDto product = productService.findProductById(id);
+    public ResponseEntity<ProductFullResponse> getProduct(@PathVariable UUID id) {
+        ProductFullResponse product = productService.findProductById(id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
+
     @GetMapping
     @ApiMessage("Products fetched successfully")
-    public ResponseEntity<List<ProductResponseDto>> getAllProduct() {
-        List<ProductResponseDto> products = productService.getAllProduct();
+    public ResponseEntity<List<ProductSummaryResponse>> getAllProduct() {
+        List<ProductSummaryResponse> products = productService.getAllProduct();
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
-    // TODO: need to have ProductUpdateResponseDto
-    @PutMapping("/{id}")
-    @ApiMessage("Products updated successfully")
-    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID id, @RequestBody ProductCreateRequestDto product) {
-        ProductResponseDto updatedProduct = productService.updateProduct(id, product);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
+
+    @GetMapping("/by-seller/{sellerId}")
+    @ApiMessage("Products by seller fetched successfully")
+    public ResponseEntity<List<ProductSummaryResponse>> getBySeller(@PathVariable UUID sellerId) {
+        List<ProductSummaryResponse> products = productService.findProductsBySeller(sellerId);
+        return ResponseEntity.status(HttpStatus.OK).body(products);
+
     }
+
     @DeleteMapping("/{id}")
     @ApiMessage("Products deleted successfully")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {

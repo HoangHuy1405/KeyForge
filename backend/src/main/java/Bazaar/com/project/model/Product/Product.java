@@ -1,13 +1,17 @@
 package Bazaar.com.project.model.Product;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import Bazaar.com.project.exception.InsufficientStockException;
+import jakarta.persistence.Embedded;
 import Bazaar.com.project.model.BaseEntity;
+import Bazaar.com.project.model.Product.ProductEnum.ProductCategory;
+import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
+import Bazaar.com.project.model.Product.embeddables.InventoryInfo;
+import Bazaar.com.project.model.Product.embeddables.LogisticsInfo;
+import Bazaar.com.project.model.Product.embeddables.ProductDetails;
 import Bazaar.com.project.model.UserAggregate.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,8 +22,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -37,50 +39,49 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Product extends BaseEntity {
+    /* Basic information */
     @Column(nullable = false, length = 100)
-    @NotBlank(message = "Product name is required")
-    @Size(max = 100, message = "Product name must be at most 100 characters")
+    @NotBlank
+    @Size(max = 100)
     private String name;
 
     @Column(length = 500)
-    @Size(max = 500, message = "Description must be at most 500 characters")
+    @Size(max = 500)
     private String description;
 
-    @Column(nullable = false, length = 50)
-    @NotBlank(message = "Category is required")
-    @Size(max = 50, message = "Category must be at most 50 characters")
-    private String category;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 40)
+    private ProductCategory category;
 
-    @Column(name = "stock_quantity", nullable = false)
-    @NotNull(message = "Stock quantity is required")
-    @Min(value = 0, message = "Stock quantity cannot be negative")
-    private Integer stockQuantity;
+    /* Detailed information (embeddable) */
+    @Embedded
+    @Builder.Default
+    private ProductDetails details = new ProductDetails();
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    @NotNull(message = "Price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-    private BigDecimal price;
+    /* Sell information */
+    @Embedded
+    @Builder.Default
+    private InventoryInfo inventory = new InventoryInfo();
 
-    @Column(name = "available_quantity")
-    @Min(value = 0, message = "Available quantity cannot be negative")
-    private Integer availableQuantity;
+    /* Logistics (weight, dims, shipping, preorder, location) */
+    @Embedded
+    @Builder.Default
+    private LogisticsInfo logistics = new LogisticsInfo();
 
+    /* Other (not for input) */
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private ProductStatus status;
 
-    @Column(length = 100)
-    @Size(max = 100, message = "Location must be at most 100 characters")
-    private String location;
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = true)
-    @NotNull(message = "Seller is required")
+    @JoinColumn(name = "seller_id", nullable = false)
+    @NotNull
     private User seller;
 
-    /**
-     * url =
-     * https://res.cloudinary.com/<cloudName>/<assetType>/upload/<optional-transforms>/v<version>/<publicId>
+    /*
+     * Image information
+     * https://res.cloudinary.com/<cloudName>/<assetType>/upload/<optional-
+     * transforms>/v<version>/<publicId>
      */
     @Column(name = "thumbnail_url", length = 255)
     private String thumbnailUrl;
@@ -95,13 +96,10 @@ public class Product extends BaseEntity {
     private List<ProductImage> images = new ArrayList<>();
 
     public boolean isAvailable(int quantity) {
-        return quantity <= this.availableQuantity;
+        return inventory != null && inventory.canFulfill(quantity);
     }
 
     public void buyProduct(int quantity) {
-        if (!isAvailable(quantity)) {
-            throw new InsufficientStockException("Not enough stock for product: " + this.name);
-        }
-        this.availableQuantity -= quantity;
+        inventory.allocate(quantity); // trans
     }
 }

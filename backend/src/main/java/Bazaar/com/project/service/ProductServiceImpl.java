@@ -1,23 +1,38 @@
 package Bazaar.com.project.service;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import Bazaar.com.project.dto.ProductDto.ProductCreateRequestDto;
 import Bazaar.com.project.dto.ProductDto.ProductMapper;
-import Bazaar.com.project.dto.ProductDto.ProductResponseDto;
+import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
+import Bazaar.com.project.dto.ProductDto.Request.UpdateLogisticsRequest;
+import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
+import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
+import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ShippingOptionsResponse;
+import Bazaar.com.project.exception.FuncErrorException;
+import Bazaar.com.project.exception.IdInvalidException;
+import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.model.Product.Product;
-import Bazaar.com.project.model.Product.ProductStatus;
+import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
+import Bazaar.com.project.model.Product.embeddables.InventoryInfo;
+import Bazaar.com.project.model.Product.embeddables.LogisticsInfo;
+import Bazaar.com.project.model.Product.embeddables.ProductDetails;
 import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.interfaces.ProductService;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -27,47 +42,122 @@ public class ProductServiceImpl implements ProductService {
     private UserRepository userRepository;
 
     @Override
-    public ProductResponseDto createProduct(ProductCreateRequestDto productDto) {
-        User seller = userRepository.findById(productDto.getSellerId())
-                .orElseThrow(() -> new NoSuchElementException("Seller not found with ID: " + productDto.getSellerId()));
-        Product product = ProductMapper.toEntity(productDto, seller, ProductStatus.DRAFT);
-        this.productRepository.save(product);
-        return ProductMapper.toResponse(product);
+    @Transactional
+    public ProductBasicResponse createBasic(CreateProductRequest req) {
+        User seller = userRepository.findById(req.sellerId())
+                .orElseThrow(() -> new UserNotFoundException("Seller not found"));
+
+        Product p = new Product();
+        p.setName(req.name());
+        p.setDescription(req.description());
+        p.setCategory(req.category());
+        p.setSeller(seller);
+        p.setStatus(ProductStatus.DRAFT);
+
+        // init embeddables
+        if (p.getDetails() == null)
+            p.setDetails(new ProductDetails());
+        if (p.getInventory() == null)
+            p.setInventory(new InventoryInfo());
+        if (p.getLogistics() == null)
+            p.setLogistics(new LogisticsInfo());
+
+        p = productRepository.save(p);
+        return ProductMapper.toBasic(p);
     }
 
     @Override
-    public ProductResponseDto findProductById(UUID id) {
+    @Transactional
+    public DetailedResponse updateDetails(UUID productId, UUID sellerId, UpdateDetailsRequest req) {
+        Product p = getOwned(productId, sellerId);
+        ProductDetails d = p.getDetails();
+        d.setBrand(req.brand());
+        d.setModel(req.model());
+        d.setSize(req.size());
+        d.setMaterial(req.material());
+        d.setOrigin(req.origin());
+        d.setCondition(req.condition());
+        return new DetailedResponse(
+                d.getBrand(), d.getModel(), d.getSize(),
+                d.getMaterial(), d.getOrigin(), d.getCondition());
+    }
+
+    @Override
+    @Transactional
+    public InventoryResponse updateInventory(UUID productId, UUID sellerId, UpdateInventoryRequest req) {
+        Product p = getOwned(productId, sellerId);
+        InventoryInfo inv = p.getInventory();
+        inv.setPrice(req.price());
+        inv.setStockQuantity(req.stockQuantity());
+        inv.setReservedQuantity(req.reservedQuantity());
+        inv.setMinOrderQuantity(defaultIfNull(req.minOrderQuantity(), 1));
+        inv.setMaxOrderQuantity(req.maxOrderQuantity());
+
+        // sanity
+        if (inv.getMaxOrderQuantity() != null && inv.getMinOrderQuantity() != null &&
+                inv.getMaxOrderQuantity() < inv.getMinOrderQuantity()) {
+            throw new IllegalArgumentException("maxOrderQuantity must be >= minOrderQuantity");
+        }
+        return new InventoryResponse(
+                inv.getPrice(),
+                inv.getStockQuantity(),
+                inv.getReservedQuantity(),
+                inv.availableQuantity(),
+                inv.getMinOrderQuantity(),
+                inv.getMaxOrderQuantity());
+    }
+
+    @Override
+    @Transactional
+    public LogisticsResponse updateLogistics(UUID productId, UUID sellerId, UpdateLogisticsRequest req) {
+        var p = getOwned(productId, sellerId);
+        var lg = p.getLogistics();
+
+        lg.setWeightGrams(req.weightGrams());
+        if (lg.getDimensions() == null)
+            lg.setDimensions(new LogisticsInfo.Dimensions());
+        lg.getDimensions().setLengthCm(req.lengthCm());
+        lg.getDimensions().setWidthCm(req.widthCm());
+        lg.getDimensions().setHeightCm(req.heightCm());
+
+        lg.setLocation(req.location());
+        lg.setPreOrder(Boolean.TRUE.equals(req.preOrder()));
+        lg.setPreOrderLeadTimeDays(req.preOrderLeadTimeDays());
+
+        if (lg.getShipping() == null)
+            lg.setShipping(new LogisticsInfo.ShippingOptions());
+        lg.getShipping().setFast(Boolean.TRUE.equals(req.supportFastShipping()));
+        lg.getShipping().setRegular(Boolean.TRUE.equals(req.supportRegularShipping()));
+        lg.getShipping().setEconomy(Boolean.TRUE.equals(req.supportEconomyShipping()));
+
+        var dim = lg.getDimensions();
+        var ship = lg.getShipping();
+        return new LogisticsResponse(
+                lg.getWeightGrams(),
+                dim != null ? dim.getLengthCm() : null,
+                dim != null ? dim.getWidthCm() : null,
+                dim != null ? dim.getHeightCm() : null,
+                lg.getLocation(),
+                lg.getPreOrder(),
+                lg.getPreOrderLeadTimeDays(),
+                new ShippingOptionsResponse(
+                        ship != null ? ship.getFast() : null,
+                        ship != null ? ship.getRegular() : null,
+                        ship != null ? ship.getEconomy() : null));
+    }
+
+    @Override
+    public ProductFullResponse findProductById(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
         return ProductMapper.toResponse(product);
     }
 
     @Override
-    public List<ProductResponseDto> getAllProduct() {
-        List<Product> products = productRepository.findAll();
-        List<ProductResponseDto> responseList = new ArrayList<>();
-        for (Product product : products) {
-            responseList.add(ProductMapper.toResponse(product));
-        }
-        return responseList;
-    }
-
-    @Override
-    public ProductResponseDto updateProduct(UUID id, ProductCreateRequestDto productDto) {
-        Product updatedProduct = productRepository.findById(id)
-                .map(product -> {
-                    product.setName(productDto.getName());
-                    product.setDescription(productDto.getDescription());
-                    product.setCategory(productDto.getCategory());
-                    product.setStockQuantity(productDto.getStockQuantity());
-                    product.setPrice(productDto.getPrice());
-                    product.setLocation(productDto.getLocation());
-                    product.setUpdatedAt(Instant.now()); // if you have an updatedAt field
-                    return productRepository.save(product);
-                })
-                .orElseThrow(() -> new NoSuchElementException("Product not found"));
-
-        return ProductMapper.toResponse(updatedProduct);
+    public List<ProductSummaryResponse> getAllProduct() {
+        return productRepository.findAll().stream()
+                .map(ProductMapper::toSummary)
+                .toList();
     }
 
     @Override
@@ -78,27 +168,66 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
+    // ==== Helper API ===============
     @Override
-    public void increaseStock(UUID productId, int quantity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'increaseStock'");
+    @Transactional
+    public InventoryResponse increaseStock(UUID productId, int quantity) {
+        if (quantity <= 0)
+            throw new FuncErrorException("Quantity must be > 0");
+        var p = productRepository.findById(productId)
+                .orElseThrow(() -> new IdInvalidException("Product not found"));
+        var inv = p.getInventory();
+        inv.setStockQuantity(inv.getStockQuantity() + quantity);
+        return new InventoryResponse(
+                inv.getPrice(),
+                inv.getStockQuantity(), inv.getReservedQuantity(),
+                inv.availableQuantity(), inv.getMinOrderQuantity(), inv.getMaxOrderQuantity());
     }
 
     @Override
-    public void decreaseStock(UUID productId, int quantity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'decreaseStock'");
+    @Transactional
+    public InventoryResponse decreaseStock(UUID productId, int quantity) {
+        if (quantity <= 0)
+            throw new FuncErrorException("Quantity must be > 0");
+        var p = productRepository.findById(productId)
+                .orElseThrow(() -> new IdInvalidException("Product not found"));
+        var inv = p.getInventory();
+        int newStock = inv.getStockQuantity() - quantity;
+        if (newStock < 0)
+            throw new FuncErrorException("Stock cannot go negative");
+        inv.setStockQuantity(newStock);
+        if (inv.availableQuantity() < 0) {
+            throw new FuncErrorException("Available would be negative due to existing reservations");
+        }
+        return new InventoryResponse(
+                inv.getPrice(),
+                inv.getStockQuantity(), inv.getReservedQuantity(),
+                inv.availableQuantity(), inv.getMinOrderQuantity(), inv.getMaxOrderQuantity());
     }
 
     @Override
-    public List<ProductResponseDto> findProductsBySeller(UUID sellerId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findProductsBySeller'");
+    public List<ProductSummaryResponse> findProductsBySeller(UUID sellerId) {
+        return productRepository.findBySellerId(sellerId).stream()
+                .map(ProductMapper::toSummary)
+                .toList();
     }
 
     @Override
-    public void changeStatus(UUID id, ProductStatus status) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'decreaseStock'");
+    public ProductBasicResponse changeStatus(UUID id, ProductStatus status) {
+        var p = productRepository.findById(id)
+                .orElseThrow(() -> new IdInvalidException("Product not found"));
+        p.setStatus(status);
+        return ProductMapper.toBasic(p);
+    }
+
+    // ===== Helper =================
+    @Transactional
+    public Product getOwned(UUID id, UUID sellerId) {
+        return productRepository.findByIdAndSellerId(id, sellerId)
+                .orElseThrow(() -> new NoSuchElementException("Product not found or not owned"));
+    }
+
+    private static Integer defaultIfNull(Integer v, Integer def) {
+        return v == null ? def : v;
     }
 }

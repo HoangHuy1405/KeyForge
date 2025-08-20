@@ -1,4 +1,4 @@
-package Bazaar.com.project.model.Product;
+package Bazaar.com.project.model.Product.ProductEnum;
 
 public enum ProductStatus {
     DRAFT,

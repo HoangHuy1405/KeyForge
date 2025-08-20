@@ -33,39 +33,6 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    // private SecretKey key;
-
-    // @PostConstruct
-    // public void init() {
-    // byte[] secretBytes = secretString.getBytes(StandardCharsets.UTF_8);
-    // this.key = Keys.hmacShaKeyFor(secretBytes);
-    // }
-    // public String generateAccessToken(User user) {
-    // Date now = new Date();
-    // Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
-
-    // return Jwts.builder()
-    // .subject(user.getId().toString())
-    // .issuedAt(now)
-    // .expiration(expiryDate)
-    // .signWith(key, Jwts.SIG.HS256)
-    // .claim("type", "access")
-    // .compact();
-    // }
-
-    // public String generateRefreshToken(User user) {
-    // Date now = new Date();
-    // Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
-
-    // return Jwts.builder()
-    // .subject(user.getId().toString())
-    // .issuedAt(now)
-    // .expiration(expiryDate)
-    // .signWith(key, Jwts.SIG.HS256)
-    // .claim("type", "refresh")
-    // .compact();
-    // }
-
     public String generateAccessToken(String email, ResLoginDTO resLoginDTO) {
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
