@@ -11,6 +11,7 @@ import Bazaar.com.project.util.ApiResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -89,6 +90,29 @@ public class GlobalExceptionHandler {
                                 null,
                                 HttpStatus.INTERNAL_SERVER_ERROR.value());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        @ExceptionHandler(InvalidFilterValueException.class)
+        public ResponseEntity<ApiResponse<Void>> handleInvalidFilterValue(InvalidFilterValueException ex) {
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(), // "Invalid filter value provided"
+                                null,
+                                HttpStatus.BAD_REQUEST.value());
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+        public ResponseEntity<?> handleInvalidDataAccess(InvalidDataAccessApiUsageException ex) {
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.BAD_REQUEST,
+                                "Invalid data access request. Please check your input.",
+                                null,
+                                HttpStatus.BAD_REQUEST.value());
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
         }
 
 }

@@ -1,15 +1,19 @@
 package Bazaar.com.project.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.turkraft.springfilter.boot.Filter;
+
+import Bazaar.com.project.dto.ResultPaginationDTO;
 import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
 import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
 import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
@@ -19,7 +23,7 @@ import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
-import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
+import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.service.interfaces.ProductService;
 import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.validation.Valid;
@@ -88,16 +92,21 @@ public class ProductController {
 
     @GetMapping
     @ApiMessage("Products fetched successfully")
-    public ResponseEntity<List<ProductSummaryResponse>> getAllProduct() {
-        List<ProductSummaryResponse> products = productService.getAllProduct();
-        return ResponseEntity.status(HttpStatus.OK).body(products);
+    public ResponseEntity<ResultPaginationDTO> getAllProduct(
+            @Filter Specification<Product> spec,
+            Pageable pageable) {
+        ResultPaginationDTO result = productService.getAllProduct(spec, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/by-seller/{sellerId}")
     @ApiMessage("Products by seller fetched successfully")
-    public ResponseEntity<List<ProductSummaryResponse>> getBySeller(@PathVariable UUID sellerId) {
-        List<ProductSummaryResponse> products = productService.findProductsBySeller(sellerId);
-        return ResponseEntity.status(HttpStatus.OK).body(products);
+    public ResponseEntity<ResultPaginationDTO> getBySeller(
+            @PathVariable UUID sellerId,
+            @Filter Specification<Product> spec,
+            Pageable pageable) {
+        ResultPaginationDTO result = productService.findProductsBySeller(sellerId, spec, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
 

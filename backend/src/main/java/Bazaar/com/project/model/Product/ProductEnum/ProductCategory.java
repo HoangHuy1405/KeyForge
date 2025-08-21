@@ -7,6 +7,7 @@ public enum ProductCategory {
     WATCHES,
 
     // Electronics
+    ELECTRONICS,
     PHONES,
     LAPTOPS,
     TABLETS,
@@ -20,6 +21,7 @@ public enum ProductCategory {
     DECOR,
 
     // Beauty & Health
+    BEAUTY,
     COSMETICS,
     SKINCARE,
     HAIRCARE,

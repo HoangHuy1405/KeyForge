@@ -3,6 +3,10 @@ package Bazaar.com.project.service.interfaces;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import Bazaar.com.project.dto.ResultPaginationDTO;
 import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
 import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
 import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
@@ -12,7 +16,7 @@ import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
-import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
+import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
 
 public interface ProductService {
@@ -27,9 +31,9 @@ public interface ProductService {
 
     ProductFullResponse findProductById(UUID id);
 
-    List<ProductSummaryResponse> getAllProduct();
+    ResultPaginationDTO getAllProduct(Specification<Product> specification, Pageable pageable);
 
-    List<ProductSummaryResponse> findProductsBySeller(UUID sellerId);
+    ResultPaginationDTO findProductsBySeller(UUID sellerId, Specification<Product> spec, Pageable pageable);
 
     void deleteProduct(UUID id);
 

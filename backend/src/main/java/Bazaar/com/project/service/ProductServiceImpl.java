@@ -5,9 +5,14 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import Bazaar.com.project.dto.Meta;
+import Bazaar.com.project.dto.ResultPaginationDTO;
 import Bazaar.com.project.dto.ProductDto.ProductMapper;
 import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
 import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
@@ -22,6 +27,7 @@ import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ShippingOptionsResponse;
 import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.IdInvalidException;
+import Bazaar.com.project.exception.InvalidFilterValueException;
 import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
@@ -154,10 +160,65 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductSummaryResponse> getAllProduct() {
-        return productRepository.findAll().stream()
-                .map(ProductMapper::toSummary)
+    public ResultPaginationDTO getAllProduct(Specification<Product> specification, Pageable pageable) {
+        Page<Product> pageProducts;
+        try {
+            pageProducts = this.productRepository.findAll(specification, pageable);
+        } catch (InvalidDataAccessApiUsageException e) {
+            // translate low-level exception into your own domain exception
+            throw new InvalidFilterValueException("Invalid filter value provided", e);
+        }
+        ResultPaginationDTO res = new ResultPaginationDTO();
+        Meta meta = new Meta();
+
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(pageProducts.getTotalPages());
+        meta.setTotal(pageProducts.getTotalElements());
+
+        res.setMeta(meta);
+        List<ProductSummaryResponse> listProduct = pageProducts.getContent()
+                .stream().map(ProductMapper::toSummary)
                 .toList();
+
+        res.setResult(listProduct);
+        return res;
+    }
+
+    @Override
+    public ResultPaginationDTO findProductsBySeller(
+            UUID sellerId,
+            Specification<Product> spec,
+            Pageable pageable) {
+
+        Page<Product> pageProducts;
+        try {
+            Specification<Product> sellerSpec = (root, query, cb) -> cb.equal(root.get("seller").get("id"), sellerId);
+            // If it's a relation: cb.equal(root.get("seller").get("id"), sellerId);
+            // Combine provided spec (may be null) with seller filter
+            Specification<Product> combined = (spec == null) ? sellerSpec : sellerSpec.and(spec);
+            pageProducts = productRepository.findAll(combined, pageable);
+        } catch (InvalidDataAccessApiUsageException e) {
+            throw new InvalidFilterValueException("Invalid filter value provided", e);
+        }
+
+        ResultPaginationDTO res = new ResultPaginationDTO();
+        Meta meta = new Meta();
+
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(pageProducts.getTotalPages());
+        meta.setTotal(pageProducts.getTotalElements());
+        res.setMeta(meta);
+
+        // Map to summaries
+        List<ProductSummaryResponse> listProduct = pageProducts.getContent()
+                .stream().map(ProductMapper::toSummary)
+                .toList();
+
+        res.setResult(listProduct);
+        return res;
+
     }
 
     @Override
@@ -203,13 +264,6 @@ public class ProductServiceImpl implements ProductService {
                 inv.getPrice(),
                 inv.getStockQuantity(), inv.getReservedQuantity(),
                 inv.availableQuantity(), inv.getMinOrderQuantity(), inv.getMaxOrderQuantity());
-    }
-
-    @Override
-    public List<ProductSummaryResponse> findProductsBySeller(UUID sellerId) {
-        return productRepository.findBySellerId(sellerId).stream()
-                .map(ProductMapper::toSummary)
-                .toList();
     }
 
     @Override

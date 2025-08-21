@@ -4,12 +4,16 @@ import java.util.UUID;
 
 import Bazaar.com.project.model.Product.ProductEnum.ProductCategory;
 import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
+import lombok.Builder;
 
+@Builder
 public record ProductSummaryResponse(
-        UUID id,
-        String name,
-        String thumbnailUrl,
-        ProductCategory category,
-        ProductStatus status,
-        Integer availableQuantity) {
+                UUID id,
+                String name,
+                String thumbnailUrl,
+                ProductCategory category,
+                ProductStatus status,
+                DetailedResponse details,
+                String location,
+                Integer availableQuantity) {
 }
