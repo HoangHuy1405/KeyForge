@@ -1,5 +1,6 @@
 import { AppBar, Toolbar, IconButton, InputBase, Badge } from '@mui/material';
 import { Search, ShoppingCart } from '@mui/icons-material';
+import { Link } from 'react-router';
 
 export default function Header() {
   return (
@@ -11,14 +12,14 @@ export default function Header() {
       <Toolbar className="flex justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 font-bold text-yellow-500 bg-white rounded-full">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white font-bold text-yellow-500">
             B
           </div>
           <span className="text-lg font-bold text-white">Barazaar</span>
         </div>
 
         {/* Search Box */}
-        <div className="flex items-center w-1/2 overflow-hidden bg-white rounded">
+        <div className="flex w-1/2 items-center overflow-hidden rounded bg-white">
           <InputBase
             placeholder="Shopee bao ship 0đ - Đăng ký ngay!"
             sx={{ flex: 1, px: 1, fontSize: '0.875rem' }} // tương đương text-sm + padding
@@ -37,8 +38,12 @@ export default function Header() {
               <ShoppingCart />
             </Badge>
           </IconButton>
-          <span className="cursor-pointer">Đăng Ký</span>
-          <span className="cursor-pointer">Đăng Nhập</span>
+          <Link to="/" className="cursor-pointer">
+            Đăng Ký
+          </Link>
+          <Link to="/" className="cursor-pointer">
+            Đăng Nhập
+          </Link>
         </div>
       </Toolbar>
     </AppBar>
