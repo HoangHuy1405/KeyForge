@@ -43,7 +43,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Role role;
 

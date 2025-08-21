@@ -4,19 +4,25 @@ import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
 import ProfilePage from './features/User/ProfilePage';
 import 'react-toastify/ReactToastify.css';
+import AppLayout from './layouts/AppLayout';
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Homepage />,
-  },
-  {
-    path: '/auth',
-    element: <AuthPage />,
-  },
-  {
-    path: '/profile',
-    element: <ProfilePage />,
+    element: <AppLayout />,
+    children: [
+      {
+        path: '/',
+        element: <Homepage />,
+      },
+      {
+        path: '/auth',
+        element: <AuthPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+    ],
   },
 ]);
 
