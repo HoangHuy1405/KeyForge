@@ -15,20 +15,9 @@ export default function Header() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white font-bold text-yellow-500">
             B
           </div>
-          <span className="text-lg font-bold text-white">Barazaar</span>
-        </div>
-
-        {/* Search Box */}
-        <div className="flex w-1/2 items-center overflow-hidden rounded bg-white">
-          <InputBase
-            placeholder="Shopee bao ship 0đ - Đăng ký ngay!"
-            sx={{ flex: 1, px: 1, fontSize: '0.875rem' }} // tương đương text-sm + padding
-          />
-          <IconButton
-            sx={{ bgcolor: 'rgb(234 179 8)', borderRadius: 0, color: 'white' }}
-          >
-            <Search />
-          </IconButton>
+          <span className="text-lg font-bold text-white">
+            Barazaar Seller channel
+          </span>
         </div>
 
         {/* Cart + Login */}

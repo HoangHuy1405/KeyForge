@@ -5,6 +5,7 @@ import AuthPage from './features/Auth/AuthPage';
 import ProfilePage from './features/User/ProfilePage';
 import 'react-toastify/ReactToastify.css';
 import AppLayout from './layouts/AppLayout';
+import SellerLayout from './layouts/SellerLayout';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,11 @@ const router = createBrowserRouter([
         element: <ProfilePage />,
       },
     ],
+  },
+  {
+    path: '/seller',
+    element: <SellerLayout />,
+    children: [],
   },
 ]);
 
