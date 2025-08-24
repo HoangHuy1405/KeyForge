@@ -1,77 +1,156 @@
-import { useState } from "react";
+import useSignUp from '../../../hooks/useSignUp';
+import { useForm } from 'react-hook-form';
 
-export default function RegisterForm({ onRegister }) {
-  const [form, setForm] = useState({
-    fullname: "",
-    phoneNum: "",
-    username: "",
-    email: "",
-    password: "",
-  });
+export default function RegisterForm() {
+  const { signUpUser, isCreatingUser } = useSignUp();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onRegister(form);
+  const onSubmit = (data) => {
+    const { rePassword, ...submitData } = data; // bỏ rePassword trước khi gửi
+    signUpUser(submitData);
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-4 text-center">Đăng ký</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="fullname"
-          placeholder="Họ tên"
-          className="w-full px-4 py-2 border rounded-lg"
-          value={form.fullname}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="phoneNum"
-          placeholder="Số điện thoại"
-          className="w-full px-4 py-2 border rounded-lg"
-          value={form.phoneNum}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full px-4 py-2 border rounded-lg"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="username"
-          placeholder="Tên đăng nhập"
-          className="w-full px-4 py-2 border rounded-lg"
-          value={form.username}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Mật khẩu"
-          className="w-full px-4 py-2 border rounded-lg"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+    <div className="mx-auto mt-10 max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+      <h2 className="mb-4 text-center text-2xl font-bold">
+        Sign up new account
+      </h2>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Full name */}
+        <div>
+          <input
+            type="text"
+            id="fullName"
+            placeholder="Họ tên"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('fullName', {
+              required: 'Please enter your fullname',
+            })}
+          />
+          {errors.fullName && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.fullName.message}
+            </p>
+          )}
+        </div>
+
+        {/* Phone number */}
+        <div>
+          <input
+            type="text"
+            id="phoneNum"
+            placeholder="Số điện thoại"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('phoneNum', {
+              required: 'Please enter your phone number',
+              pattern: {
+                value: /^[0-9]{10,15}$/,
+                message: 'Invalid phone number',
+              },
+            })}
+          />
+          {errors.phoneNum && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.phoneNum.message}
+            </p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div>
+          <input
+            type="email"
+            id="email"
+            placeholder="Email"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: 'Invalid email address',
+              },
+            })}
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Username */}
+        <div>
+          <input
+            type="text"
+            id="username"
+            placeholder="Tên đăng nhập"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('username', {
+              required: 'Please enter your username',
+            })}
+          />
+          {errors.username && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.username.message}
+            </p>
+          )}
+        </div>
+
+        {/* Password */}
+        <div>
+          <input
+            type="password"
+            id="password"
+            placeholder="Mật khẩu"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('password', {
+              required: 'Vui lòng nhập mật khẩu',
+              minLength: {
+                value: 6,
+                message: 'Mật khẩu phải có ít nhất 6 ký tự',
+              },
+            })}
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* Re-check Password */}
+        <div>
+          <input
+            type="password"
+            id="rePassword"
+            placeholder="Nhập lại mật khẩu"
+            className="w-full rounded-lg border px-4 py-2"
+            {...register('rePassword', {
+              required: 'please re-enter password',
+              validate: (value) =>
+                value === getValues('password') ||
+                'Mật khẩu nhập lại không khớp',
+            })}
+          />
+          {errors.rePassword && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.rePassword.message}
+            </p>
+          )}
+        </div>
+
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+          disabled={isCreatingUser}
+          className="w-full rounded-lg bg-green-600 py-2 text-white hover:bg-green-700 disabled:opacity-50"
         >
-          Đăng ký
+          {isCreatingUser ? 'Registering your account...' : 'Sign up'}
         </button>
       </form>
     </div>

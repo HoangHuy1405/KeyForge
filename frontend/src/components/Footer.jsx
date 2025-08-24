@@ -16,7 +16,6 @@ export default function Footer() {
       component="footer"
       elevation={0}
       sx={{
-        mt: 4,
         backgroundColor: '#1f2937', // luôn xám cho footer
         color: theme.palette.common.white,
       }}

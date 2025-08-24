@@ -19,6 +19,7 @@ import {
   Instagram,
   Notifications,
 } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Header = () => {
   const theme = useTheme();
@@ -29,6 +30,7 @@ const Header = () => {
       {/* Top Header */}
       <AppBar
         position="static"
+        elevation={0}
         sx={{
           backgroundColor: theme.palette.primary.main,
         }}
@@ -45,7 +47,8 @@ const Header = () => {
               {!isMobile && (
                 <Stack direction="row" spacing={2} alignItems="center">
                   <Link
-                    href="#"
+                    component={RouterLink}
+                    to="/seller"
                     color="inherit"
                     underline="none"
                     sx={{
@@ -59,7 +62,8 @@ const Header = () => {
                     |
                   </Typography>
                   <Link
-                    href="#"
+                    component={RouterLink}
+                    to="#"
                     color="inherit"
                     underline="none"
                     sx={{
@@ -98,7 +102,8 @@ const Header = () => {
                       <Notifications fontSize="small" />
                     </IconButton>
                     <Link
-                      href="#"
+                      component={RouterLink}
+                      to="#"
                       color="inherit"
                       underline="none"
                       sx={{
@@ -112,7 +117,8 @@ const Header = () => {
                 )}
 
                 <Link
-                  href="#"
+                  component={RouterLink}
+                  to="/signup"
                   color="inherit"
                   underline="none"
                   sx={{
@@ -122,11 +128,14 @@ const Header = () => {
                 >
                   Sign up
                 </Link>
-                <Typography sx={{ fontSize: '13px', opacity: 0.7 }}>
+
+                <Typography sx={{ fontSize: '13px', opacity: 0.7, mx: 1 }}>
                   |
                 </Typography>
+
                 <Link
-                  href="#"
+                  component={RouterLink}
+                  to="/login"
                   color="inherit"
                   underline="none"
                   sx={{
@@ -145,6 +154,7 @@ const Header = () => {
       {/* Main Navbar */}
       <AppBar
         position="static"
+        elevation={0}
         sx={{
           backgroundColor: theme.palette.primary.main,
         }}
@@ -158,41 +168,52 @@ const Header = () => {
               justifyContent="space-between"
             >
               {/* Logo */}
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: theme.palette.common.white,
-                    borderRadius: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mr: 1,
-                  }}
-                >
-                  <Typography
-                    variant="h6"
+              <Link
+                component={RouterLink}
+                to="/"
+                color="inherit"
+                underline="none"
+                sx={{
+                  fontSize: theme.typography.body2.fontSize,
+                  '&:hover': { opacity: 0.9 },
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box
                     sx={{
-                      color: theme.palette.primary.main,
-                      fontWeight: 'bold',
-                      fontSize: '20px',
+                      width: 40,
+                      height: 40,
+                      backgroundColor: theme.palette.common.white,
+                      borderRadius: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1,
                     }}
                   >
-                    B
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: theme.palette.primary.main,
+                        fontWeight: 'bold',
+                        fontSize: '20px',
+                      }}
+                    >
+                      B
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      color: theme.palette.common.white,
+                      fontWeight: 'bold',
+                      fontFamily: 'Arial, sans-serif',
+                    }}
+                  >
+                    Bazaar
                   </Typography>
                 </Box>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    color: theme.palette.common.white,
-                    fontWeight: 'bold',
-                    fontFamily: 'Arial, sans-serif',
-                  }}
-                >
-                  Bazaar
-                </Typography>
-              </Box>
+              </Link>
 
               {/* Search Bar */}
               {!isMobile && (

@@ -1,94 +1,47 @@
-import { useState } from 'react';
-import LoginForm from './Partial/LoginForm';
-import RegisterForm from './Partial/RegisterForm';
-import { registerUser, loginUser } from '../../services/AuthService';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { useTheme } from '@mui/material';
 
-function AuthPage() {
-  const [mode, setMode] = useState('login'); // login | register
-  const navigate = useNavigate();
-
-  const handleLogin = async (data) => {
-    console.log('Login form submitted:', data);
-    try {
-      const { accessToken, user } = await loginUser(
-        data.identifier,
-        data.password,
-      );
-
-      console.log('Login successful, token:', accessToken);
-      console.log('user: ', user);
-
-      toast.success('Đăng nhập thành công!');
-      // Giả sử backend trả về { token: '...' }
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // TODO: chuyển hướng hoặc set user context
-      console.log('Navigate to homepage');
-      navigate('/profile'); // nếu dùng React Router
-    } catch (error) {
-      console.log(error);
-      console.error('Đăng nhập thất bại:', error.message);
-      toast.error(error.message);
-    }
-  };
-
-  const handleRegister = async (data) => {
-    try {
-      await registerUser(
-        data.username,
-        data.password,
-        data.fullname,
-        data.email,
-        data.phoneNum,
-      );
-      toast.success('Đăng ký thành công!');
-
-      // Optionally tự động đăng nhập:
-      // const token = await loginUser(data.identifier, data.password);
-      // localStorage.setItem("accessToken", token);
-
-      // Chuyển sang màn đăng nhập
-      // setMode("login"); // nếu bạn dùng toggle form
-    } catch (error) {
-      console.error('Đăng ký thất bại:', error.message);
-      toast.error(error.message);
-    }
-  };
+const AuthPage = () => {
+  const theme = useTheme();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
-      {mode === 'login' ? (
-        <>
-          <LoginForm onLogin={handleLogin} />
-          <p className="mt-4 text-sm">
-            Chưa có tài khoản?{' '}
-            <button
-              className="text-blue-600 hover:underline"
-              onClick={() => setMode('register')}
-            >
-              Đăng ký
-            </button>
+    <div className="flex h-screen">
+      {/* Bên trái */}
+      <div className="flex flex-1 items-center justify-center p-6">
+        <div className="text-center">
+          <div
+            className="mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-lg text-5xl font-bold"
+            style={{
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+            }}
+          >
+            B
+          </div>
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: theme.palette.secondary.main }}
+          >
+            Bazaar
+          </h1>
+          <p className="mt-2" style={{ color: theme.palette.text.secondary }}>
+            Nền tảng thương mại điện tử <br /> yêu thích ở Đông Nam Á & Đài Loan
           </p>
-        </>
-      ) : (
-        <>
-          <RegisterForm onRegister={handleRegister} />
-          <p className="mt-4 text-sm">
-            Đã có tài khoản?{' '}
-            <button
-              className="text-blue-600 hover:underline"
-              onClick={() => setMode('login')}
-            >
-              Đăng nhập
-            </button>
-          </p>
-        </>
-      )}
+        </div>
+      </div>
+
+      {/* Bên phải */}
+      <div
+        className="flex flex-1 items-center justify-center p-6"
+        style={{ backgroundColor: theme.palette.background.default }}
+      >
+        <div className="w-full max-w-sm">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default AuthPage;
