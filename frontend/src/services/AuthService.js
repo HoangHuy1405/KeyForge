@@ -12,9 +12,12 @@ export const registerUser = async (data) => {
   });
 };
 
-export const loginUser = async (identifier, password) => {
+export const loginUser = async (data) => {
+  const { email, password } = data;
+  console.log(email);
+  console.log(password);
   return api.post('auth/login', {
-    identifier,
+    identifier: email,
     password,
   });
 };

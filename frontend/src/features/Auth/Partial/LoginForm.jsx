@@ -1,42 +1,57 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import useAuth from '../../../hooks/useAuth';
 
-export default function LoginForm({ onLogin }) {
-  const [form, setForm] = useState({ identifier: "", password: "" });
+export default function LoginForm() {
+  const { signInUser, isLoading } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onLogin(form);
+  const onSubmit = (data) => {
+    signInUser(data);
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-4 text-center">Đăng nhập</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="mx-auto mt-10 max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+      <h2 className="mb-4 text-center text-2xl font-bold">Đăng nhập</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <input
           type="text"
-          name="identifier"
-          placeholder="Tên đăng nhập hoặc email"
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={form.identifier}
-          onChange={handleChange}
-          required
+          id="email"
+          placeholder="your email"
+          className="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register('email', {
+            required: 'Email is required',
+            pattern: {
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: 'Invalid email address',
+            },
+          })}
         />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+        )}
         <input
           type="password"
-          name="password"
-          placeholder="Mật khẩu"
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={form.password}
-          onChange={handleChange}
-          required
+          id="password"
+          placeholder="Your password"
+          className="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register('password', {
+            required: 'Please enter your password',
+          })}
         />
+        {errors.rePassword && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.rePassword.message}
+          </p>
+        )}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          className="w-full rounded-lg bg-blue-600 py-2 text-white hover:bg-blue-700"
         >
           Đăng nhập
         </button>

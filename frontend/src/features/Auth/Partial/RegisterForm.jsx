@@ -12,7 +12,7 @@ export default function RegisterForm() {
   } = useForm();
 
   const onSubmit = (data) => {
-    const { rePassword, ...submitData } = data; // bỏ rePassword trước khi gửi
+    const { rePassword, ...submitData } = data;
     signUpUser(submitData);
   };
 
@@ -109,10 +109,10 @@ export default function RegisterForm() {
             placeholder="Mật khẩu"
             className="w-full rounded-lg border px-4 py-2"
             {...register('password', {
-              required: 'Vui lòng nhập mật khẩu',
+              required: 'Please enter your password',
               minLength: {
                 value: 6,
-                message: 'Mật khẩu phải có ít nhất 6 ký tự',
+                message: 'Password must be at least 6 characters',
               },
             })}
           />

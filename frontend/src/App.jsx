@@ -10,6 +10,7 @@ import LoginForm from './features/Auth/Partial/LoginForm';
 import RegisterForm from './features/Auth/Partial/RegisterForm';
 import queryClient from './config/reactQuery';
 import { QueryClientProvider } from '@tanstack/react-query';
+import ProtectedRoute from './components/Protected-route/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -33,7 +34,6 @@ const router = createBrowserRouter([
           },
         ],
       },
-
       {
         path: '/profile',
         element: <ProfilePage />,
@@ -42,7 +42,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/seller',
-    element: <SellerLayout />,
+    element: (
+      <ProtectedRoute>
+        <SellerLayout />
+      </ProtectedRoute>
+    ),
     children: [],
   },
 ]);
