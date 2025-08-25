@@ -8,7 +8,7 @@ import Bazaar.com.project.dto.UserDto.UserProfileResponseDto;
 import Bazaar.com.project.dto.UserDto.UserProfileUpdateRequest;
 import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.UserNotFoundException;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.interfaces.CloudinaryService;
 import Bazaar.com.project.util.FileUploadUtil;

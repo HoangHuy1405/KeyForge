@@ -1,6 +1,6 @@
 package Bazaar.com.project.service.auth;
 
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.LocalAccountRepository;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;

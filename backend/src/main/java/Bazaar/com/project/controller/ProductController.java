@@ -107,7 +107,6 @@ public class ProductController {
             Pageable pageable) {
         ResultPaginationDTO result = productService.findProductsBySeller(sellerId, spec, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
-
     }
 
     @DeleteMapping("/{id}")

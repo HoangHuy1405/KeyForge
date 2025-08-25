@@ -5,7 +5,7 @@ import Bazaar.com.project.dto.AuthDto.RegisterRequest;
 import Bazaar.com.project.dto.AuthDto.ResLoginDTO;
 import Bazaar.com.project.dto.UserDto.UserCreateResponseDTO;
 import Bazaar.com.project.exception.IdInvalidException;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.service.auth.AuthCommandHandler;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.interfaces.UserService;
