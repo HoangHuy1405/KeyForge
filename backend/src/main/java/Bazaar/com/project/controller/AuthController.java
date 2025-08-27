@@ -117,6 +117,26 @@ public class AuthController {
                                 .body(res);
         }
 
+        @GetMapping("/account")
+        @ApiMessage("fetch account")
+        public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() {
+                String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get()
+                                : "";
+
+                User currentUser = this.userService.fetchUserByEmail(email);
+                ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+                ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
+
+                if (currentUser != null) {
+                        userLogin.setId(currentUser.getId());
+                        userLogin.setEmail(currentUser.getEmail());
+                        userLogin.setName(currentUser.getUsername());
+                        userGetAccount.setUser(userLogin);
+                }
+
+                return ResponseEntity.ok().body(userGetAccount);
+        }
+
         // Get new refresh token when access token outdated
         @GetMapping("/refresh")
         @ApiMessage("Get refresh_token")
