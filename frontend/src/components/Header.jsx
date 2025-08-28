@@ -2,7 +2,6 @@ import React from 'react';
 import {
   AppBar,
   Box,
-  Button,
   Container,
   IconButton,
   InputBase,
@@ -11,6 +10,12 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Tooltip,
+  Avatar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Divider,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -19,7 +24,13 @@ import {
   Instagram,
   Notifications,
 } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import ReceiptLong from '@mui/icons-material/ReceiptLong';
+import Logout from '@mui/icons-material/Logout';
+
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useLogout } from '../hooks/useLogout';
 import { useSelector } from 'react-redux';
 
 const Header = () => {
@@ -99,7 +110,10 @@ const Header = () => {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <IconButton
                       size="small"
-                      sx={{ color: theme.palette.common.white, p: 0.5 }}
+                      sx={{
+                        color: theme.palette.common.white,
+                        p: 0.5,
+                      }}
                     >
                       <Notifications fontSize="small" />
                     </IconButton>
@@ -119,18 +133,7 @@ const Header = () => {
                 )}
 
                 {isAuthenticated ? (
-                  <Link
-                    component={RouterLink}
-                    to="/profile"
-                    color="inherit"
-                    underline="none"
-                    sx={{
-                      fontSize: theme.typography.body2.fontSize,
-                      '&:hover': { opacity: 0.8 },
-                    }}
-                  >
-                    Profile
-                  </Link>
+                  <HeaderUserMenu isAuthenticated={isAuthenticated} />
                 ) : (
                   <>
                     <Link
@@ -287,5 +290,148 @@ const Header = () => {
     </Box>
   );
 };
+
+function HeaderUserMenu({ isAuthenticated }) {
+  const account = useSelector((state) => state.account); // ← username, avatarUrl from Redux
+  const navigate = useNavigate();
+  const { logout, isLoggingOut } = useLogout();
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <Typography
+        variant="body2"
+        component={RouterLink}
+        to="/login"
+        color="inherit"
+        sx={{ textDecoration: 'none' }}
+      >
+        Sign in
+      </Typography>
+    );
+  }
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Tooltip title="Account" arrow>
+        <IconButton
+          onClick={handleOpen}
+          size="small"
+          sx={{
+            p: 0.5,
+            pl: 0.75,
+            pr: 1,
+            borderRadius: 999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            color: 'common.white',
+            transition: 'background-color .2s ease, transform .15s ease',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.12)',
+              transform: 'translateY(-1px)',
+            },
+            '& .MuiAvatar-root': {
+              border: '2px solid rgba(255,255,255,0.28)',
+            },
+          }}
+        >
+          <Avatar
+            src={account?.user?.avatarUrl || ''}
+            alt={account?.user?.name || 'avatar'}
+            sx={{ width: 28, height: 28 }}
+          />
+
+          <Typography
+            variant="body2"
+            sx={{
+              display: { xs: 'none', sm: 'inline' },
+              color: 'common.white', // ← username in white
+              fontWeight: 600,
+              letterSpacing: 0.2,
+            }}
+          >
+            {account?.user?.name}
+          </Typography>
+        </IconButton>
+      </Tooltip>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            mt: 1.5,
+            minWidth: 220,
+            borderRadius: 2,
+            overflow: 'visible',
+            boxShadow:
+              '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 8px rgba(0,0,0,0.12)',
+            '& .MuiMenuItem-root': {
+              py: 1,
+              '& .MuiListItemIcon-root': {
+                minWidth: 32,
+                color: 'text.secondary',
+              },
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+            },
+            // small arrow
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 20,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+            },
+          },
+        }}
+      >
+        <MenuItem component={RouterLink} to="/profile" onClick={handleClose}>
+          <ListItemIcon>
+            <AccountCircle fontSize="small" />
+          </ListItemIcon>
+          My Account
+        </MenuItem>
+
+        <MenuItem component={RouterLink} to="/purchase" onClick={handleClose}>
+          <ListItemIcon>
+            <ReceiptLong fontSize="small" />
+          </ListItemIcon>
+          My Purchase
+        </MenuItem>
+
+        <Divider sx={{ my: 0.5 }} />
+
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <Logout fontSize="small" />
+          </ListItemIcon>
+          Logout
+        </MenuItem>
+      </Menu>
+    </Box>
+  );
+}
 
 export default Header;

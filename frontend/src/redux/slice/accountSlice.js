@@ -9,6 +9,7 @@ const initialState = {
     id: '',
     email: '',
     name: '',
+    avatarUrl: '',
     role: {
       id: '',
       name: '',
@@ -29,11 +30,16 @@ export const accountSlice = createSlice({
       state.user.id = action?.payload?.id;
       state.user.email = action?.payload?.email;
       state.user.name = action?.payload?.name;
+      state.user.avatarUrl = action?.payload?.avatarUrl;
     },
+    updateAvatar: (state, action) => {
+      state.user.avatarUrl = action?.payload;
+    },
+    logout: () => initialState,
   },
 });
 
-export const { setUserLoginInfo } = accountSlice.actions;
+export const { setUserLoginInfo, updateAvatar, logout } = accountSlice.actions;
 
 export default accountSlice.reducer;
 

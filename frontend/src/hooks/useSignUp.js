@@ -16,7 +16,7 @@ export default function useSignUp() {
     mutationFn: (userData) => registerUser(userData),
     onSuccess: () => {
       toast.success('register account successfully.', {
-        position: 'top-right',
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -28,7 +28,7 @@ export default function useSignUp() {
     onError: (error) => {
       console.log(error);
       toast.error(`register fail: ${error.message}`, {
-        position: 'top-right',
+        position: 'top-center',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,

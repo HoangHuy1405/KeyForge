@@ -21,7 +21,7 @@ export default function Error() {
     'An unexpected error occurred.';
 
   return (
-    <div className="w-full max-w-xl rounded-2xl border border-yellow-300 bg-[#fff9c4] p-8 shadow-xl">
+    <div className="mt-6 w-full max-w-xl rounded-2xl border border-yellow-300 bg-[#fff9c4] p-8 shadow-xl">
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#fbc02d] shadow">
           <span className="text-2xl text-white">!</span>

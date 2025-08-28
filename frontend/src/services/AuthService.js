@@ -21,3 +21,7 @@ export const loginUser = async (data) => {
     password,
   });
 };
+
+export const logout = async () => {
+  return api.post('auth/logout');
+};

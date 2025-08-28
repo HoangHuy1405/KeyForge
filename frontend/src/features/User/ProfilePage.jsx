@@ -23,20 +23,23 @@ import {
   updateUserProfile,
   uploadUserAvatar,
 } from '../../services/UserProfileService';
+import { useDispatch } from 'react-redux';
+import { updateAvatar } from '../../redux/slice/accountSlice';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function ProfilePage() {
   const loaderData = useLoaderData();
-  // supports either `{ profile }` or direct profile object
   const initial = useMemo(
     () => loaderData?.profile ?? loaderData ?? {},
     [loaderData],
   );
-
   const [user, setUser] = useState(initial);
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // const [uploading, setUploading] = useState(false);
+  // const [saving, setSaving] = useState(false);
   const [error, setErr] = useState('');
 
+  const dispatch = useDispatch();
+  const qc = useQueryClient();
   const fileRef = useRef(null);
 
   const emailOk = useMemo(() => {
@@ -45,68 +48,80 @@ export default function ProfilePage() {
   }, [user?.email]);
 
   // --- handlers (wire these to your real services) ---
-  const onUpload = async (file) => {
-    if (!file) return;
-    setUploading(true);
-    try {
-      const updatedProfile = await uploadUserAvatar(user.id, file);
+  // const onUpload = async (file) => {
+  //   if (!file) return;
+  //   setUploading(true);
+  //   try {
+  //     const updatedProfile = await uploadUserAvatar(user.id, file);
+  //     setUser(updatedProfile);
+  //     dispatch(updateAvatar(updatedProfile.avatarUrl));
+  //     toast.success('Update avatar successfully!');
+  //   } catch (e) {
+  //     toast.error(`${e.message}`);
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
+  const { mutate: uploadAvatar, isLoading: uploading } = useMutation({
+    mutationFn: ({ id, file }) => uploadUserAvatar(id, file),
+    onSuccess: (updatedProfile) => {
       setUser(updatedProfile);
-      toast.success('Update avatar successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } catch (e) {
-      toast.error(`${e.message}`, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setUploading(false);
-    }
+      dispatch(updateAvatar(updatedProfile.avatarUrl));
+      // optional: keep cache in sync
+      qc.setQueryData(['me'], (old) => ({ ...(old || {}), ...updatedProfile }));
+      toast.success('Update avatar successfully!');
+    },
+    onError: (e) => {
+      toast.error(e?.message || 'Upload failed');
+    },
+  });
+
+  const onUpload = (file) => {
+    if (!file) return;
+    uploadAvatar({ id: user.id, file });
   };
 
-  const onSave = async () => {
-    setSaving(true);
-    setErr('');
-    try {
-      const { id, username, fullname, email, phoneNum, description } = user;
-      const payload = {
-        username,
-        fullname,
-        email,
-        phoneNum,
-        description,
-      };
-      const data = await updateUserProfile(id, payload);
+  // const onSave = async () => {
+  //   setSaving(true);
+  //   setErr('');
+  //   try {
+  //     const { id, username, fullname, email, phoneNum, description } = user;
+  //     const payload = {
+  //       username,
+  //       fullname,
+  //       email,
+  //       phoneNum,
+  //       description,
+  //     };
+  //     const data = await updateUserProfile(id, payload);
+  //     setUser(data);
+  //     toast.success('Update profile successfully!');
+  //   } catch (e) {
+  //     toast.error(`${e.message}`);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
+  const { mutate: saveProfile, isLoading: saving } = useMutation({
+    mutationFn: ({ id, payload }) => updateUserProfile(id, payload),
+    onMutate: () => setErr(''),
+    onSuccess: (data) => {
       setUser(data);
-      toast.success('Update profile successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } catch (e) {
-      toast.error(`${e.message}`, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setSaving(false);
-    }
+      qc.setQueryData(['me'], (old) => ({ ...(old || {}), ...data }));
+      toast.success('Update profile successfully!');
+    },
+    onError: (e) => {
+      const msg = e?.message || 'Save failed';
+      setErr(msg);
+      toast.error(msg);
+    },
+  });
+
+  const onSave = () => {
+    const { id, username, fullname, email, phoneNum, description } = user;
+    const payload = { username, fullname, email, phoneNum, description };
+    saveProfile({ id, payload });
   };
 
   const onReset = () => {
@@ -181,6 +196,7 @@ export default function ProfilePage() {
                   value={user?.email || ''}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
                   InputProps={{ className: 'rounded-xl bg-white' }}
+                  disabled
                 />
               </TWField>
 
@@ -271,9 +287,6 @@ export default function ProfilePage() {
               sx={{ borderRadius: '12px' }}
               className="h-full rounded-2xl border border-primary bg-background-paper p-6 shadow-sm"
             >
-              {/* <h2 className="text-text-primary mb-3 text-lg font-semibold">
-                Avatar
-              </h2> */}
               <div className="mb-8 flex items-center gap-5">
                 <div className="relative">
                   <Badge

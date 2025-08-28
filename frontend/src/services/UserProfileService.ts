@@ -1,7 +1,6 @@
 // src/api/user.ts
 export type Role = 'USER' | 'ADMIN' | string;
 
-import ApiEnvelope from './ApiEnvelope';
 import api from './api';
 
 export interface UserProfileResponseDto {
