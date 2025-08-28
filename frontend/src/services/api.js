@@ -3,15 +3,16 @@ import axios from 'axios';
 const instance = axios.create({
   baseURL: 'http://localhost:8080/',
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // disable this for uploading images
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
 });
 
 // === Request Interceptor ===
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -74,13 +75,13 @@ instance.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          'http://localhost:8080/refresh-token',
+          'http://localhost:8080/auth/refresh',
           {},
           { withCredentials: true },
         );
 
         const newToken = res.data.token;
-        localStorage.setItem('accessToken', newToken);
+        localStorage.setItem('access_token', newToken);
         instance.defaults.headers.common['Authorization'] =
           'Bearer ' + newToken;
 
@@ -89,7 +90,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem('accessToken');
+        localStorage.removeItem('access_token');
         // redirect hoặc xử lý logout ở đây nếu cần
         return Promise.reject(err);
       } finally {

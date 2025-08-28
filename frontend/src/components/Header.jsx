@@ -20,10 +20,12 @@ import {
   Notifications,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // responsive check
+  const isAuthenticated = useSelector((state) => state.account.isAuthenticated);
 
   return (
     <Box>
@@ -116,35 +118,50 @@ const Header = () => {
                   </Stack>
                 )}
 
-                <Link
-                  component={RouterLink}
-                  to="/signup"
-                  color="inherit"
-                  underline="none"
-                  sx={{
-                    fontSize: theme.typography.body2.fontSize,
-                    '&:hover': { opacity: 0.8 },
-                  }}
-                >
-                  Sign up
-                </Link>
-
-                <Typography sx={{ fontSize: '13px', opacity: 0.7, mx: 1 }}>
-                  |
-                </Typography>
-
-                <Link
-                  component={RouterLink}
-                  to="/login"
-                  color="inherit"
-                  underline="none"
-                  sx={{
-                    fontSize: theme.typography.body2.fontSize,
-                    '&:hover': { opacity: 0.8 },
-                  }}
-                >
-                  Login
-                </Link>
+                {isAuthenticated ? (
+                  <Link
+                    component={RouterLink}
+                    to="/profile"
+                    color="inherit"
+                    underline="none"
+                    sx={{
+                      fontSize: theme.typography.body2.fontSize,
+                      '&:hover': { opacity: 0.8 },
+                    }}
+                  >
+                    Profile
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      component={RouterLink}
+                      to="/signup"
+                      color="inherit"
+                      underline="none"
+                      sx={{
+                        fontSize: theme.typography.body2.fontSize,
+                        '&:hover': { opacity: 0.8 },
+                      }}
+                    >
+                      Sign up
+                    </Link>
+                    <Typography sx={{ fontSize: '13px', opacity: 0.7, mx: 1 }}>
+                      |
+                    </Typography>
+                    <Link
+                      component={RouterLink}
+                      to="/login"
+                      color="inherit"
+                      underline="none"
+                      sx={{
+                        fontSize: theme.typography.body2.fontSize,
+                        '&:hover': { opacity: 0.8 },
+                      }}
+                    >
+                      Login
+                    </Link>{' '}
+                  </>
+                )}
               </Stack>
             </Stack>
           </Box>

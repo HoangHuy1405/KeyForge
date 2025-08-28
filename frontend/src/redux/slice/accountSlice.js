@@ -36,3 +36,5 @@ export const accountSlice = createSlice({
 export const { setUserLoginInfo } = accountSlice.actions;
 
 export default accountSlice.reducer;
+
+export const getUserId = (state) => state.account.user.id;

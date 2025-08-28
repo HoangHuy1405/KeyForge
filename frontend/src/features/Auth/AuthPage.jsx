@@ -6,7 +6,7 @@ const AuthPage = () => {
   const theme = useTheme();
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       {/* Bên trái */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="text-center">

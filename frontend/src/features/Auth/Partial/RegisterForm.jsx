@@ -17,7 +17,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="mx-auto mt-10 max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+    <div className="mx-auto max-w-sm rounded-2xl bg-white p-6 shadow-lg">
       <h2 className="mb-4 text-center text-2xl font-bold">
         Sign up new account
       </h2>

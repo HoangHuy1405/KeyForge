@@ -12,6 +12,9 @@ import queryClient from './config/reactQuery';
 import { QueryClientProvider } from '@tanstack/react-query';
 import ProtectedRoute from './components/Protected-route/ProtectedRoute';
 
+import { loader as profileLoader } from './features/User/profileLoader';
+import Error from './components/Error';
+
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
@@ -37,6 +40,8 @@ const router = createBrowserRouter([
       {
         path: '/profile',
         element: <ProfilePage />,
+        loader: profileLoader,
+        errorElement: <Error />,
       },
     ],
   },

@@ -11,7 +11,7 @@ import {
   updateUserProfile,
   uploadUserAvatar,
   UserProfileResponseDto,
-} from '../../api/userApi';
+} from '../../services/UserProfileService';
 
 // Minimal JWT decoder (no external libs)
 function decodeJwt<T = any>(token: string): T {
