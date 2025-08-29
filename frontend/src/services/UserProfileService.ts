@@ -24,7 +24,6 @@ export interface UserProfileUpdateRequest {
   description?: string | null;
 }
 
-const token = localStorage.getItem('access_token');
 const BASE = 'api/users';
 
 export async function getUserProfile(

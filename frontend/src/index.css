@@ -4,14 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
+/* @layer components {
   .btn {
-    @apply bg-primary inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium text-white transition hover:opacity-90;
+    @apply inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 font-medium text-white transition hover:opacity-90;
   }
   .card {
-    @apply bg-background-paper text-text-primary rounded-xl p-4 shadow;
+    @apply rounded-xl bg-background-paper p-4 text-text-primary shadow;
   }
   .appbar {
-    @apply bg-primary w-full text-white;
+    @apply w-full bg-primary text-white;
   }
-}
+} */

@@ -14,10 +14,13 @@ import ProtectedRoute from './components/Protected-route/ProtectedRoute';
 
 import { loader as profileLoader } from './features/User/profileLoader';
 import Error from './components/Error';
+import ProductListing from './features/Product/ProductListing';
+import { loader as productsLoader } from './features/Product/productsLoader';
 
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
+    errorElement: <Error />,
     children: [
       {
         path: '/',
@@ -41,6 +44,12 @@ const router = createBrowserRouter([
         path: '/profile',
         element: <ProfilePage />,
         loader: profileLoader,
+        errorElement: <Error />,
+      },
+      {
+        path: '/products',
+        element: <ProductListing />,
+        loader: productsLoader,
         errorElement: <Error />,
       },
     ],

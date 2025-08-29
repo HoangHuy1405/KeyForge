@@ -21,13 +21,13 @@ export default function Error() {
     'An unexpected error occurred.';
 
   return (
-    <div className="mt-6 w-full max-w-xl rounded-2xl border border-yellow-300 bg-[#fff9c4] p-8 shadow-xl">
+    <div className="ml-6 mt-6 w-full max-w-xl rounded-2xl border border-outline bg-primary p-8 shadow-xl">
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#fbc02d] shadow">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-outline shadow">
           <span className="text-2xl text-white">!</span>
         </div>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold leading-tight text-[#f57f17]">
+          <h1 className="text-3xl font-bold leading-tight text-text-primary">
             {title}
           </h1>
 

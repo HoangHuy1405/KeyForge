@@ -4,11 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#fbc02d', // main yellow
-        secondary: '#f57f17', // deep yellow
+        primary: '#ffffff', // main background
+        contrast: '#0a0a0a',
+        secondary: '#eceef2', // secondary background
+        outline: '#5f5f5f',
         background: {
-          DEFAULT: '#fffde7', // default background
-          paper: '#fff9c4', // paper-like bg
+          DEFAULT: '#ffffff', // default background
+          paper: '#eceef2', // paper-like bg
         },
         text: {
           primary: '#212121',

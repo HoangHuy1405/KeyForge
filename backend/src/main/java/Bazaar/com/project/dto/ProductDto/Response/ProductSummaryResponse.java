@@ -1,5 +1,6 @@
 package Bazaar.com.project.dto.ProductDto.Response;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import Bazaar.com.project.model.Product.ProductEnum.ProductCategory;
@@ -14,6 +15,8 @@ public record ProductSummaryResponse(
                 ProductCategory category,
                 ProductStatus status,
                 DetailedResponse details,
-                String location,
-                Integer availableQuantity) {
+                LogisticsResponse logistic,
+                InventoryResponse inventory,
+                Integer availableQuantity,
+                Instant createdAt) {
 }

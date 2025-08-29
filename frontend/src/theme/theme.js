@@ -4,20 +4,23 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#fbc02d', // vàng chính (Yellow 700)
-      contrastText: '#ffffff',
+      main: '#ffffff',
+      contrastText: '#0a0a0a',
+      outline: '#5f5f5f',
+      themeColor: 'linear-gradient(to bottom right, #3b82f6, #a855f7)',
     },
     secondary: {
-      main: '#f57f17', // vàng đậm (Yellow 900)
+      main: '#eceef2',
     },
     background: {
-      default: '#fffde7', // nền vàng nhạt (Yellow 50)
-      paper: '#fff9c4', // màu giấy vàng nhạt
+      default: '#ffffff', // nền vàng nhạt (Yellow 50)
+      paper: '#eceef2', // màu giấy vàng nhạt
     },
     text: {
       primary: '#212121', // chữ tối
       secondary: '#5f5f5f', // chữ phụ
     },
+    input_background: '#f3f3f5',
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',

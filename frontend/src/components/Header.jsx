@@ -17,13 +17,10 @@ import {
   ListItemIcon,
   Divider,
 } from '@mui/material';
-import {
-  Search as SearchIcon,
-  ShoppingCart,
-  Facebook,
-  Instagram,
-  Notifications,
-} from '@mui/icons-material';
+import { Search as SearchIcon, Instagram } from '@mui/icons-material';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ReceiptLong from '@mui/icons-material/ReceiptLong';
@@ -32,6 +29,8 @@ import Logout from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import { useSelector } from 'react-redux';
+import Logo from './Logo';
+import ProductSearchBar from '../features/Product/ProductSearchBar';
 
 const Header = () => {
   const theme = useTheme();
@@ -91,13 +90,13 @@ const Header = () => {
                   </Typography>
                   <IconButton
                     size="small"
-                    sx={{ color: theme.palette.common.white, p: 0.5 }}
+                    sx={{ color: theme.palette.text.primary, p: 0.5 }}
                   >
-                    <Facebook fontSize="small" />
+                    <FacebookOutlinedIcon fontSize="small" />
                   </IconButton>
                   <IconButton
                     size="small"
-                    sx={{ color: theme.palette.common.white, p: 0.5 }}
+                    sx={{ color: theme.palette.text.primary, p: 0.5 }}
                   >
                     <Instagram fontSize="small" />
                   </IconButton>
@@ -108,15 +107,6 @@ const Header = () => {
               <Stack direction="row" spacing={2} alignItems="center">
                 {!isMobile && (
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <IconButton
-                      size="small"
-                      sx={{
-                        color: theme.palette.common.white,
-                        p: 0.5,
-                      }}
-                    >
-                      <Notifications fontSize="small" />
-                    </IconButton>
                     <Link
                       component={RouterLink}
                       to="#"
@@ -127,7 +117,15 @@ const Header = () => {
                         '&:hover': { opacity: 0.8 },
                       }}
                     >
-                      Notification
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: theme.palette.common.black,
+                          p: 0.5,
+                        }}
+                      >
+                        <NotificationsOutlinedIcon fontSize="small" />
+                      </IconButton>
                     </Link>
                   </Stack>
                 )}
@@ -198,90 +196,25 @@ const Header = () => {
                   '&:hover': { opacity: 0.9 },
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      backgroundColor: theme.palette.common.white,
-                      borderRadius: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mr: 1,
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: theme.palette.primary.main,
-                        fontWeight: 'bold',
-                        fontSize: '20px',
-                      }}
-                    >
-                      B
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      color: theme.palette.common.white,
-                      fontWeight: 'bold',
-                      fontFamily: 'Arial, sans-serif',
-                    }}
-                  >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Logo />
+                  <h1 className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
                     Bazaar
-                  </Typography>
+                  </h1>
                 </Box>
               </Link>
 
               {/* Search Bar */}
-              {!isMobile && (
-                <Box sx={{ flexGrow: 1 }}>
-                  <Box
-                    sx={{
-                      backgroundColor: theme.palette.common.white,
-                      borderRadius: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <InputBase
-                      placeholder="Shopee bao ship 0Đ - Đăng ký ngay!"
-                      sx={{
-                        ml: 2,
-                        flex: 1,
-                        fontSize: theme.typography.body2.fontSize,
-                        '& input': { py: 1.5 },
-                      }}
-                    />
-                    <IconButton
-                      type="button"
-                      sx={{
-                        p: 1.5,
-                        backgroundColor: theme.palette.primary.main,
-                        color: theme.palette.common.white,
-                        borderRadius: 0,
-                        '&:hover': {
-                          backgroundColor: theme.palette.primary.dark,
-                        },
-                      }}
-                    >
-                      <SearchIcon />
-                    </IconButton>
-                  </Box>
-                </Box>
-              )}
+              {!isMobile && <ProductSearchBar />}
 
               {/* Cart */}
               <IconButton
                 sx={{
-                  color: theme.palette.common.white,
+                  color: theme.palette.text.primary,
                   '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
                 }}
               >
-                <ShoppingCart fontSize="large" />
+                <ShoppingCartOutlinedIcon fontSize="large" />
               </IconButton>
             </Stack>
           </Box>
@@ -305,20 +238,6 @@ function HeaderUserMenu({ isAuthenticated }) {
     logout();
     navigate('/login');
   };
-
-  if (!isAuthenticated) {
-    return (
-      <Typography
-        variant="body2"
-        component={RouterLink}
-        to="/login"
-        color="inherit"
-        sx={{ textDecoration: 'none' }}
-      >
-        Sign in
-      </Typography>
-    );
-  }
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -356,7 +275,7 @@ function HeaderUserMenu({ isAuthenticated }) {
             variant="body2"
             sx={{
               display: { xs: 'none', sm: 'inline' },
-              color: 'common.white', // ← username in white
+              color: 'text.secondary', // ← username in white
               fontWeight: 600,
               letterSpacing: 0.2,
             }}
@@ -379,6 +298,7 @@ function HeaderUserMenu({ isAuthenticated }) {
             minWidth: 220,
             borderRadius: 2,
             overflow: 'visible',
+            backgroundColor: 'secondary.main',
             boxShadow:
               '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 8px rgba(0,0,0,0.12)',
             '& .MuiMenuItem-root': {
@@ -400,7 +320,7 @@ function HeaderUserMenu({ isAuthenticated }) {
               right: 20,
               width: 10,
               height: 10,
-              bgcolor: 'background.paper',
+              bgcolor: '#a855f7',
               transform: 'translateY(-50%) rotate(45deg)',
               zIndex: 0,
             },

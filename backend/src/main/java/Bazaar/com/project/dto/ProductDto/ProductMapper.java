@@ -101,6 +101,14 @@ public class ProductMapper {
                                 .condition(d != null ? d.getCondition() : null)
                                 .build();
 
+                LogisticsResponse logistic = LogisticsResponse.builder()
+                                .location(log.getLocation())
+                                .build();
+
+                InventoryResponse inventory = InventoryResponse.builder()
+                                .price(inv != null ? inv.getPrice() : null)
+                                .build();
+
                 return ProductSummaryResponse.builder()
                                 .id(p.getId())
                                 .name(p.getName())
@@ -108,8 +116,10 @@ public class ProductMapper {
                                 .category(p.getCategory())
                                 .status(p.getStatus())
                                 .details(detailed)
-                                .location(log != null ? log.getLocation() : null)
+                                .logistic(logistic)
+                                .inventory(inventory)
                                 .availableQuantity(available)
+                                .createdAt(p.getCreatedAt())
                                 .build();
         }
 

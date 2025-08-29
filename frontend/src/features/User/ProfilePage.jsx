@@ -34,8 +34,6 @@ export default function ProfilePage() {
     [loaderData],
   );
   const [user, setUser] = useState(initial);
-  // const [uploading, setUploading] = useState(false);
-  // const [saving, setSaving] = useState(false);
   const [error, setErr] = useState('');
 
   const dispatch = useDispatch();
@@ -47,21 +45,6 @@ export default function ProfilePage() {
     return re.test(user?.email || '');
   }, [user?.email]);
 
-  // --- handlers (wire these to your real services) ---
-  // const onUpload = async (file) => {
-  //   if (!file) return;
-  //   setUploading(true);
-  //   try {
-  //     const updatedProfile = await uploadUserAvatar(user.id, file);
-  //     setUser(updatedProfile);
-  //     dispatch(updateAvatar(updatedProfile.avatarUrl));
-  //     toast.success('Update avatar successfully!');
-  //   } catch (e) {
-  //     toast.error(`${e.message}`);
-  //   } finally {
-  //     setUploading(false);
-  //   }
-  // };
   const { mutate: uploadAvatar, isLoading: uploading } = useMutation({
     mutationFn: ({ id, file }) => uploadUserAvatar(id, file),
     onSuccess: (updatedProfile) => {
@@ -80,28 +63,6 @@ export default function ProfilePage() {
     if (!file) return;
     uploadAvatar({ id: user.id, file });
   };
-
-  // const onSave = async () => {
-  //   setSaving(true);
-  //   setErr('');
-  //   try {
-  //     const { id, username, fullname, email, phoneNum, description } = user;
-  //     const payload = {
-  //       username,
-  //       fullname,
-  //       email,
-  //       phoneNum,
-  //       description,
-  //     };
-  //     const data = await updateUserProfile(id, payload);
-  //     setUser(data);
-  //     toast.success('Update profile successfully!');
-  //   } catch (e) {
-  //     toast.error(`${e.message}`);
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
 
   const { mutate: saveProfile, isLoading: saving } = useMutation({
     mutationFn: ({ id, payload }) => updateUserProfile(id, payload),
@@ -132,10 +93,10 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* header */}
-      <header className="sticky top-0 z-10 border-b border-primary/70 bg-background backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-black/70 bg-background backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-secondary">
+            <h1 className="text-3xl font-bold tracking-tight text-text-primary">
               Your Profile
             </h1>
             <p className="text-sm text-text-secondary">
@@ -256,11 +217,11 @@ export default function ProfilePage() {
               </LoadingButton>
 
               <Button
-                variant="outlined"
-                color="secondary"
+                variant="contained"
+                color="#0a0a0a"
                 startIcon={<RestartAltIcon />}
                 onClick={onReset}
-                className="rounded-xl bg-white px-5 py-2.5"
+                className="rounded-xl px-5 py-2.5"
               >
                 Reset
               </Button>
@@ -366,39 +327,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-
-      {/* snackbars */}
-      {/* <Snackbar
-        open={!!message}
-        autoHideDuration={3000}
-        onClose={() => setMessage('')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setMessage('')}
-          severity="success"
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {message}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={!!error}
-        autoHideDuration={4000}
-        onClose={() => setErr('')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setErr('')}
-          severity="error"
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {error}
-        </Alert>
-      </Snackbar> */}
     </div>
   );
 }
