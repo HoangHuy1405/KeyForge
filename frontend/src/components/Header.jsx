@@ -4,7 +4,6 @@ import {
   Box,
   Container,
   IconButton,
-  InputBase,
   Link,
   Stack,
   Typography,
@@ -18,7 +17,6 @@ import {
   Divider,
 } from '@mui/material';
 import { Search as SearchIcon, Instagram } from '@mui/icons-material';
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 
@@ -31,6 +29,9 @@ import { useLogout } from '../hooks/useLogout';
 import { useSelector } from 'react-redux';
 import Logo from './Logo';
 import ProductSearchBar from '../features/Product/ProductSearchBar';
+import StyledBadge from '../components/StyledBadge';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { HeaderCart } from '../features/Cart/HeaderCart';
 
 const Header = () => {
   const theme = useTheme();
@@ -48,7 +49,7 @@ const Header = () => {
         }}
       >
         <Container maxWidth="xl">
-          <Box sx={{ py: 1 }}>
+          <Box sx={{ py: 1.5 }}>
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -124,7 +125,31 @@ const Header = () => {
                           p: 0.5,
                         }}
                       >
-                        <NotificationsOutlinedIcon fontSize="small" />
+                        <StyledBadge badgeContent={3} top={2} right={-3}>
+                          <NotificationsOutlinedIcon fontSize="small" />
+                        </StyledBadge>
+                      </IconButton>
+                    </Link>
+                    <Link
+                      component={RouterLink}
+                      to="#"
+                      color="inherit"
+                      underline="none"
+                      sx={{
+                        fontSize: theme.typography.body2.fontSize,
+                        '&:hover': { opacity: 0.8 },
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: theme.palette.common.black,
+                          p: 0.5,
+                        }}
+                      >
+                        <StyledBadge badgeContent={3} top={2} right={-3}>
+                          <FavoriteBorderIcon fontSize="small" />
+                        </StyledBadge>
                       </IconButton>
                     </Link>
                   </Stack>
@@ -208,14 +233,7 @@ const Header = () => {
               {!isMobile && <ProductSearchBar />}
 
               {/* Cart */}
-              <IconButton
-                sx={{
-                  color: theme.palette.text.primary,
-                  '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
-                }}
-              >
-                <ShoppingCartOutlinedIcon fontSize="large" />
-              </IconButton>
+              <HeaderCart />
             </Stack>
           </Box>
         </Container>

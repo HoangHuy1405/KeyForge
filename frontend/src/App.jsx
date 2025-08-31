@@ -16,6 +16,7 @@ import { loader as profileLoader } from './features/User/profileLoader';
 import Error from './components/Error';
 import ProductListing from './features/Product/ProductListing';
 import { loader as productsLoader } from './features/Product/productsLoader';
+import Cart from './features/Cart/Cart';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
         loader: productsLoader,
         errorElement: <Error />,
       },
+      { path: '/cart', element: <Cart /> },
     ],
   },
   {

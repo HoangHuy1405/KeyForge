@@ -1,11 +1,12 @@
+import { CartItemData } from '../../redux/slice/cartSlice';
 import {
-  ProductListResponse,
-  ProductResponse,
+  ProductList,
+  Product,
 } from '../../services/interfaces/productInterfaces';
 import { ProductView } from './ProductCard';
 
 /** Map a single API product into the UI-friendly ProductView shape */
-export function mapProductToView(p: ProductResponse): ProductView {
+export function mapProductToView(p: Product): ProductView {
   return {
     id: p.id,
     name: p.name,
@@ -35,6 +36,22 @@ export function mapProductToView(p: ProductResponse): ProductView {
 }
 
 /** Map a full list response to just the ProductView[] */
-export function mapProductListToViews(res: ProductListResponse): ProductView[] {
+export function mapProductListToViews(res: ProductList): ProductView[] {
   return (res.result ?? []).map(mapProductToView);
+}
+
+export function mapFromProductViewToCartItem(
+  product: ProductView,
+  quantity: number = 1,
+  selected: boolean = false,
+): CartItemData {
+  return {
+    id: product.id,
+    name: product.name,
+    image: product.image,
+    unitPrice: product.price,
+    quantity,
+    totalPrice: product.price * quantity,
+    selected,
+  };
 }

@@ -25,14 +25,50 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Roboto, sans-serif',
     h1: {
-      fontSize: '2rem',
+      fontSize: '1.5rem',
       fontWeight: 'bold',
-      color: '#f57f17', // vàng đậm cho tiêu đề
+      color: '#212121', // đậm cho tiêu đề chính
+    },
+    h2: {
+      fontSize: '1.25rem',
+      fontWeight: 600,
+      color: '#333333', // hơi nhạt hơn h1
+    },
+    h3: {
+      fontSize: '1.1rem',
+      fontWeight: 600,
+      color: '#424242',
+    },
+    body1: {
+      fontSize: '1rem',
+      color: '#555555', // nội dung chính
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      color: '#757575', // phụ đề, mô tả
+      lineHeight: 1.5,
+    },
+    caption: {
+      fontSize: '0.75rem',
+      color: '#9e9e9e', // ghi chú nhỏ
     },
     button: {
-      textTransform: 'none',
+      textTransform: 'none', // giữ nguyên chữ (không ALL CAPS)
+      fontWeight: 500,
+    },
+    subtitle1: {
+      fontSize: '1rem',
+      fontWeight: 500,
+      color: '#616161', // dùng cho subtitle, heading nhỏ
+    },
+    subtitle2: {
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      color: '#757575',
     },
   },
+
   components: {
     MuiButton: {
       styleOverrides: {

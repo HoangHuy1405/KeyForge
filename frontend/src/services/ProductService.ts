@@ -1,12 +1,10 @@
 import api from './api';
 import { GetListParams } from './interfaces/paramsType';
-import { ProductListResponse } from './interfaces/productInterfaces';
+import { ProductList } from './interfaces/productInterfaces';
 
 const BASE = 'api/products';
 
-export async function getProducts(
-  params: GetListParams,
-): Promise<ProductListResponse> {
+export async function getProducts(params: GetListParams): Promise<ProductList> {
   const searchParams = new URLSearchParams();
 
   if (params.size !== undefined)
@@ -22,7 +20,7 @@ export async function getProducts(
     searchParams.append('filter', params.filters);
   }
   console.log(searchParams.toString());
-  const data = await api.get<ProductListResponse, ProductListResponse>(
+  const data = await api.get<ProductList, ProductList>(
     `${BASE}?${searchParams.toString()}`,
   );
   return data;

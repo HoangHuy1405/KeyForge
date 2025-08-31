@@ -2,7 +2,7 @@ import * as React from 'react';
 import Grid from '@mui/material/Grid'; // Grid v2
 import { Stack } from '@mui/material';
 import { useLoaderData } from 'react-router-dom';
-import { ProductListResponse } from '../../services/interfaces/productInterfaces';
+import { ProductList } from '../../services/interfaces/productInterfaces';
 import ProductGrid from './ProductGrid';
 import ProductCard, { ProductView } from './ProductCard';
 import { SortingControls, ViewMode, SortOption } from './SortingControls';
@@ -14,7 +14,7 @@ import { FilterSidebar } from './FilterSidebar';
 const MAX_PRICE = 2500;
 
 export default function ProductListing() {
-  const { data } = useLoaderData() as { data: ProductListResponse };
+  const { data } = useLoaderData() as { data: ProductList };
 
   const products: ProductView[] = React.useMemo(
     () => mapProductListToViews(data),

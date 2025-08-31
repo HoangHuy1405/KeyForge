@@ -1,6 +1,6 @@
-export interface ProductListResponse {
+export interface ProductList {
   meta: Meta;
-  result: ProductResponse[];
+  result: Product[];
 }
 
 export interface Meta {
@@ -10,7 +10,7 @@ export interface Meta {
   total: number;
 }
 
-export interface ProductResponse {
+export interface Product {
   id: string;
   name: string;
   thumbnailUrl: string;

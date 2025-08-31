@@ -5,10 +5,14 @@ import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StarIcon from '@mui/icons-material/Star';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
+import { StyledButton } from '../../components/StyledButton';
+import { Product } from '../../services/interfaces/productInterfaces';
+import { useCartActions } from '../../hooks/useCartActions';
 
 export interface ProductView {
   id: string;
@@ -30,6 +34,7 @@ export interface ProductView {
 interface ProductCardProps {
   product: ProductView;
   onToggleLike: (id: string) => void;
+  handleAddToCart: (id: string) => void; // <-- added
 }
 
 const Root = styled(Card)(({ theme }) => ({
@@ -43,6 +48,11 @@ const Root = styled(Card)(({ theme }) => ({
   '&:hover': {
     boxShadow: theme.shadows[4],
     cursor: 'pointer',
+  },
+  // reveal hover actions smoothly on card hover
+  '&:hover .hoverActions': {
+    opacity: 1,
+    transform: 'translateY(0)',
   },
 }));
 
@@ -98,6 +108,24 @@ const Pill = styled(Chip)(({ theme }) => ({
   '& .MuiChip-label': { paddingInline: 8 },
 }));
 
+// NEW: subtle bottom overlay that appears on hover
+const HoverActions = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  inset: 0,
+  display: 'flex',
+  alignItems: 'flex-end',
+  justifyContent: 'center',
+  padding: 12,
+  background:
+    'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.18) 40%, rgba(0,0,0,0) 100%)',
+  opacity: 0,
+  transform: 'translateY(8px)',
+  transition: 'opacity 180ms ease, transform 180ms ease',
+  pointerEvents: 'none', // prevent capturing other interactions except the button
+  // allow only the button inside to be clickable
+  '& > *': { pointerEvents: 'auto' },
+}));
+
 export default function ProductCard({
   product,
   onToggleLike,
@@ -107,6 +135,7 @@ export default function ProductCard({
         ((product.originalPrice - product.price) / product.originalPrice) * 100,
       )
     : 0;
+  const { handleAddToCart } = useCartActions();
 
   return (
     <Root>
@@ -119,7 +148,10 @@ export default function ProductCard({
 
         <LikeButton
           aria-label={product.isLiked ? 'Unlike' : 'Like'}
-          onClick={() => onToggleLike(product.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleLike(product.id);
+          }}
         >
           {product.isLiked ? (
             <FavoriteIcon fontSize="small" sx={{ color: 'error.main' }} />
@@ -127,6 +159,13 @@ export default function ProductCard({
             <FavoriteBorderIcon fontSize="small" sx={{ color: 'grey.700' }} />
           )}
         </LikeButton>
+
+        {/* Hover "Add to cart" — shows only on hover, keeps current design */}
+        <HoverActions className="hoverActions">
+          <StyledButton onClick={() => handleAddToCart(product)}>
+            Add to cart
+          </StyledButton>
+        </HoverActions>
       </ImageWrap>
 
       <CardContent sx={{ p: 2 }}>
@@ -143,6 +182,7 @@ export default function ProductCard({
               lineHeight: 1.3,
               fontWeight: 600,
             }}
+            title={product.name}
           >
             {product.name}
           </Typography>
