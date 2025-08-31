@@ -13,6 +13,7 @@ function AppLayout() {
       {/* <main className="mx-auto max-w-7xl"> */}
       <main className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center">
         {isLoading ? <CircularProgress color="inherit" /> : <Outlet />}
+        {/* <Outlet /> */}
       </main>
       <Footer />
     </div>

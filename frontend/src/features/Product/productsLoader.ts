@@ -1,13 +1,12 @@
 import { type LoaderFunctionArgs } from 'react-router-dom';
 import { Sort } from '../../services/interfaces/paramsType';
 import { getProducts } from '../../services/ProductService';
-const DEFAULT_SORT: Sort = { field: 'name', direction: 'asc' };
 
 // accept "field-asc" or "field,asc"
-function parseSortParam(value: string | null): Sort {
-  if (!value) return DEFAULT_SORT;
+function parseSortParam(value: string | null): Sort | null {
+  if (!value) return null;
   const m = value.trim().match(/^(.+?)[-,](asc|desc)$/i);
-  if (!m) return DEFAULT_SORT;
+  if (!m) return null;
   return {
     field: m[1].trim(),
     direction: m[2].toLowerCase() as Sort['direction'],
@@ -17,6 +16,10 @@ function parseSortParam(value: string | null): Sort {
 const esc = (s: string) => s.replace(/'/g, "''");
 const arrToList = (arr: string[]) =>
   `[${arr.map((v) => `'${esc(v)}'`).join(', ')}]`;
+// e.g. containsAny("logistics.location", ["HCM","DN"])
+// -> "(logistics.location ~~ '*HCM*' or logistics.location ~~ '*DN*')"
+const containsAny = (field: string, values: string[]) =>
+  `(${values.map((v) => `${field} ~~ '*${esc(v)}*'`).join(' or ')})`;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -40,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (categories.length) parts.push(`category in ${arrToList(categories)}`);
   // adjust field path if your entity uses a different one
   if (locations.length)
-    parts.push(`logistic.location in ${arrToList(locations)}`);
+    parts.push(containsAny('logistics.location', locations));
   if (brands.length) parts.push(`details.brand in ${arrToList(brands)}`);
 
   if (priceMin && Number.isFinite(Number(priceMin)))
@@ -54,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const data = await getProducts({
       page,
       size,
-      sort: [sort],
+      sort: sort ? [sort] : undefined,
       filters,
     });
     return { data, q, page, size, sort };

@@ -13,6 +13,8 @@ import {
   useTheme,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { PriceRangeFilter } from '../../components/Filters/PriceRangeFilter';
+import CheckboxFilterSection from '../../components/Filters/CheckboxFilterSection';
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -33,6 +35,7 @@ export interface FilterState {
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  maxPrice: number;
 }
 
 // Get unique values for filters
@@ -75,9 +78,9 @@ const availableCategories = [
 ];
 
 const availableLocations = [
-  'USA',
-  'CANADA',
-  'UK',
+  'HCM',
+  'HANOI',
+  'DN',
   'EUROPE',
   'ASIA',
   'AUSTRALIA',
@@ -108,6 +111,7 @@ const maxPrice = 2000;
 export function FilterSidebar({
   filters,
   onFiltersChange,
+  maxPrice,
 }: FilterSidebarProps) {
   const theme = useTheme();
 
@@ -161,7 +165,7 @@ export function FilterSidebar({
             variant="text"
             size="small"
             onClick={clearAllFilters}
-            sx={{ textTransform: 'none' }}
+            sx={{ textTransform: 'none', color: 'text.primary' }}
           >
             Clear all
           </Button>
@@ -170,189 +174,38 @@ export function FilterSidebar({
 
       <Stack spacing={3} mt={3}>
         {/* Price Range */}
-        <Box>
-          <Typography variant="body2" fontWeight={600} mb={1}>
-            Price Range
-          </Typography>
-
-          <Box px={1}>
-            <Slider
-              value={filters.priceRange}
-              onChange={(_, value) =>
-                updateFilter('priceRange', value as [number, number])
-              }
-              valueLabelDisplay="off"
-              min={0}
-              max={maxPrice}
-              step={10}
-              aria-label="Price range"
-              sx={{
-                color: '#5f5f5f', // thumb + track color
-              }}
-            />
-          </Box>
-
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            sx={{ color: 'text.secondary', fontSize: 14 }}
-          >
-            <span>${filters.priceRange[0].toLocaleString()}</span>
-            <span>${filters.priceRange[1].toLocaleString()}</span>
-          </Stack>
-        </Box>
+        <PriceRangeFilter
+          filters={filters}
+          onFiltersChange={(f) => onFiltersChange(f)} // calls updateParams(...) upstream
+          maxPrice={maxPrice}
+        />
 
         <Divider />
 
         {/* Categories */}
-        <Box>
-          <Typography variant="body2" fontWeight={600} mb={1}>
-            Categories
-          </Typography>
-          <Box sx={{ maxHeight: 120, overflowY: 'auto' }}>
-            <Stack>
-              {availableCategories.map((category) => {
-                const checked = filters.categories.includes(category);
-                const id = `category-${category}`;
-                return (
-                  <Stack
-                    key={category}
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                  >
-                    <Checkbox
-                      id={id}
-                      checked={checked}
-                      onChange={() => toggleArrayFilter('categories', category)}
-                      size="small"
-                      sx={{
-                        // base styles for the unchecked box
-                        '& .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                        },
-                        // when checked
-                        '&.Mui-checked .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                          color: '#3a3a3a', // check mark color (so it stays visible!)
-                        },
-                      }}
-                    />
-                    <Typography
-                      htmlFor={id}
-                      component="label"
-                      sx={{ cursor: 'pointer', flex: 1, fontSize: 14 }}
-                    >
-                      {category}
-                    </Typography>
-                  </Stack>
-                );
-              })}
-            </Stack>
-          </Box>
-        </Box>
-
+        <CheckboxFilterSection
+          title="Categories"
+          idPrefix="category"
+          options={availableCategories}
+          selected={filters.categories}
+          onToggle={(v) => toggleArrayFilter('categories', v)}
+        />
         {/* Locations */}
-        <Box>
-          <Typography variant="body2" fontWeight={600} mb={1}>
-            Ship From
-          </Typography>
-          <Box sx={{ maxHeight: 120, overflowY: 'auto' }}>
-            <Stack>
-              {availableLocations.map((location) => {
-                const checked = filters.locations.includes(location);
-                const id = `location-${location}`;
-                return (
-                  <Stack
-                    key={location}
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                  >
-                    <Checkbox
-                      id={id}
-                      checked={checked}
-                      onChange={() => toggleArrayFilter('locations', location)}
-                      size="small"
-                      sx={{
-                        // base styles for the unchecked box
-                        '& .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                        },
-                        // when checked
-                        '&.Mui-checked .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                          color: '#3a3a3a', // check mark color (so it stays visible!)
-                        },
-                      }}
-                    />
-                    <Typography
-                      htmlFor={id}
-                      component="label"
-                      sx={{ cursor: 'pointer', flex: 1, fontSize: 14 }}
-                    >
-                      {location}
-                    </Typography>
-                  </Stack>
-                );
-              })}
-            </Stack>
-          </Box>
-        </Box>
-
+        <CheckboxFilterSection
+          title="Ship From"
+          idPrefix="location"
+          options={availableLocations}
+          selected={filters.locations}
+          onToggle={(v) => toggleArrayFilter('locations', v)}
+        />
         {/* Brands */}
-        <Box>
-          <Typography variant="body2" fontWeight={600} mb={1}>
-            Brands
-          </Typography>
-          <Box sx={{ maxHeight: 120, overflowY: 'auto' }}>
-            <Stack>
-              {availableBrands.map((brand) => {
-                const checked = filters.brands.includes(brand);
-                const id = `brand-${brand}`;
-                return (
-                  <Stack
-                    key={brand}
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                  >
-                    <Checkbox
-                      id={id}
-                      checked={checked}
-                      onChange={() => toggleArrayFilter('brands', brand)}
-                      size="small"
-                      sx={{
-                        // base styles for the unchecked box
-                        '& .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                        },
-                        // when checked
-                        '&.Mui-checked .MuiSvgIcon-root': {
-                          borderRadius: 1,
-                          backgroundColor: theme.palette.input_background,
-                          color: '#3a3a3a', // check mark color (so it stays visible!)
-                        },
-                      }}
-                    />
-                    <Typography
-                      htmlFor={id}
-                      component="label"
-                      sx={{ cursor: 'pointer', flex: 1, fontSize: 14 }}
-                    >
-                      {brand}
-                    </Typography>
-                  </Stack>
-                );
-              })}
-            </Stack>
-          </Box>
-        </Box>
+        <CheckboxFilterSection
+          title="Brands"
+          idPrefix="brand"
+          options={availableBrands}
+          selected={filters.brands}
+          onToggle={(v) => toggleArrayFilter('brands', v)}
+        />
 
         {/* Active Filters */}
         {hasActiveFilters && (
