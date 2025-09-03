@@ -1,10 +1,9 @@
-
-import { TextField, Box, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
-import { Category, CreateBasicRequest, ProductBasicResponse, UpdateBasicRequest } from '../../../services/interfaces/productInterfaces';
+import { TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import { Category, CreateProductRequest, UpdateBasicRequest } from '../../../services/interfaces/productInterfaces';
 import { Stack } from "@mui/material";
 import { IStepComponent } from "./IStepComponent";
 import * as Yup from "yup";
-import { createBasicProduct } from "../../../services/ProductService";
+import { createProduct, updateBasicProduct } from "../../../services/ProductService";
 import { toast } from "react-toastify"
 
 type BasicFormValues = {
@@ -48,12 +47,12 @@ const CreateBasicStep: IStepComponent<BasicFormValues> = ({ values, errors, touc
                 <Select
                     name="category"
                     value={values.category}
-                    onChange={(e) => setFieldValue("category", e.target.value)}
+                    onChange={(e) => setFieldValue("category", e.target.value as Category)}
                     label="Category"
                 >
-                    {Object.values(Category).map((cat) => (
-                        <MenuItem key={cat} value={cat}>
-                            {cat}
+                    {Object.entries(Category).map(([key, value]) => (
+                        <MenuItem key={key} value={key}>
+                            {value}
                         </MenuItem>
                     ))}
                 </Select>
@@ -78,9 +77,9 @@ CreateBasicStep.validationSchema = Yup.object({
         .max(100, "Tên chỉ có tối đa 100 ký tự"),
     description: Yup.string()
         .max(500, "Mô tả không vượt quá 500 ký tự"),
-    category: Yup.mixed<Category>()
-        .oneOf(Object.values(Category) as Category[])
-        .required("Vui lòng chọn loại sản phẩm")
+    category: Yup.mixed<keyof typeof Category>()
+        .oneOf(Object.keys(Category) as (keyof typeof Category)[])
+        .required("Vui lòng chọn loại sản phẩm"),
 })
 
 CreateBasicStep.visited = false;
@@ -88,18 +87,14 @@ CreateBasicStep.visited = false;
 CreateBasicStep.onNextStep = async (values, { setFieldValue }) => {
     console.log("Create and get new id")
 
-    if (!values.userId) {
-        toast.error("User id không tồn tại, vui lòng đăng nhập lại");
-        return;
-    }
-    const payload: CreateBasicRequest = {
+    const payload: CreateProductRequest = {
         name: values.name,
         description: values.description,
         category: values.category as Category,
-        sellerId: values.userId,
+        sellerId: values.userId!,
     };
 
-    const data = await createBasicProduct(payload)
+    const data = await createProduct(payload)
     toast.success("Create basic success")
     console.log(data)
 
@@ -107,8 +102,17 @@ CreateBasicStep.onNextStep = async (values, { setFieldValue }) => {
 }
 
 
-CreateBasicStep.onNextStepWhenBack = (values) => {
-    console.log("Update information")
+CreateBasicStep.onNextStepWhenBack = async (values) => {
+    const payload: UpdateBasicRequest = {
+        name: values.name,
+        description: values.description,
+        category: values.category as Category
+    };
+
+    const data = await updateBasicProduct(payload, values.productId!, values.userId!)
+
+    toast.success("Update basic success")
+
 }
 
 export default CreateBasicStep

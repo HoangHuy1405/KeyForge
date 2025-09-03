@@ -16,7 +16,7 @@ type UpdateInventoryValues = {
 };
 
 const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
-    const { values, errors, touched, handleChange, setFieldValue } = props;
+    const { values, errors, touched, handleChange } = props;
 
     return (
         <Stack mt={3} spacing={3}>
@@ -32,6 +32,7 @@ const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 0.01 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -48,6 +49,7 @@ const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -64,6 +66,7 @@ const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -80,6 +83,7 @@ const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -96,6 +100,7 @@ const UpdateInventoryStep: IStepComponent<UpdateInventoryValues> = (props) => {
                 slotProps={{
                     input: {
                         inputProps: { min: 1, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -140,18 +145,7 @@ UpdateInventoryStep.onNextStep = async (values) => {
         maxOrderQuantity: values.maxOrderQuantity ? Number(values.maxOrderQuantity) : undefined,
     };
 
-
-    if (!values.productId) {
-        toast.error("Reload page and try again");
-        return;
-    }
-
-    if (!values.userId) {
-        toast.error("User id không tồn tại, vui lòng đăng nhập lại");
-        return;
-    }
-
-    const data = await updateInventoryProduct(values.productId, values.userId, payload)
+    const data = await updateInventoryProduct(payload, values.productId!, values.userId!)
     toast.success("Update inventory success")
 };
 

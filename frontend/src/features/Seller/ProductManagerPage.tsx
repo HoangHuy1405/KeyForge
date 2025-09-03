@@ -9,33 +9,21 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
 import CreateProductDialog from "./CreateProductDialog";
-import { useState } from "react";
-// import { ProductResponse } from "../../services/interfaces/productInterfaces";
+import { useEffect, useState } from "react";
+import { Meta, Product } from "../../services/interfaces/productInterfaces";
+import { useSelector } from "react-redux";
+import { getUserId } from "../../redux/slice/accountSlice";
+import { getProductsBySeller } from "../../services/ProductService";
+import { toast } from "react-toastify";
 
-// Fake data mẫu
-const rows = [
-    { id: 1, name: "iPhone 15 Pro", price: 1200, stock: 50, category: "Phones" },
-    { id: 2, name: "Samsung Galaxy S24", price: 1000, stock: 35, category: "Phones" },
-    { id: 3, name: "MacBook Pro 16", price: 2500, stock: 15, category: "Laptops" },
-    { id: 4, name: "Sony WH-1000XM5", price: 400, stock: 80, category: "Headphones" },
-];
-
-// Định nghĩa cột bảng
 const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "name", headerName: "Product Name", flex: 1, minWidth: 200 },
     { field: "category", headerName: "Category", width: 150 },
-    {
-        field: "price",
-        headerName: "Price ($)",
-        width: 120,
-        valueFormatter: (params) => `$${params.value}`,
-    },
-    { field: "inStock", headerName: "In Stock", width: 120 },
+    { field: "availableQuantity", headerName: "Available", width: 120 },
     { field: "status", headerName: "Status", width: 150 },
-
     {
         field: "actions",
         headerName: "Actions",
@@ -66,25 +54,43 @@ const columns: GridColDef[] = [
 
 export default function ProductManagerPage() {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [refresh, setRefresh] = useState(false); // toggle mỗi khi tạo product thành công
 
-    // const [rows, setRows] = useState<ProductResponse[]>([]);
+    const [rows, setRows] = useState<Product[]>([]);
+    const [meta, setMeta] = useState<Meta>({
+        page: 0,
+        pageSize: 5,
+        pages: 0,
+        total: 0,
+    });
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+        page: 0,
+        pageSize: 5,
+    });
+
+    const sellerId = useSelector(getUserId);
+
     const [loading, setLoading] = useState<boolean>(false);
 
-    // useEffect(() => {
-    //     const fetchProducts = async () => {
-    //         setLoading(true);
-    //         try {
-    //             const res = await
-    //                 setRows(res.data);
-    //         } catch (err) {
-    //             console.error("Fetch products error:", err);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
+    useEffect(() => {
+        setLoading(true);
+        const fetchProducts = async (page: number, size: number) => {
+            try {
+                setLoading(true)
+                const data = await getProductsBySeller({ page, size }, sellerId)
+                console.log(data)
+                setRows(data.result)
+                setMeta(data.meta)
+            } catch (error) {
+                toast.error("Lỗi khi lấy sản phẩm:", error)
+                setRows([])
+            } finally {
+                setLoading(false)
+            }
+        };
 
-    //     fetchProducts();
-    // }, []);
+        fetchProducts(paginationModel.page, paginationModel.pageSize);
+    }, [paginationModel, refresh]);
 
 
     return (
@@ -111,7 +117,13 @@ export default function ProductManagerPage() {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    pageSizeOptions={[5, 10, 20]}
+                    loading={loading}
+                    paginationMode="server"
+                    rowCount={meta.total}
+                    paginationModel={paginationModel}
+                    pageSizeOptions={[5]}
+                    onPaginationModelChange={setPaginationModel}
+                    getRowId={(row) => row.id}
                     initialState={{
                         pagination: { paginationModel: { pageSize: 5, page: 0 } },
                     }}
@@ -121,7 +133,7 @@ export default function ProductManagerPage() {
             <CreateProductDialog
                 open={openDialog}
                 onClose={() => setOpenDialog(false)}
-
+                onCreateSuccess={() => setRefresh(prev => !prev)}
             />
         </Box>
     );

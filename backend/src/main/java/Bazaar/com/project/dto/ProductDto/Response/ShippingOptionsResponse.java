@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ShippingOptionsResponse(
-                Boolean fast,
-                Boolean regular,
-                Boolean economy) {
+        Boolean fast,
+        Boolean regular,
+        Boolean economy) {
 }

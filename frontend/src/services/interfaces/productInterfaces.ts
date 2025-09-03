@@ -21,8 +21,6 @@ export interface Product {
   inventory: Inventory;
   availableQuantity: number;
 }
-
-export type Category = 'ELECTRONICS' | 'FURNITURE' | string;
 export type ProductStatus =
   | 'ACTIVE'
   | 'DRAFT'
@@ -36,10 +34,10 @@ export interface ProductDetails {
   size: string;
   material: string;
   origin: string; // e.g., "VN", "KR"
-  condition: Condition;
+  condition: ProductCondition;
 }
 
-export type Condition = 'NEW' | 'REFURBISHED' | 'USED' | string;
+// export type Condition = 'NEW' | 'REFURBISHED' | 'USED' | string;
 
 export interface Logistic {
   location: string; // e.g., "HCMC-DC1"
@@ -47,4 +45,137 @@ export interface Logistic {
 
 export interface Inventory {
   price: number;
+}
+
+
+// Category enum dạng string enum
+export enum Category {
+  FASHION = "Fashion",
+  JEWELRY = "Jewelry",
+  WATCHES = "Watches",
+
+  ELECTRONICS = "Electronics",
+  PHONES = "Phones",
+  LAPTOPS = "Laptops",
+  TABLETS = "Tablets",
+  CAMERAS = "Cameras",
+  ACCESSORIES = "Accessories",
+
+  FURNITURE = "Furniture",
+  HOME_APPLIANCES = "Home Appliances",
+  KITCHEN = "Kitchen",
+  DECOR = "Decor",
+
+  BEAUTY = "Beauty",
+  COSMETICS = "Cosmetics",
+  SKINCARE = "Skincare",
+  HAIRCARE = "Haircare",
+  SUPPLEMENTS = "Supplements",
+
+  BOOKS = "Books",
+  TOYS = "Toys",
+  SPORTS = "Sports",
+  AUTOMOTIVE = "Automotive",
+  PET = "Pet",
+
+  FOOD = "Food",
+}
+
+export const ProductCategoryOptions = Object.values(Category).map((value) => ({
+  value,
+  label: value,
+}));
+
+
+export interface CreateProductRequest {
+  name: string;
+  description?: string;
+  category: Category;
+  sellerId: string;
+}
+
+export interface UpdateBasicRequest {
+  name: string;
+  description?: string;
+  category: Category;
+}
+
+export interface ProductBasicResponse {
+  id: string;
+  name: string;
+  description: string;
+  category: Category;
+  status: ProductStatus;
+}
+
+
+export enum ProductCondition {
+  NEW = "New",
+  USED = "Used",
+  REFURBISHED = "Refurbished",
+}
+
+export interface UpdateDetailsRequest {
+  brand?: string;
+  model?: string;
+  size?: string;
+  material?: string;
+  origin?: string;
+  condition: ProductCondition;
+}
+
+export interface ProductDetailedResponse {
+  brand?: string;
+  model?: string;
+  size?: string;
+  material?: string;
+  origin?: string;
+  condition?: ProductCondition;
+}
+
+export interface UpdateInventoryRequest {
+  price: number;
+  stockQuantity: number;
+  reservedQuantity: number;
+  minOrderQuantity?: number;
+  maxOrderQuantity?: number;
+}
+
+export interface ProductInventoryResponse {
+  price?: number;
+  stockQuantity?: number;
+  reservedQuantity?: number;
+  availableQuantity?: number;
+  minOrderQuantity?: number;
+  maxOrderQuantity?: number;
+}
+
+export interface UpdateLogisticsRequest {
+  weightGrams?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+  location?: string;
+  preOrder?: boolean;
+  preOrderLeadTimeDays?: number;
+  supportFastShipping?: boolean;
+  supportRegularShipping?: boolean;
+  supportEconomyShipping?: boolean;
+}
+
+export interface ProductLogisticsResponse {
+  weightGrams?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+  location?: string;
+  preOrder?: boolean;
+  preOrderLeadTimeDays?: number;
+  shipping?: ShippingOptionsResponse;
+}
+
+interface ShippingOptionsResponse {
+  fast?: boolean;
+  regular?: boolean;
+  economy?: boolean;
 }

@@ -91,14 +91,16 @@ function DemoPageContent({ pathname }: { pathname: string }) {
         textAlign: 'center',
       }}
     >
-      {pathname === "inventory" ? (
-        <Typography variant="h6">
+      {pathname === "/inventory" ? (
+        <>
+          <Typography variant="h6">Inventory</Typography>
           <ProductManagerPage />
-        </Typography>
+        </>
       ) : (
         <Typography>Dashboard content for {pathname}</Typography>
+
       )}
-    </Box>
+    </Box >
   );
 }
 

@@ -5,12 +5,13 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import { refresh } from "./AuthService";
 
 interface ApiResponse<T = any> {
   status: "success" | "error";
   data?: T;
-  message?: string;
-  errorCode?: string;
+  message?: any;
+  statusCode?: string;
   timestamp?: string;
 }
 
@@ -43,11 +44,11 @@ let isRefreshing = false;
 let failedQueue: FailedRequest[] = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach((failedReq) => {
     if (error) {
-      prom.reject(error);
+      failedReq.reject(error);
     } else {
-      prom.resolve(token);
+      failedReq.resolve(token);
     }
   });
   failedQueue = [];
@@ -63,7 +64,7 @@ instance.interceptors.response.use(
     } else {
       return Promise.reject({
         message: apiResponse.message,
-        errorCode: apiResponse.errorCode,
+        errorCode: apiResponse.statusCode,
         timestamp: apiResponse.timestamp,
       });
     }
@@ -73,10 +74,15 @@ instance.interceptors.response.use(
 
     // Nếu bị 401 (Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
+
+
+      // nếu có thằng khác đang gọi refresh => đưa vào queue
+      // sau khi xong, gọi resolve(token)
       if (isRefreshing) {
         return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
+          // sau khi đã có token
           .then((token) => {
             if (token) {
               originalRequest.headers["Authorization"] = "Bearer " + token;
@@ -86,17 +92,15 @@ instance.interceptors.response.use(
           .catch((err) => Promise.reject(err));
       }
 
+      // thằng đầu gọi refresh và set isRefreshing = true
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const res = await axios.post<{ token: string }>(
-          "http://localhost:8080/auth/refresh",
-          {},
-          { withCredentials: true }
-        );
+        const data = await refresh();
+        const newToken = data.accessToken;
 
-        const newToken = res.data.token;
+        // set access_token mới
         localStorage.setItem("access_token", newToken);
         instance.defaults.headers.common["Authorization"] =
           "Bearer " + newToken;
@@ -104,6 +108,7 @@ instance.interceptors.response.use(
         processQueue(null, newToken);
 
         return instance(originalRequest);
+        // xử lý refresh fail
       } catch (err) {
         processQueue(err, null);
         localStorage.removeItem("access_token");
@@ -118,7 +123,7 @@ instance.interceptors.response.use(
       const data = error.response.data as ApiResponse;
       return Promise.reject({
         message: data.message || "Unknown server error",
-        errorCode: data.errorCode || "UNKNOWN_ERROR",
+        errorCode: data.statusCode || "UNKNOWN_ERROR",
         timestamp: data.timestamp,
       });
     }

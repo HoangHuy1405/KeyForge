@@ -3,7 +3,7 @@ import { IStepComponent } from "./IStepComponent";
 import * as Yup from "yup";
 import { updateLogisticProduct } from "../../../services/ProductService";
 import { toast } from "react-toastify"
-import { UpdateLogisticRequest } from "../../../services/interfaces/productInterfaces";
+import { UpdateLogisticsRequest } from "../../../services/interfaces/productInterfaces";
 
 type LogisticsFormValues = {
     weightGrams: number | "";
@@ -42,7 +42,9 @@ const UpdateLogisticsStep: IStepComponent<LogisticsFormValues> = ({
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
+
                 }}
             />
 
@@ -58,6 +60,7 @@ const UpdateLogisticsStep: IStepComponent<LogisticsFormValues> = ({
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -73,6 +76,7 @@ const UpdateLogisticsStep: IStepComponent<LogisticsFormValues> = ({
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -89,6 +93,7 @@ const UpdateLogisticsStep: IStepComponent<LogisticsFormValues> = ({
                 slotProps={{
                     input: {
                         inputProps: { min: 0, step: 1 },
+                        onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                     },
                 }}
             />
@@ -130,6 +135,7 @@ const UpdateLogisticsStep: IStepComponent<LogisticsFormValues> = ({
                     slotProps={{
                         input: {
                             inputProps: { min: 0, step: 1 },
+                            onWheel: (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
                         },
                     }}
                 />
@@ -202,7 +208,7 @@ UpdateLogisticsStep.validationSchema = Yup.object({
 UpdateLogisticsStep.visited = false;
 
 UpdateLogisticsStep.onNextStep = async (values) => {
-    const payload: UpdateLogisticRequest = {
+    const payload: UpdateLogisticsRequest = {
         weightGrams: values.weightGrams ? Number(values.weightGrams) : undefined,
         lengthCm: values.lengthCm ? Number(values.lengthCm) : undefined,
         widthCm: values.widthCm ? Number(values.widthCm) : undefined,
@@ -225,7 +231,7 @@ UpdateLogisticsStep.onNextStep = async (values) => {
         return;
     }
 
-    const data = await updateLogisticProduct(values.productId, values.userId, payload)
+    const data = await updateLogisticProduct(payload, values.productId, values.userId,)
     toast.success("Update inventory success")
 };
 

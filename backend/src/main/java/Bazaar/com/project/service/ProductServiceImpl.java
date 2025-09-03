@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import Bazaar.com.project.dto.ProductDto.Request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
@@ -14,10 +15,6 @@ import org.springframework.stereotype.Service;
 import Bazaar.com.project.dto.Meta;
 import Bazaar.com.project.dto.ResultPaginationDTO;
 import Bazaar.com.project.dto.ProductDto.ProductMapper;
-import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateLogisticsRequest;
 import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
 import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
@@ -86,6 +83,18 @@ public class ProductServiceImpl implements ProductService {
         return new DetailedResponse(
                 d.getBrand(), d.getModel(), d.getSize(),
                 d.getMaterial(), d.getOrigin(), d.getCondition());
+    }
+
+    @Override
+    public ProductBasicResponse updateBasic(UpdateBasicRequest req, UUID productId, UUID sellerId) {
+        Product p = getOwned(productId, sellerId);
+
+        p.setName(req.name());
+        p.setDescription(req.description());
+        p.setCategory(req.category());
+
+        p = productRepository.save(p);
+        return ProductMapper.toBasic(p);
     }
 
     @Override

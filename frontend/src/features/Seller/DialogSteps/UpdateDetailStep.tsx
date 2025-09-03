@@ -1,10 +1,9 @@
-
 import { TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
-import { ProductCondition, UpdateDetailedRequest } from '../../../services/interfaces/productInterfaces';
+import { ProductCondition, UpdateDetailsRequest } from '../../../services/interfaces/productInterfaces';
 import { Stack } from "@mui/material";
 import { IStepComponent } from "./IStepComponent";
 import * as Yup from "yup";
-import { updateDetailProduct } from "../../../services/ProductService";
+import { updateDetailsProduct } from "../../../services/ProductService";
 import { toast } from "react-toastify";
 
 type UpdateDetailValues = {
@@ -77,12 +76,12 @@ const UpdateDetailStep: IStepComponent<UpdateDetailValues> = (props) => {
                 <Select
                     name="condition"
                     value={values.condition}
-                    onChange={(e) => setFieldValue("condition", e.target.value)}
+                    onChange={(e) => setFieldValue("condition", e.target.value as ProductCondition)}
                     label="condition"
                 >
-                    {Object.values(ProductCondition).map((cond) => (
-                        <MenuItem key={cond} value={cond}>
-                            {cond}
+                    {Object.entries(ProductCondition).map(([key, value]) => (
+                        <MenuItem key={key} value={key}>
+                            {value}
                         </MenuItem>
                     ))}
                 </Select>
@@ -122,14 +121,14 @@ UpdateDetailStep.validationSchema = Yup.object({
     origin: Yup.string()
         .max(100, "Không vượt quá 100 ký tự")
         .required("Bắt buộc nhập xuất xứ"),
-    condition: Yup.mixed<ProductCondition>()
-        .oneOf(Object.values(ProductCondition) as ProductCondition[])
-        .required("Chọn tình trạng sản phẩm")
+    condition: Yup.mixed<keyof typeof ProductCondition>()
+        .oneOf(Object.keys(ProductCondition) as (keyof typeof ProductCondition)[])
+        .required("Vui lòng chọn loại sản phẩm"),
 })
 
 
 UpdateDetailStep.onNextStep = async (values) => {
-    const payload: UpdateDetailedRequest = {
+    const payload: UpdateDetailsRequest = {
         brand: values.brand,
         model: values.model,
         size: values.size,
@@ -138,6 +137,7 @@ UpdateDetailStep.onNextStep = async (values) => {
         condition: values.condition as ProductCondition,
     };
 
+    console.log("Update Details Product")
     if (!values.productId) {
         toast.error("Reload page and try again");
         return;
@@ -148,7 +148,7 @@ UpdateDetailStep.onNextStep = async (values) => {
         return;
     }
 
-    const data = await updateDetailProduct(values.productId, values.userId, payload)
+    const data = await updateDetailsProduct(payload, values.productId, values.userId,)
     toast.success("Update detail success")
 };
 

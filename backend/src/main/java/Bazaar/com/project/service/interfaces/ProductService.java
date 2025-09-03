@@ -3,14 +3,11 @@ package Bazaar.com.project.service.interfaces;
 import java.util.List;
 import java.util.UUID;
 
+import Bazaar.com.project.dto.ProductDto.Request.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import Bazaar.com.project.dto.ResultPaginationDTO;
-import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateLogisticsRequest;
 import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
 import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
@@ -24,6 +21,8 @@ public interface ProductService {
     ProductBasicResponse createBasic(CreateProductRequest req);
 
     DetailedResponse updateDetails(UUID productId, UUID sellerId, UpdateDetailsRequest req);
+
+    ProductBasicResponse updateBasic(UpdateBasicRequest req, UUID productId, UUID sellerId);
 
     InventoryResponse updateInventory(UUID productId, UUID sellerId, UpdateInventoryRequest req);
 

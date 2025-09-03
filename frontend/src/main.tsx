@@ -5,13 +5,13 @@ import App from './App.jsx';
 import theme from './theme/theme.js';
 import { CircularProgress, CssBaseline, ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
-import store, { persistor } from './redux/store.ts';
+import store, { persist_store } from './redux/store.ts';
 import { PersistGate } from 'redux-persist/integration/react';
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <PersistGate loading={<CircularProgress />} persistor={persistor}>
+      <PersistGate loading={<CircularProgress />} persistor={persist_store}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <App />

@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { getUserId } from "../../redux/slice/accountSlice";
 import { toast } from "react-toastify"
 
-export default function CreateProductDialogFormik({ open, onClose }: { open: boolean, onClose: () => void }) {
+export default function CreateProductDialogFormik({ open, onClose, onCreateSuccess }: { open: boolean, onClose: () => void, onCreateSuccess: () => void }) {
     const steps: IStepComponent<any>[] = [CreateBasicStep, UpdateDetailStep, UpdateInventoryStep, UpdateLogisticsStep]
     const [activeStep, setActiveStep] = useState(0);
     const [visitedSteps, setVisitedSteps] = useState<boolean[]>(steps.map(() => false));
@@ -39,6 +39,7 @@ export default function CreateProductDialogFormik({ open, onClose }: { open: boo
     };
 
     const onSubmit = async (values, formikBag: FormikHelpers<any>) => {
+        console.log("Submit next step")
         const { setSubmitting, resetForm } = formikBag;
 
         const CurrentStep = steps[activeStep];
@@ -75,6 +76,7 @@ export default function CreateProductDialogFormik({ open, onClose }: { open: boo
         // Submit
         resetState();
         resetForm();
+        onCreateSuccess();
         onClose();
     };
 
