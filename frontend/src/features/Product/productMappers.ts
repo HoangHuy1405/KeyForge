@@ -1,9 +1,11 @@
 import { CartItemData } from '../../redux/slice/cartSlice';
+import { ProductFavorite } from '../../redux/slice/favoriteSlice';
 import {
   ProductList,
   Product,
+  ProductDetailsView,
 } from '../../services/interfaces/productInterfaces';
-import { ProductView } from './ProductCard';
+import { ProductView } from './ProductListingPage/ProductCard';
 
 /** Map a single API product into the UI-friendly ProductView shape */
 export function mapProductToView(p: Product): ProductView {
@@ -26,8 +28,6 @@ export function mapProductToView(p: Product): ProductView {
     category: String(p.category ?? ''),
     brand: p.details?.brand || '',
 
-    // Local UI-only flags/derived fields
-    isLiked: false,
     sales: 0, // API doesn't expose sales; default to 0
 
     // If backend has createdAt/updatedAt, prefer those. For now, set ISO “now”
@@ -53,5 +53,52 @@ export function mapFromProductViewToCartItem(
     quantity,
     totalPrice: product.price * quantity,
     selected,
+  };
+}
+export function mapFromProductViewToProductFavorite(
+  product: ProductView,
+): ProductFavorite {
+  return {
+    id: product.id,
+    name: product.name,
+    image: product.image,
+    unitPrice: product.price,
+  };
+}
+export function mapFromDetailsViewToFavorite(
+  product: ProductDetailsView,
+): ProductFavorite {
+  return {
+    id: product.id,
+    name: product.name,
+    image: product.thumbnailUrl,
+    unitPrice: product.inventory.price,
+  };
+}
+export function mapFromCartItemToProductFavorite(
+  item: CartItemData,
+): ProductFavorite {
+  return {
+    id: item.id,
+    name: item.name,
+    image: item.image,
+    unitPrice: item.unitPrice,
+  };
+}
+export function mapDetailsToView(p: ProductDetailsView): ProductView {
+  return {
+    id: p.id,
+    name: p.name,
+    price: p.inventory?.price ?? 0,
+    originalPrice: undefined,
+    rating: 0,
+    reviewCount: 0,
+    image: p.thumbnailUrl || '',
+    seller: p.details?.brand || 'Unknown',
+    location: p.logistics?.location || '',
+    category: String(p.category ?? ''),
+    brand: p.details?.brand || '',
+    sales: 0,
+    dateAdded: new Date().toISOString(),
   };
 }

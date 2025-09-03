@@ -21,6 +21,7 @@ const theme = createTheme({
       secondary: '#5f5f5f', // chữ phụ
     },
     input_background: '#f3f3f5',
+    outline: '#75757536',
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',

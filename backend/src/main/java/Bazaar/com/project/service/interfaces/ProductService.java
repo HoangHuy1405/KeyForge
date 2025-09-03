@@ -1,6 +1,5 @@
 package Bazaar.com.project.service.interfaces;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -16,6 +15,7 @@ import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductViewerResponse;
 import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
 
@@ -30,6 +30,8 @@ public interface ProductService {
     LogisticsResponse updateLogistics(UUID productId, UUID sellerId, UpdateLogisticsRequest req);
 
     ProductFullResponse findProductById(UUID id);
+
+    ProductViewerResponse findProductByIdForViewer(UUID id);
 
     ResultPaginationDTO getAllProduct(Specification<Product> specification, Pageable pageable);
 

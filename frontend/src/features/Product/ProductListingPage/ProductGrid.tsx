@@ -9,7 +9,6 @@ type GridColumns = number | Partial<Record<Breakpoint, number>>;
 
 type ProductGridProps = {
   products: ProductView[];
-  toggleLike: (productId: ProductView['id']) => void; // adjust if your ProductCard expects a different handler shape
   columns?: GridColumns; // default 4
   spacing?: number; // default 2
   mt?: number; // default 2
@@ -33,7 +32,6 @@ const computeSize = (
 
 const ProductGrid: React.FC<ProductGridProps> = ({
   products,
-  toggleLike,
   columns = 4,
   spacing = 2,
   mt = 2,
@@ -44,7 +42,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     <Grid container spacing={spacing} mt={mt}>
       {products.map((product) => (
         <Grid key={product.id} size={itemSize}>
-          <ProductCard product={product} onToggleLike={toggleLike} />
+          <ProductCard product={product} />
         </Grid>
       ))}
     </Grid>

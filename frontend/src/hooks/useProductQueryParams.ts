@@ -1,8 +1,8 @@
 // hooks/useProductQueryParams.ts
 import { useMemo } from 'react';
 import { useUrlParams } from './useUrlParams';
-import { SortOption } from '../features/Product/SortingControls';
-import { FilterState } from '../features/Product/FilterSidebar';
+import { SortOption } from '../features/Product/ProductListingPage/SortingControls';
+import { FilterState } from '../features/Product/ProductListingPage/FilterSidebar';
 
 const toNum = (v: string | null, fallback: number) => {
   if (v == null) return fallback;

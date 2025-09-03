@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs } from 'react-router-dom';
-import { Sort } from '../../services/interfaces/paramsType';
-import { getProducts } from '../../services/ProductService';
+import { Sort } from '../../../services/interfaces/paramsType';
+import { getProducts } from '../../../services/ProductService';
 
 // accept "field-asc" or "field,asc"
 function parseSortParam(value: string | null): Sort | null {

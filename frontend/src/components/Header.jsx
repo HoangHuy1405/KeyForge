@@ -32,11 +32,14 @@ import ProductSearchBar from '../features/Product/ProductSearchBar';
 import StyledBadge from '../components/StyledBadge';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { HeaderCart } from '../features/Cart/HeaderCart';
+import { useAppSelector } from '../hooks/hooks';
+import { selectFavoritesCount } from '../redux/slice/favoriteSlice';
 
 const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // responsive check
   const isAuthenticated = useSelector((state) => state.account.isAuthenticated);
+  const favorCount = useAppSelector(selectFavoritesCount);
 
   return (
     <Box>
@@ -147,7 +150,11 @@ const Header = () => {
                           p: 0.5,
                         }}
                       >
-                        <StyledBadge badgeContent={3} top={2} right={-3}>
+                        <StyledBadge
+                          badgeContent={favorCount}
+                          top={2}
+                          right={-3}
+                        >
                           <FavoriteBorderIcon fontSize="small" />
                         </StyledBadge>
                       </IconButton>

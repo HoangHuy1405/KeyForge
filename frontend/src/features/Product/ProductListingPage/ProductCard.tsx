@@ -1,18 +1,20 @@
-import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StarIcon from '@mui/icons-material/Star';
-import { styled, useTheme } from '@mui/material/styles';
-import { StyledButton } from '../../components/StyledButton';
-import { Product } from '../../services/interfaces/productInterfaces';
-import { useCartActions } from '../../hooks/useCartActions';
+import { styled } from '@mui/material/styles';
+import { useDispatch } from 'react-redux';
+import { useCartActions } from '../../../hooks/useCartActions';
+import { useAppSelector } from '../../../hooks/hooks';
+import { isFavorite, toggleFavorite } from '../../../redux/slice/favoriteSlice';
+import { mapFromProductViewToProductFavorite } from '../productMappers';
+import { StyledButton } from '../../../components/StyledButton';
+import { useNavigate } from 'react-router';
 
 export interface ProductView {
   id: string;
@@ -26,17 +28,132 @@ export interface ProductView {
   location: string;
   category: string;
   brand: string;
-  isLiked: boolean;
   sales: number;
   dateAdded: string;
 }
 
 interface ProductCardProps {
   product: ProductView;
-  onToggleLike: (id: string) => void;
-  handleAddToCart: (id: string) => void; // <-- added
 }
 
+export default function ProductCard({ product }: ProductCardProps) {
+  const discountPercentage = product.originalPrice
+    ? Math.round(
+        ((product.originalPrice - product.price) / product.originalPrice) * 100,
+      )
+    : 0;
+  const { handleAddToCart } = useCartActions();
+  const dispatch = useDispatch();
+  const isFav = useAppSelector(isFavorite(product.id));
+  const navigate = useNavigate();
+
+  function handleToggleFavorite() {
+    dispatch(toggleFavorite(mapFromProductViewToProductFavorite(product)));
+  }
+
+  return (
+    <Root>
+      <ImageWrap>
+        <Img
+          src={product.image}
+          alt={product.name}
+          onClick={() => navigate(`/products/${product.id}`)}
+        />
+
+        {discountPercentage > 0 && (
+          <DiscountChip label={`-${discountPercentage}%`} />
+        )}
+
+        <LikeButton
+          aria-label={isFav ? 'Unlike' : 'Like'}
+          onClick={handleToggleFavorite}
+        >
+          {isFav ? (
+            <FavoriteIcon fontSize="small" sx={{ color: 'error.main' }} />
+          ) : (
+            <FavoriteBorderIcon fontSize="small" sx={{ color: 'grey.700' }} />
+          )}
+        </LikeButton>
+
+        {/* Hover "Add to cart" — shows only on hover, keeps current design */}
+        <HoverActions className="hoverActions">
+          <StyledButton onClick={() => handleAddToCart(product)}>
+            Add to cart
+          </StyledButton>
+        </HoverActions>
+      </ImageWrap>
+
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ mb: 1.5 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              mb: 0.5,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              color: 'grey.900',
+              lineHeight: 1.3,
+              fontWeight: 600,
+            }}
+            title={product.name}
+          >
+            {product.name}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'grey.600' }}>
+            by {product.seller}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <StarIcon fontSize="small" sx={{ color: 'warning.main' }} />
+            <Typography variant="body2">{product.rating}</Typography>
+          </Box>
+          <Typography variant="body2" sx={{ color: 'grey.600' }}>
+            ({product.reviewCount})
+          </Typography>
+          <Box sx={{ ml: 'auto' }}>
+            <Pill variant="filled" color="default" label={product.location} />
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{ color: 'grey.900', fontWeight: 700 }}
+            >
+              ${product.price.toLocaleString()}
+            </Typography>
+            {product.originalPrice && (
+              <Typography
+                variant="body2"
+                sx={{ color: 'grey.600', textDecoration: 'line-through' }}
+              >
+                ${product.originalPrice.toLocaleString()}
+              </Typography>
+            )}
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Pill variant="outlined" color="default" label={product.category} />
+            <Typography variant="caption" sx={{ color: 'grey.600' }}>
+              {product.sales} sold
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
+    </Root>
+  );
+}
 const Root = styled(Card)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
@@ -125,117 +242,3 @@ const HoverActions = styled('div')(({ theme }) => ({
   // allow only the button inside to be clickable
   '& > *': { pointerEvents: 'auto' },
 }));
-
-export default function ProductCard({
-  product,
-  onToggleLike,
-}: ProductCardProps) {
-  const discountPercentage = product.originalPrice
-    ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100,
-      )
-    : 0;
-  const { handleAddToCart } = useCartActions();
-
-  return (
-    <Root>
-      <ImageWrap>
-        <Img src={product.image} alt={product.name} />
-
-        {discountPercentage > 0 && (
-          <DiscountChip label={`-${discountPercentage}%`} />
-        )}
-
-        <LikeButton
-          aria-label={product.isLiked ? 'Unlike' : 'Like'}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleLike(product.id);
-          }}
-        >
-          {product.isLiked ? (
-            <FavoriteIcon fontSize="small" sx={{ color: 'error.main' }} />
-          ) : (
-            <FavoriteBorderIcon fontSize="small" sx={{ color: 'grey.700' }} />
-          )}
-        </LikeButton>
-
-        {/* Hover "Add to cart" — shows only on hover, keeps current design */}
-        <HoverActions className="hoverActions">
-          <StyledButton onClick={() => handleAddToCart(product)}>
-            Add to cart
-          </StyledButton>
-        </HoverActions>
-      </ImageWrap>
-
-      <CardContent sx={{ p: 2 }}>
-        <Box sx={{ mb: 1.5 }}>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              mb: 0.5,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              color: 'grey.900',
-              lineHeight: 1.3,
-              fontWeight: 600,
-            }}
-            title={product.name}
-          >
-            {product.name}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'grey.600' }}>
-            by {product.seller}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <StarIcon fontSize="small" sx={{ color: 'warning.main' }} />
-            <Typography variant="body2">{product.rating}</Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: 'grey.600' }}>
-            ({product.reviewCount})
-          </Typography>
-          <Box sx={{ ml: 'auto' }}>
-            <Pill variant="filled" color="default" label={product.location} />
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography
-              variant="h6"
-              sx={{ color: 'grey.900', fontWeight: 700 }}
-            >
-              ${product.price.toLocaleString()}
-            </Typography>
-            {product.originalPrice && (
-              <Typography
-                variant="body2"
-                sx={{ color: 'grey.600', textDecoration: 'line-through' }}
-              >
-                ${product.originalPrice.toLocaleString()}
-              </Typography>
-            )}
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Pill variant="outlined" color="default" label={product.category} />
-            <Typography variant="caption" sx={{ color: 'grey.600' }}>
-              {product.sales} sold
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Root>
-  );
-}

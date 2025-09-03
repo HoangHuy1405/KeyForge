@@ -1,6 +1,9 @@
 import api from './api';
 import { GetListParams } from './interfaces/paramsType';
-import { ProductList } from './interfaces/productInterfaces';
+import {
+  ProductDetailsView,
+  ProductList,
+} from './interfaces/productInterfaces';
 
 const BASE = 'api/products';
 
@@ -22,6 +25,13 @@ export async function getProducts(params: GetListParams): Promise<ProductList> {
   console.log(searchParams.toString());
   const data = await api.get<ProductList, ProductList>(
     `${BASE}?${searchParams.toString()}`,
+  );
+  return data;
+}
+
+export async function getProduct(id: string): Promise<ProductDetailsView> {
+  const data = await api.get<ProductDetailsView, ProductDetailsView>(
+    `${BASE}/${id}`,
   );
   return data;
 }

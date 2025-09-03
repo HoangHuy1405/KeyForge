@@ -11,6 +11,7 @@ import {
   useTheme,
 } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
@@ -23,16 +24,20 @@ import {
 } from '../../redux/slice/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useCartActions } from '../../hooks/useCartActions';
+import { isFavorite, toggleFavorite } from '../../redux/slice/favoriteSlice';
+import { mapFromCartItemToProductFavorite } from '../Product/productMappers';
+import { useAppSelector } from '../../hooks/hooks';
+import QuantityControl from '../../components/QuantityControl';
 
 interface CartItemProps {
   item: CartItemData;
-  onAddToFavorites: (id: string) => void;
 }
 
-export function CartItem({ item, onAddToFavorites }: CartItemProps) {
+export function CartItem({ item }: CartItemProps) {
   const theme = useTheme();
   const { handleRemoveItem } = useCartActions();
   const dispatch = useDispatch();
+  const isFav = useAppSelector(isFavorite(item.id));
 
   const totalPrice = item.unitPrice * item.quantity;
 
@@ -111,7 +116,7 @@ export function CartItem({ item, onAddToFavorites }: CartItemProps) {
         </Box>
 
         {/* Quantity Controls */}
-        <Box sx={{ flexShrink: 0 }}>
+        {/* <Box sx={{ flexShrink: 0 }}>
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <IconButton
               size="small"
@@ -164,7 +169,16 @@ export function CartItem({ item, onAddToFavorites }: CartItemProps) {
               <AddIcon fontSize="inherit" />
             </IconButton>
           </Stack>
-        </Box>
+        </Box> */}
+        <QuantityControl
+          value={item.quantity}
+          min={1}
+          max={99}
+          onDecrease={() => dispatch(decreaseItemQuantity(item.id))}
+          onIncrease={() => dispatch(increaseItemQuantity(item.id))}
+          // disabled={itemIsLocked} // optional
+          size="small"
+        />
 
         {/* Total Price */}
         <Box sx={{ textAlign: 'right', minWidth: 80, flexShrink: 0 }}>
@@ -176,7 +190,9 @@ export function CartItem({ item, onAddToFavorites }: CartItemProps) {
           <Stack direction="row" spacing={0.5}>
             <IconButton
               size="small"
-              onClick={() => onAddToFavorites(item.id)}
+              onClick={() =>
+                dispatch(toggleFavorite(mapFromCartItemToProductFavorite(item)))
+              }
               sx={{
                 width: 32,
                 height: 32,
@@ -184,7 +200,14 @@ export function CartItem({ item, onAddToFavorites }: CartItemProps) {
                 borderRadius: 1,
               }}
             >
-              <FavoriteBorderIcon fontSize="inherit" />
+              {isFav ? (
+                <FavoriteIcon fontSize="small" sx={{ color: 'error.main' }} />
+              ) : (
+                <FavoriteBorderIcon
+                  fontSize="small"
+                  sx={{ color: 'grey.700' }}
+                />
+              )}
             </IconButton>
             <IconButton
               size="small"

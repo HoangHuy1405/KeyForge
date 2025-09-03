@@ -102,7 +102,7 @@ public class UserProfileService {
      * Build a small, circular, face-cropped avatar for UI.
      * Returns null if no avatar uploaded yet.
      */
-    private String buildAvatarUrl(String publicId, Long version) {
+    public String buildAvatarUrl(String publicId, Long version) {
         if (publicId == null || publicId.isBlank())
             return null;
 

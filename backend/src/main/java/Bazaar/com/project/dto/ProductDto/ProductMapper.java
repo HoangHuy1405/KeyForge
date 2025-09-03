@@ -1,5 +1,8 @@
 package Bazaar.com.project.dto.ProductDto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
@@ -8,12 +11,16 @@ import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductViewerResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ShippingOptionsResponse;
+import Bazaar.com.project.dto.UserDto.UserProfileResponseDto;
 import Bazaar.com.project.model.Product.Product;
+import Bazaar.com.project.model.Product.ProductImage;
 import Bazaar.com.project.model.Product.embeddables.InventoryInfo;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo.Dimensions;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo.ShippingOptions;
+import Bazaar.com.project.model.UserAggregate.User;
 import Bazaar.com.project.model.Product.embeddables.ProductDetails;
 
 public class ProductMapper {
@@ -123,4 +130,81 @@ public class ProductMapper {
                                 .build();
         }
 
+        public static ProductViewerResponse toViewer(Product p, User u, String avatarUrl) {
+                InventoryInfo inv = p.getInventory();
+                ProductDetails d = p.getDetails();
+                LogisticsInfo log = p.getLogistics();
+
+                DetailedResponse detailed = DetailedResponse.builder()
+                                .brand(d != null ? d.getBrand() : null)
+                                .model(d != null ? d.getModel() : null)
+                                .size(d != null ? d.getSize() : null)
+                                .material(d != null ? d.getMaterial() : null)
+                                .origin(d != null ? d.getOrigin() : null)
+                                .condition(d != null ? d.getCondition() : null)
+                                .build();
+
+                LogisticsResponse logistic = LogisticsResponse.builder()
+                                .weightGrams(log != null ? log.getWeightGrams() : null)
+                                .lengthCm(log != null ? log.getDimensions().getLengthCm() : null)
+                                .widthCm(log != null ? log.getDimensions().getWidthCm() : null)
+                                .heightCm(log != null ? log.getDimensions().getHeightCm() : null)
+                                .location(log != null ? log.getLocation() : null)
+                                .preOrder(log != null ? log.getPreOrder() : null)
+                                .preOrderLeadTimeDays(log != null ? log.getPreOrderLeadTimeDays() : null)
+                                .shipping(new ShippingOptionsResponse(
+                                                log != null ? log.getShipping().getFast() : null,
+                                                log != null ? log.getShipping().getRegular() : null,
+                                                log != null ? log.getShipping().getEconomy() : null))
+                                .build();
+
+                InventoryResponse inventory = InventoryResponse.builder()
+                                .price(inv != null ? inv.getPrice() : null)
+                                .availableQuantity(inv != null ? inv.availableQuantity() : null)
+                                .minOrderQuantity(inv != null ? inv.getMinOrderQuantity()
+                                                : null)
+                                .maxOrderQuantity(inv != null ? inv.getMaxOrderQuantity()
+                                                : null)
+                                .build();
+                UserProfileResponseDto seller = UserProfileResponseDto.builder()
+                                .id(u.getId())
+                                .username(u.getUsername())
+                                .email(u.getEmail())
+                                .phoneNum(u.getPhoneNum())
+                                .avatarUrl(avatarUrl)
+                                .build();
+
+                return ProductViewerResponse.builder()
+                                .id(p.getId())
+                                .name(p.getName())
+                                .description(p.getDescription())
+                                .category(p.getCategory())
+                                .status(p.getStatus())
+                                .thumbnailUrl(p.getThumbnailUrl())
+                                .images(toImageDtoList(p.getImages()))
+                                .details(detailed)
+                                .inventory(inventory)
+                                .logistics(logistic)
+                                .seller(seller)
+                                .build();
+        }
+
+        public static ProductImageDto toImageDto(ProductImage entity) {
+                if (entity == null)
+                        return null;
+                return new ProductImageDto(
+                                entity.getId(), // from BaseEntity (UUID)
+                                entity.getUrl(),
+                                entity.getPublicId(),
+                                entity.getVersion(),
+                                entity.getSortOrder());
+        }
+
+        public static List<ProductImageDto> toImageDtoList(List<ProductImage> entities) {
+                if (entities == null)
+                        return List.of();
+                return entities.stream()
+                                .map(ProductMapper::toImageDto)
+                                .collect(Collectors.toList());
+        }
 }

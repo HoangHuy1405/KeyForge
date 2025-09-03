@@ -24,6 +24,7 @@ import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductSummaryResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductViewerResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ShippingOptionsResponse;
 import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.IdInvalidException;
@@ -46,6 +47,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserProfileService userProfileService;
 
     @Override
     @Transactional
@@ -157,6 +160,20 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
         return ProductMapper.toResponse(product);
+    }
+
+    @Override
+    public ProductViewerResponse findProductByIdForViewer(UUID id) {
+        Product product = productRepository.findByIdWithImages(id)
+                .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
+
+        User user = userRepository.findById(product.getSeller().getId())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String avatarUrl = userProfileService.buildAvatarUrl(
+                user.getProfilePhotoPublicId(),
+                user.getProfilePhotoVersion());
+        return ProductMapper.toViewer(product, user, avatarUrl);
     }
 
     @Override

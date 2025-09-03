@@ -13,8 +13,8 @@ import {
   useTheme,
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import { PriceRangeFilter } from '../../components/Filters/PriceRangeFilter';
-import CheckboxFilterSection from '../../components/Filters/CheckboxFilterSection';
+import { PriceRangeFilter } from '../../../components/Filters/PriceRangeFilter';
+import CheckboxFilterSection from '../../../components/Filters/CheckboxFilterSection';
 
 declare module '@mui/material/styles' {
   interface Palette {

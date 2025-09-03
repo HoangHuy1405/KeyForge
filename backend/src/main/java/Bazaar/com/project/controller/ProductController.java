@@ -23,6 +23,7 @@ import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductBasicResponse;
 import Bazaar.com.project.dto.ProductDto.Response.ProductFullResponse;
+import Bazaar.com.project.dto.ProductDto.Response.ProductViewerResponse;
 import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.service.interfaces.ProductService;
 import Bazaar.com.project.util.Annotation.ApiMessage;
@@ -83,10 +84,17 @@ public class ProductController {
     }
 
     /* Read (edit + detail) */
+    @GetMapping("/{id}/seller")
+    @ApiMessage("Product fetched successfully")
+    public ResponseEntity<ProductFullResponse> getProductForSeller(@PathVariable UUID id) {
+        ProductFullResponse product = productService.findProductById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(product);
+    }
+
     @GetMapping("/{id}")
     @ApiMessage("Product fetched successfully")
-    public ResponseEntity<ProductFullResponse> getProduct(@PathVariable UUID id) {
-        ProductFullResponse product = productService.findProductById(id);
+    public ResponseEntity<ProductViewerResponse> getProduct(@PathVariable UUID id) {
+        ProductViewerResponse product = productService.findProductByIdForViewer(id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 

@@ -1,5 +1,4 @@
 import { toast } from 'react-toastify';
-import { ProductView } from '../features/Product/ProductCard';
 import { mapFromProductViewToCartItem } from '../features/Product/productMappers';
 import {
   addItem,
@@ -8,6 +7,7 @@ import {
   increaseItemQuantity,
 } from '../redux/slice/cartSlice';
 import { useAppDispatch, useAppSelector } from './hooks';
+import { ProductView } from '../features/Product/ProductListingPage/ProductCard';
 
 export function useCartActions() {
   const dispatch = useAppDispatch();

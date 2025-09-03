@@ -48,7 +48,8 @@ public class SecurityConfiguration {
                                         "/auth/login",
                                         "/auth/register",
                                         "/auth/refresh",
-                                        "/api/products")
+                                        "/api/products",
+                                        "/api/products/*")
                                 .permitAll()
                                 .anyRequest().authenticated()
                 // .anyRequest().permitAll()

@@ -2,13 +2,13 @@ import * as React from 'react';
 import Grid from '@mui/material/Grid'; // Grid v2
 import { Stack } from '@mui/material';
 import { useLoaderData } from 'react-router-dom';
-import { ProductList } from '../../services/interfaces/productInterfaces';
+import { ProductList } from '../../../services/interfaces/productInterfaces';
 import ProductGrid from './ProductGrid';
-import ProductCard, { ProductView } from './ProductCard';
+import { ProductView } from './ProductCard';
 import { SortingControls, ViewMode, SortOption } from './SortingControls';
-import ResultPageFooter from '../../components/ResultPageFooter';
-import { mapProductListToViews } from './productMappers';
-import { useProductQueryParams } from '../../hooks/useProductQueryParams';
+import ResultPageFooter from '../../../components/ResultPageFooter';
+import { mapProductListToViews } from '../productMappers';
+import { useProductQueryParams } from '../../../hooks/useProductQueryParams';
 import { FilterSidebar } from './FilterSidebar';
 
 const MAX_PRICE = 2500;
@@ -25,8 +25,6 @@ export default function ProductListing() {
 
   const { page, size, sort, filters, setPage, setSize, setSort, setFilters } =
     useProductQueryParams({ priceMax: MAX_PRICE, size: 4, sort: 'relevance' });
-
-  const toggleLike = (id: string) => console.log('Toggled like:', id);
 
   return (
     <Grid
@@ -53,21 +51,9 @@ export default function ProductListing() {
           />
 
           {viewMode === 'grid' ? (
-            <ProductGrid
-              products={products}
-              toggleLike={toggleLike}
-              columns={4}
-              spacing={2}
-              mt={2}
-            />
+            <ProductGrid products={products} columns={4} spacing={2} mt={2} />
           ) : (
-            <ProductGrid
-              products={products}
-              toggleLike={toggleLike}
-              columns={1}
-              spacing={2}
-              mt={2}
-            />
+            <ProductGrid products={products} columns={1} spacing={2} mt={2} />
           )}
 
           <ResultPageFooter
