@@ -1,4 +1,3 @@
-import React from 'react';
 import { Logistic } from '../../../services/interfaces/productInterfaces';
 import { Box, Card, CardContent, Chip } from '@mui/material';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';

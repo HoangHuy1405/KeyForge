@@ -2,8 +2,11 @@ import { Outlet, useNavigation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { CircularProgress } from '@mui/material';
+import useRestoreSession from '../hooks/useAutoLogin';
 
 function AppLayout() {
+  useRestoreSession();
+
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 

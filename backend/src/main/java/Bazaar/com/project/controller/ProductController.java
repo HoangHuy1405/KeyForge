@@ -2,6 +2,7 @@ package Bazaar.com.project.controller;
 
 import java.util.UUID;
 
+import Bazaar.com.project.dto.ProductDto.Request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.turkraft.springfilter.boot.Filter;
 
 import Bazaar.com.project.dto.ResultPaginationDTO;
-import Bazaar.com.project.dto.ProductDto.Request.CreateProductRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateDetailsRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateInventoryRequest;
-import Bazaar.com.project.dto.ProductDto.Request.UpdateLogisticsRequest;
 import Bazaar.com.project.dto.ProductDto.Response.DetailedResponse;
 import Bazaar.com.project.dto.ProductDto.Response.InventoryResponse;
 import Bazaar.com.project.dto.ProductDto.Response.LogisticsResponse;
@@ -47,6 +44,17 @@ public class ProductController {
     @ApiMessage("Product created successfully")
     public ResponseEntity<ProductBasicResponse> create(@Valid @RequestBody CreateProductRequest productDto) {
         ProductBasicResponse response = this.productService.createBasic(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // Create Basic info (Step 1)
+    @PutMapping("{id}/basic")
+    @ApiMessage("Product basic updated successfully")
+    public ResponseEntity<ProductBasicResponse> updateBasic(
+            @Valid @RequestBody UpdateBasicRequest productDto,
+            @PathVariable UUID id,
+            @RequestParam UUID sellerId) {
+        ProductBasicResponse response = this.productService.updateBasic(productDto, id, sellerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -10,6 +10,8 @@ import LayersIcon from '@mui/icons-material/Layers';
 import { AppProvider, type Navigation } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
+import { Inventory2 } from '@mui/icons-material';
+import ProductManagerPage from '../features/Seller/ProductManagerPage';
 
 const NAVIGATION: Navigation = [
   {
@@ -20,6 +22,11 @@ const NAVIGATION: Navigation = [
     segment: 'dashboard',
     title: 'Dashboard',
     icon: <DashboardIcon />,
+  },
+  {
+    segment: 'inventory',
+    title: 'Inventory',
+    icon: <Inventory2 />,
   },
   {
     segment: 'orders',
@@ -84,8 +91,16 @@ function DemoPageContent({ pathname }: { pathname: string }) {
         textAlign: 'center',
       }}
     >
-      <Typography>Dashboard content for {pathname}</Typography>
-    </Box>
+      {pathname === "/inventory" ? (
+        <>
+          <Typography variant="h6">Inventory</Typography>
+          <ProductManagerPage />
+        </>
+      ) : (
+        <Typography>Dashboard content for {pathname}</Typography>
+
+      )}
+    </Box >
   );
 }
 

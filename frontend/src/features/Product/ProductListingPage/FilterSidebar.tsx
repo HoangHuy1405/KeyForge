@@ -1,13 +1,9 @@
-import * as React from 'react';
 import {
   Box,
   Button,
-  Card,
-  Checkbox,
   Chip,
   Divider,
   Paper,
-  Slider,
   Stack,
   Typography,
   useTheme,

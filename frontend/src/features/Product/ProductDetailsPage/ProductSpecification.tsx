@@ -1,10 +1,6 @@
 import { Box, Card, CardContent, Chip } from '@mui/material';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
-import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import PhoneCallbackOutlinedIcon from '@mui/icons-material/PhoneCallbackOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import {

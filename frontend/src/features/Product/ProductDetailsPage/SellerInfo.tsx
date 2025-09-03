@@ -2,8 +2,6 @@ import * as React from 'react';
 import {
   Box,
   Card,
-  CardHeader,
-  CardContent,
   Avatar,
   Typography,
   Button,

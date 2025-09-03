@@ -74,7 +74,7 @@ public class AuthController {
         public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginRequest request) {
                 // Nạp input gồm username/password vào Security
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                                request.identifier(), request.password());
+                                request.email(), request.password());
 
                 // xác thực người dùng => cần viết hàm loadUserByUsername trong
                 // UserDetailsService
@@ -86,7 +86,7 @@ public class AuthController {
 
                 // response
                 ResLoginDTO res = new ResLoginDTO();
-                User currentUser = this.userService.fetchUserByEmail(request.identifier());
+                User currentUser = this.userService.fetchUserByEmail(request.email());
                 if (currentUser != null) {
                         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                                         currentUser.getId(),
@@ -97,12 +97,12 @@ public class AuthController {
                         res.setUser(userLogin);
                 }
                 // create a token
-                String access_token = this.jwtUtil.generateAccessToken(request.identifier(), res);
+                String access_token = this.jwtUtil.generateAccessToken(request.email(), res);
                 res.setAccessToken(access_token);
 
                 // generate refresh_token
-                String refresh_token = this.jwtUtil.generateRefreshToken(request.identifier(), res);
-                this.userService.updateUserToken(refresh_token, request.identifier());
+                String refresh_token = this.jwtUtil.generateRefreshToken(request.email(), res);
+                this.userService.updateUserToken(refresh_token, request.email());
 
                 // Set cookies
                 ResponseCookie resCookie = ResponseCookie
@@ -139,7 +139,7 @@ public class AuthController {
         }
 
         // Get new refresh token when access token outdated
-        @GetMapping("/refresh")
+        @PostMapping("/refresh")
         @ApiMessage("Get refresh_token")
         public ResponseEntity<ResLoginDTO> getRefreshToken(
                         @CookieValue(name = "refresh_token") String refresh_token) {
