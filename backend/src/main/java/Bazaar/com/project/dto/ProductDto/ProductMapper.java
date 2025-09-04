@@ -20,7 +20,7 @@ import Bazaar.com.project.model.Product.embeddables.InventoryInfo;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo.Dimensions;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo.ShippingOptions;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.model.Product.embeddables.ProductDetails;
 
 public class ProductMapper {
