@@ -1,10 +1,10 @@
 package Bazaar.com.project.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import Bazaar.com.project.model.Order.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +13,8 @@ import Bazaar.com.project.dto.OrderDto.OrderItemResponseDto;
 import Bazaar.com.project.dto.OrderDto.OrderMapper;
 import Bazaar.com.project.dto.OrderDto.OrderRequestDto;
 import Bazaar.com.project.dto.OrderDto.OrderResponseDto;
-import Bazaar.com.project.model.Order.Order;
-import Bazaar.com.project.model.Order.OrderItem;
-import Bazaar.com.project.model.Order.OrderStatus;
-import Bazaar.com.project.model.Order.PaymentMethod;
 import Bazaar.com.project.model.Product.Product;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.OrderRepository;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
@@ -57,25 +53,11 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
         List<Product> products = productRepository.findAllById(productIds);
 
-        // 3. Map to OrderItems and calculate total
+        // 3. Map to OrderItems
         List<OrderItem> orderItems = OrderMapper.toOrderItems(requestDto.getItems(), products);
-        BigDecimal totalAmount = orderItems.stream()
-                .map(OrderItem::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 4. Create and link Order
-        Order order = new Order();
-        order.setBuyer(buyer);
-        order.setShippingAddress(requestDto.getShippingAddress());
-        order.setStatus(OrderStatus.PROCESSING);
-        order.setPaymentMethod(PaymentMethod.valueOf(requestDto.getPaymentMethod().toUpperCase()));
-        order.setTotalAmount(totalAmount);
-        order.setItems(orderItems);
-
-        // Set back-reference from each OrderItem
-        for (OrderItem item : orderItems) {
-            item.setOrder(order);
-        }
+        // 4. Create and link Order, auto calculate totalAmount
+        Order order = Order.Create(buyer, requestDto.getShippingAddress(), PaymentMethod.valueOf(requestDto.getPaymentMethod().toUpperCase()), orderItems);
 
         // 5. Persist order
         Order savedOrder = orderRepository.save(order);
@@ -98,18 +80,46 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto cancelOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
-        order.changeStatus(OrderStatus.CANCELLED);
+        order.changeOrderStatus(OrderStatus.CANCELLED);
         Order updatedOrder = orderRepository.save(order);
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
         return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
     }
 
     @Override
-    public OrderResponseDto changeStatus(UUID orderId, OrderStatus newStatus) {
+    public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatus orderStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
-        order.changeStatus(newStatus);
+        order.changeOrderStatus(orderStatus);
         Order updatedOrder = orderRepository.save(order);
+        List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
+        return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
+    }
+
+    @Override
+    public OrderResponseDto payOrder(UUID orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
+
+        // TODO: add logic paying
+
+        order.pay();
+        Order updatedOrder = orderRepository.save(order);
+
+        List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
+        return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
+    }
+
+    @Override
+    public OrderResponseDto refundOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
+
+        // TODO: add logic refunding
+
+        order.refund();
+        Order updatedOrder = orderRepository.save(order);
+
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
         return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
     }
@@ -122,5 +132,4 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orders = orderRepository.findByBuyerId(userId);
         return OrderMapper.toOrderResponseList(orders);
     }
-
 }

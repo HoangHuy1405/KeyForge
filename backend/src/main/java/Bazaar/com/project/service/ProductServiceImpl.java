@@ -32,7 +32,7 @@ import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
 import Bazaar.com.project.model.Product.embeddables.InventoryInfo;
 import Bazaar.com.project.model.Product.embeddables.LogisticsInfo;
 import Bazaar.com.project.model.Product.embeddables.ProductDetails;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.interfaces.ProductService;

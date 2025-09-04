@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Bazaar.com.project.model.Product.Product;
 import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.ProductRepository;
 import Bazaar.com.project.repository.UserRepository;
 

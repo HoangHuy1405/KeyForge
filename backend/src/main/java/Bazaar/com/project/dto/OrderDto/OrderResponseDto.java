@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import Bazaar.com.project.model.Order.OrderStatus;
 import Bazaar.com.project.model.Order.PaymentMethod;
+import Bazaar.com.project.model.Order.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +23,8 @@ public class OrderResponseDto {
     private String buyerName; // Optional, if needed for display
     private String shippingAddress;
     private BigDecimal totalAmount;
-    private OrderStatus status;
+    private OrderStatus orderStatus;
+    private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private LocalDateTime createdAt;
     private List<OrderItemResponseDto> items;

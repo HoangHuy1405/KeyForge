@@ -1,4 +1,4 @@
-package Bazaar.com.project.model.UserAggregate;
+package Bazaar.com.project.model.User;
 
 import Bazaar.com.project.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;

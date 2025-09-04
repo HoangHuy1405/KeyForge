@@ -21,7 +21,7 @@ public class UserDetailsCustomService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Bazaar.com.project.model.UserAggregate.User user = this.userService.fetchUserByEmail(username);
+        Bazaar.com.project.model.User.User user = this.userService.fetchUserByEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException("Email or password is invalid");
         }

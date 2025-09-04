@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import Bazaar.com.project.model.BaseEntity;
-import Bazaar.com.project.model.UserAggregate.User;
+import Bazaar.com.project.model.User.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,27 +56,52 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @NotNull(message = "Order status is required")
-    private OrderStatus status;
+    private OrderStatus orderStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @NotNull(message = "Payment status is required")
+    private PaymentStatus paymentStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
 
-    public void changeStatus(OrderStatus newStatus) {
-        // Example rule: can't go back from DELIVERED to PROCESSING
-        if (newStatus == this.status) {
-            throw new IllegalStateException("The status is already set to " + newStatus);
+    // Handle create, set back-reference and calculate totalAmount
+    public static Order Create(User buyer, String shippingAddress, PaymentMethod paymentMethod, List<OrderItem> orderItems){
+        Order order = new Order();
+        order.setBuyer(buyer);
+        order.setShippingAddress(shippingAddress);
+        order.setOrderStatus(OrderStatus.PROCESSING);
+        order.setPaymentMethod(paymentMethod);
+        order.setItems(orderItems);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+
+        order.updateTotalAmount();
+
+        // Set back-reference from each OrderItem
+        for (OrderItem item : orderItems) {
+            item.setOrder(order);
         }
-        this.status = newStatus;
+
+        return order;
+    }
+
+    public void changeOrderStatus(OrderStatus orderStatus) {
+        // Example rule: can't go back from DELIVERED to PROCESSING
+        if (orderStatus == this.orderStatus) {
+            throw new IllegalStateException("The status is already set to " + orderStatus);
+        }
+        this.orderStatus = orderStatus;
     }
 
     public boolean isCompleted() {
-        return this.status == OrderStatus.DELIVERED;
+        return this.orderStatus == OrderStatus.DELIVERED;
     }
 
     public boolean isCancelled() {
-        return this.status == OrderStatus.CANCELLED;
+        return this.orderStatus == OrderStatus.CANCELLED;
     }
 
     public boolean isTotalAmountValid() {
@@ -84,5 +109,27 @@ public class Order extends BaseEntity {
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return this.totalAmount.compareTo(calculated) == 0;
+    }
+
+    public void updateTotalAmount(){
+        this.totalAmount =  items.stream()
+                .map(OrderItem::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void changePaymentStatus(PaymentStatus paymentStatus) {
+        // Example rule: can't go back from DELIVERED to PROCESSING
+        if (paymentStatus == this.paymentStatus) {
+            throw new IllegalStateException("The status is already set to " + paymentStatus);
+        }
+        this.paymentStatus = paymentStatus;
+    }
+
+    public void pay(){
+        changePaymentStatus(PaymentStatus.PAID);
+    }
+
+    public void refund() {
+        changePaymentStatus(PaymentStatus.REFUNDED);
     }
 }

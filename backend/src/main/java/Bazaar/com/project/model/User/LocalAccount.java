@@ -1,4 +1,4 @@
-package Bazaar.com.project.model.UserAggregate;
+package Bazaar.com.project.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

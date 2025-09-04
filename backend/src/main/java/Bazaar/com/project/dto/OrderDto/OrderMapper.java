@@ -54,7 +54,8 @@ public class OrderMapper {
                 .shippingAddress(order.getShippingAddress())
                 .totalAmount(order.getTotalAmount())
                 .paymentMethod(order.getPaymentMethod())
-                .status(order.getStatus())
+                .orderStatus(order.getOrderStatus())
+                .paymentStatus(order.getPaymentStatus())
                 .createdAt(order.getCreatedAtLocal())
                 .items(items)
                 .build();

@@ -66,18 +66,32 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}/order-status")
     @ApiMessage("Order cancelled successfully")
     public ResponseEntity<OrderResponseDto> updateStatus(
             @PathVariable UUID id,
             @RequestBody OrderStatusUpdateRequest request) {
-        OrderResponseDto order = orderService.changeStatus(id, request.getStatus());
+        OrderResponseDto order = orderService.updateOrderStatus(id, request.getStatus());
         // ApiResponse<OrderResponseDto> response = new ApiResponse<>(
         // HttpStatus.OK,
         // "Status updated successfully",
         // order,
         // String.valueOf(HttpStatus.OK.value())
         // );
+        return ResponseEntity.status(HttpStatus.OK).body(order);
+    }
+
+    @PatchMapping("/{id}/pay")
+    @ApiMessage("Order paid successfully")
+    public ResponseEntity<OrderResponseDto> payOrder(@PathVariable UUID id) {
+        OrderResponseDto order = orderService.payOrder(id);
+        return ResponseEntity.status(HttpStatus.OK).body(order);
+    }
+
+    @PatchMapping("/{id}/refund")
+    @ApiMessage("Order refunded successfully")
+    public ResponseEntity<OrderResponseDto> refundOrder(@PathVariable UUID id) {
+        OrderResponseDto order = orderService.refundOrder(id);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 }

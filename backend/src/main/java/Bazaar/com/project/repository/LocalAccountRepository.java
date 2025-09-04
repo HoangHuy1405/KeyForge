@@ -3,7 +3,7 @@ package Bazaar.com.project.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import Bazaar.com.project.model.UserAggregate.LocalAccount;
+import Bazaar.com.project.model.User.LocalAccount;
 
 import java.util.Optional;
 import java.util.UUID;
