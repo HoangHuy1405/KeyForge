@@ -52,6 +52,7 @@ public class SecurityConfiguration {
                                         "/api/products",
                                         "/api/products/*")
                                 .permitAll()
+                                .requestMatchers("/ws/**").permitAll()
                                 .anyRequest().authenticated()
                 // .anyRequest().permitAll()
                 )

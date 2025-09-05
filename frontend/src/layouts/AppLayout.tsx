@@ -9,6 +9,7 @@ function AppLayout() {
 
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
+  console.log(navigation);
 
   return (
     <div className="mx-auto grid h-full min-h-screen grid-rows-[auto_1fr_auto] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
