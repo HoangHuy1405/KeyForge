@@ -14,7 +14,7 @@ export function useCartActions() {
   const cart = useAppSelector(getCart);
 
   const handleAddToCart = (product: ProductView, quantity = 1) => {
-    const existingItem = cart.find((item) => item.id === product.id);
+    const existingItem = cart.find((item: any) => item.id === product.id);
 
     if (existingItem) {
       // Just update quantity

@@ -1,7 +1,7 @@
 import api from './api';
 import { LoginRequest, ResLoginDTO } from './interfaces/authInterfaces';
 
-export const registerUser = async (data) => {
+export const registerUser = async (data: any) => {
   const { username, password, fullName, email, phoneNum } = data;
   console.log(fullName);
   return api.post('auth/register', {
@@ -17,10 +17,7 @@ export const loginUser = async (payload: LoginRequest) => {
   // const { email, password } = payload;
   // console.log(email);
   // console.log(password);
-  return api.post(
-    'auth/login',
-    payload
-  );
+  return api.post('auth/login', payload);
 };
 
 export const logout = async () => {
@@ -28,9 +25,7 @@ export const logout = async () => {
 };
 
 export const refresh = async () => {
-  return api.post<ResLoginDTO>(
-    'auth/refresh',
-    undefined,
-    { withCredentials: true }
-  )
-}
+  return api.post<ResLoginDTO>('auth/refresh', undefined, {
+    withCredentials: true,
+  });
+};

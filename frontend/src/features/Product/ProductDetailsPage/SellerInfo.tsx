@@ -16,6 +16,8 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import PhoneCallbackOutlinedIcon from '@mui/icons-material/PhoneCallbackOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import { startChatWith } from '../../../redux/slice/chatSlice';
+import { useAppDispatch } from '../../../hooks/hooks';
 
 export type SellerInfo = {
   id: string;
@@ -37,6 +39,19 @@ export default function SellerInfo({ seller }: SellerInformationCardProps) {
   const totalSales = 1231;
   const responseTime = '< 1 day';
   const memberSince = '2018';
+
+  const dispatch = useAppDispatch();
+
+  async function handleContactSeller() {
+    // widget opens, conversation created (or reused), subscribed, history loaded
+    dispatch(
+      startChatWith({
+        id: seller.id,
+        name: seller.username,
+        avatarUrl: seller.avatarUrl,
+      }),
+    );
+  }
 
   return (
     <Card
@@ -140,7 +155,12 @@ export default function SellerInfo({ seller }: SellerInformationCardProps) {
         </div>
 
         <div className="mt-6 flex gap-3">
-          <Button className="flex-1" variant="contained" color="inherit">
+          <Button
+            onClick={handleContactSeller}
+            className="flex-1"
+            variant="contained"
+            color="inherit"
+          >
             <ChatBubbleOutlineOutlinedIcon className="mr-2 h-4 w-4" />
             Contact Seller
           </Button>

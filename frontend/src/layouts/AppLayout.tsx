@@ -1,15 +1,18 @@
 import { Outlet, useNavigation } from 'react-router-dom';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
 import { CircularProgress } from '@mui/material';
 import useRestoreSession from '../hooks/useAutoLogin';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import ChatWidget from '../features/Chat/ChatWidget';
+import { useSelector } from 'react-redux';
+import { checkAuthenticated } from '../redux/slice/accountSlice';
 
 function AppLayout() {
   useRestoreSession();
 
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
-  console.log(navigation);
+  const isAuthenticated = useSelector(checkAuthenticated);
 
   return (
     <div className="mx-auto grid h-full min-h-screen grid-rows-[auto_1fr_auto] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -20,6 +23,9 @@ function AppLayout() {
         {/* <Outlet /> */}
       </main>
       <Footer />
+
+      {/* Fixed chat widget  */}
+      {isAuthenticated && <ChatWidget />}
     </div>
   );
 }

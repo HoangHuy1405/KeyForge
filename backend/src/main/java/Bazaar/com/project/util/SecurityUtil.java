@@ -1,6 +1,7 @@
 package Bazaar.com.project.util;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -33,6 +34,32 @@ public class SecurityUtil {
             return springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getSubject();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return s;
+        }
+        return null;
+    }
+
+    public static Optional<String> getCurrentUserID() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractUserId(securityContext.getAuthentication()));
+    }
+
+    private static String extractUserId(Authentication authentication) {
+        if (authentication == null)
+            return null;
+
+        if (authentication.getPrincipal() instanceof UserDetails u) {
+            return u.getUsername();
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
+            // try nested "user.id"
+            Object userObj = jwt.getClaim("user");
+            if (userObj instanceof java.util.Map<?, ?> map) {
+                Object id = map.get("id");
+                if (id != null)
+                    return String.valueOf(id);
+            }
+            return jwt.getSubject(); // fallback
         } else if (authentication.getPrincipal() instanceof String s) {
             return s;
         }

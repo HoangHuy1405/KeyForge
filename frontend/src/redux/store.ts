@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import accountReducer from './slice/accountSlice';
 import cartReducer from './slice/cartSlice';
 import favoriteReducer from './slice/favoriteSlice';
+import chatReducer from './slice/chatSlice';
 
 import {
   persistStore,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   account: accountReducer,
   cart: persistedCartReducer,
   favorite: favoriteReducer,
+  chat: chatReducer,
 });
 
 const store = configureStore({

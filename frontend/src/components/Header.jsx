@@ -29,7 +29,7 @@ import { useLogout } from '../hooks/useLogout';
 import { useSelector } from 'react-redux';
 import Logo from './Logo';
 import ProductSearchBar from '../features/Product/ProductSearchBar';
-import StyledBadge from '../components/StyledBadge';
+import StyledBadge from './StyledBadge';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { HeaderCart } from '../features/Cart/HeaderCart';
 import { useAppSelector } from '../hooks/hooks';

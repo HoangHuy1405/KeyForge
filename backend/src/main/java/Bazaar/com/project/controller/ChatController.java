@@ -1,36 +1,70 @@
 package Bazaar.com.project.controller;
 
+import java.security.Principal;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+// import org.springframework.messaging.handler.annotation.SendTo;
+// import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import Bazaar.com.project.model.ChatMessage.ChatMessage;
+import Bazaar.com.project.model.ChatMessage.ChatMessageDto;
+import Bazaar.com.project.service.ConversationService;
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 public class ChatController {
+        private final SimpMessagingTemplate template;
+        private final ConversationService conversationService;
 
-    /**
-     * @MessageMapping - tell what url used to invoke this sendMessage() function
-     * @SendTo - annotation when or where to send this message
-     */
-    @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMessage(
-            @Payload ChatMessage chatMessage) {
-        return chatMessage;
-    }
+        @MessageMapping("/chat/{conversationId}/send")
+        public void send(@DestinationVariable UUID conversationId,
+                        @Payload ChatMessageDto inbound,
+                        Principal principal) {
+                UUID senderId = UUID.fromString(principal.getName());
+                UUID inboundRecipient = inbound.getRecipientId();
 
-    // add a user (when a user connects to our chat application)
-    // allow us to establish connection between user and websocket (handshake)
-    @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(
-            @Payload ChatMessage chatMessage,
-            SimpMessageHeaderAccessor headerAccessor) {
-        // Add username in websocket session
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        return chatMessage;
-    }
+                // 1) Security: validate participants & normalize payload
+                UUID recipientId = conversationService.ensureAndGetRecipient(conversationId, senderId,
+                                inboundRecipient);
+
+                // 2) Persist (returns canonical saved message)
+                ChatMessageDto saved = conversationService.persistMessage(
+                                conversationId,
+                                senderId,
+                                recipientId,
+                                inbound.getClientMsgId(), // still String, unless you changed to UUID
+                                inbound.getContent());
+
+                // 3) Private fan-out to both ends via /user prefix
+                String dest = "/queue/chat.conv." + conversationId;
+                template.convertAndSendToUser(recipientId.toString(), dest, saved);
+                template.convertAndSendToUser(senderId.toString(), dest, saved);
+        }
+
+        @MessageMapping("/chat/{conversationId}/read")
+        public void read(@DestinationVariable UUID conversationId, // now UUID
+                        @Payload Map<String, String> payload,
+                        Principal principal) {
+
+                UUID userId = UUID.fromString(principal.getName());
+                UUID lastMsgId = UUID.fromString(payload.get("lastMsgId"));
+
+                UUID other = conversationService.markReadAndGetOther(conversationId, userId, lastMsgId);
+
+                var receipt = Map.of(
+                                "type", "READ",
+                                "conversationId", conversationId.toString(),
+                                "userId", userId.toString(),
+                                "lastMsgId", lastMsgId.toString(),
+                                "time", Instant.now().toString());
+
+                template.convertAndSendToUser(other.toString(), "/queue/chat.conv." + conversationId, receipt);
+        }
 }

@@ -1,81 +1,98 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Client, IMessage } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import { ChatMessage } from '../services/interfaces/chatTypes';
+// // src/chat/useChat.ts
+// import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+// import { ChatTransport } from '../services/chat/chatTransport';
+// import { fetchLast50 } from '../services/chat/chatService';
+// import { ChatMessageDto, MessageType } from '../services/interfaces/chatTypes';
+// import { useAppSelector } from './hooks';
+// import { getUserId } from '../redux/slice/accountSlice';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
+// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 
-export function useChat() {
-  const [connected, setConnected] = useState(false);
-  const [connecting, setConnecting] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const clientRef = useRef<Client | null>(null);
-  const usernameRef = useRef<string>('');
+// export function useChat(conversationId: string | undefined) {
+//   const [connecting, setConnecting] = useState(false);
+//   const [connected, setConnected] = useState(false);
+//   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+//   const transportRef = useRef<ChatTransport | null>(null);
 
-  const client = useMemo(() => {
-    const sockFactory = () => new SockJS(`${BACKEND_URL}/ws`);
-    return new Client({
-      webSocketFactory: sockFactory,
-      reconnectDelay: 5000,
-      debug: (s) => console.debug('[STOMP]', s),
-    });
-  }, []);
+//   const transport = useMemo(() => new ChatTransport(BACKEND_URL), []);
 
-  useEffect(() => {
-    clientRef.current = client;
-    setConnecting(true);
-    client.onConnect = () => {
-      setConnected(true);
-      setConnecting(false);
-      client.subscribe('/topic/public', (frame: IMessage) => {
-        try {
-          const msg: ChatMessage = JSON.parse(frame.body);
-          setMessages((prev) => [
-            ...prev,
-            { ...msg, timestamp: msg.timestamp ?? Date.now() },
-          ]);
-        } catch (e) {
-          console.error('Bad message payload:', e);
-        }
-      });
-    };
-    client.onStompError = (f) =>
-      console.error('Broker error', f.headers['message'], f.body);
-    client.onWebSocketClose = () => {
-      setConnected(false);
-      setConnecting(false);
-    };
+//   const senderId = useAppSelector(getUserId);
 
-    client.activate();
-    return () => {
-      void client.deactivate();
-    };
-  }, [client]);
+//   useEffect(() => {
+//     if (!conversationId) return;
+//     transportRef.current = transport;
+//     setConnecting(true);
 
-  const join = (username: string) => {
-    usernameRef.current = username;
-    const joinMsg: ChatMessage = { type: 'JOIN', sender: username };
-    clientRef.current?.publish({
-      destination: '/app/chat.addUser',
-      body: JSON.stringify(joinMsg),
-    });
-  };
+//     transport.activate(
+//       () => {
+//         setConnected(true);
+//         setConnecting(false);
+//         transport.subscribeConversation(conversationId, (msg: any) => {
+//           setMessages((prev) => {
+//             if (msg.clientMsgId) {
+//               const i = prev.findIndex(
+//                 (p) => p.clientMsgId === msg.clientMsgId,
+//               );
+//               if (i >= 0) {
+//                 const next = prev.slice();
+//                 next[i] = { ...prev[i], ...msg };
+//                 return next;
+//               }
+//             }
+//             return [...prev, msg];
+//           });
+//         });
+//       },
+//       () => {
+//         setConnected(false);
+//         setConnecting(false);
+//       },
+//     );
 
-  const send = (text: string) => {
-    if (!usernameRef.current) return;
-    const chatMsg: ChatMessage = {
-      type: 'CHAT',
-      sender: usernameRef.current,
-      content: text,
-      timestamp: Date.now(),
-    };
-    clientRef.current?.publish({
-      destination: '/app/chat.sendMessage',
-      body: JSON.stringify(chatMsg),
-    });
-    // optimistic display
-    setMessages((prev) => [...prev, chatMsg]);
-  };
+//     return () => {
+//       transport.unsubscribeConversation(conversationId);
+//       transport.deactivate().catch(() => {});
+//     };
+//   }, [transport, conversationId]);
 
-  return { connected, connecting, messages, join, send };
-}
+//   useEffect(() => {
+//     if (!conversationId) return;
+//     fetchLast50(conversationId)
+//       .then((rows) =>
+//         setMessages(
+//           rows.sort(
+//             (a, b) =>
+//               new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime(),
+//           ),
+//         ),
+//       )
+//       .catch((e) => console.error('history failed', e));
+//   }, [conversationId]);
+
+//   const send = useCallback(
+//     (content: string, recipientId: string) => {
+//       if (!conversationId) return;
+//       const clientMsgId = crypto.randomUUID();
+//       const optimistic: ChatMessageDto = {
+//         id: clientMsgId,
+//         clientMsgId,
+//         conversationId,
+//         senderId,
+//         recipientId,
+//         content,
+//         type: MessageType.CHAT,
+//         timeStamp: new Date().toISOString(),
+//       };
+//       setMessages((prev) => [...prev, optimistic]);
+//       transportRef.current?.sendMessage(conversationId, {
+//         clientMsgId,
+//         conversationId,
+//         recipientId,
+//         content,
+//       });
+//     },
+//     [conversationId],
+//   );
+
+//   return { connecting, connected, messages, send };
+// }
