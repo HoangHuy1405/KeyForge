@@ -7,11 +7,13 @@ import { CartItemData, getCart } from '../../redux/slice/cartSlice';
 import { useDispatch } from 'react-redux';
 import { setAllSelected } from '../../redux/slice/cartSlice';
 import { useAppSelector } from '../../hooks/hooks';
+import { useNavigate } from 'react-router';
 
 export default function Cart() {
   const cartItems = useAppSelector(getCart);
   const theme = useTheme();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleAddToFavorites = (id: string) => {
     const item = cartItems.find((item) => item.id === id);
@@ -22,9 +24,12 @@ export default function Cart() {
 
   const handleCheckout = () => {
     const selectedItems = cartItems.filter((item) => item.selected);
+    console.log(selectedItems)
     if (selectedItems.length > 0) {
       toast.success('Proceeding to checkout...');
     }
+
+    navigate("/checkout");
   };
 
   const allSelected =
@@ -98,7 +103,7 @@ export default function Cart() {
             <CartItem
               key={item.id}
               item={item}
-              onAddToFavorites={handleAddToFavorites}
+            // onAddToFavorites={handleAddToFavorites}
             />
           ))}
         </div>

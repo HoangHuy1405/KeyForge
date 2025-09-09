@@ -19,6 +19,7 @@ import { loader as productLoader } from './features/Product/ProductDetailsPage/p
 import Cart from './features/Cart/Cart';
 import ProductListing from './features/Product/ProductListingPage/ProductListing';
 import ProductDetailsPage from './features/Product/ProductDetailsPage/ProductDetailsPage';
+import CheckoutPage from './features/Order/CheckoutPage';
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
         errorElement: <Error />,
       },
       { path: '/cart', element: <Cart /> },
+      { path: '/checkout', element: <CheckoutPage /> }
     ],
   },
   {
