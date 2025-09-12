@@ -52,7 +52,7 @@ export function SortingControls({
 
   return (
     <Paper
-      elevation={2}
+      elevation={1}
       sx={{
         py: 2,
         px: 4,
@@ -61,7 +61,6 @@ export function SortingControls({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: theme.palette.primary.main,
       }}
     >
       <Typography color="text.secondary">
@@ -80,7 +79,7 @@ export function SortingControls({
               onChange={handleSortChange}
               sx={{
                 width: 160, // ~ w-40
-                bgcolor: 'grey.50', // ~ bg-gray-50
+                bgcolor: 'background.default', // ~ bg-gray-50
                 borderRadius: 1.5,
                 '& .MuiOutlinedInput-notchedOutline': { border: 0 }, // border-0
               }}
@@ -99,7 +98,7 @@ export function SortingControls({
         </Stack>
 
         {/* View mode toggles */}
-        <Box sx={{ bgcolor: 'grey.50', p: 0.5, borderRadius: 1.5 }}>
+        <Box sx={{ bgcolor: 'background.default', p: 0.5, borderRadius: 1.5 }}>
           <ToggleButtonGroup
             value={viewMode}
             exclusive
@@ -112,9 +111,9 @@ export function SortingControls({
                 height: 32, // ~ size-8
                 border: 0,
                 '&.Mui-selected': {
-                  bgcolor: 'primary.main',
+                  background: (theme) => theme.palette.gradient,
                   color: 'primary.contrastText',
-                  '&:hover': { bgcolor: 'primary.main' },
+                  '&:hover': { opacity: 0.8 },
                 },
               },
             }}

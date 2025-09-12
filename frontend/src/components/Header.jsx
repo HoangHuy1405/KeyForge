@@ -27,30 +27,25 @@ import Logout from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import { useSelector } from 'react-redux';
-import Logo from './Logo';
 import ProductSearchBar from '../features/Product/ProductSearchBar';
 import StyledBadge from '../components/StyledBadge';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { HeaderCart } from '../features/Cart/HeaderCart';
 import { useAppSelector } from '../hooks/hooks';
 import { selectFavoritesCount } from '../redux/slice/favoriteSlice';
+import Logo from './Logo';
+import HeaderUserMenu from './HeaderUserMenu';
 
 const Header = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // responsive check
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isAuthenticated = useSelector((state) => state.account.isAuthenticated);
   const favorCount = useAppSelector(selectFavoritesCount);
 
   return (
     <Box>
       {/* Top Header */}
-      <AppBar
-        position="static"
-        elevation={0}
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-        }}
-      >
+      <AppBar position="static" elevation={0} color="default">
         <Container maxWidth="xl">
           <Box sx={{ py: 1.5 }}>
             <Stack
@@ -94,13 +89,13 @@ const Header = () => {
                   </Typography>
                   <IconButton
                     size="small"
-                    sx={{ color: theme.palette.text.primary, p: 0.5 }}
+                    sx={{ color: 'text.primary', p: 0.5 }}
                   >
                     <FacebookOutlinedIcon fontSize="small" />
                   </IconButton>
                   <IconButton
                     size="small"
-                    sx={{ color: theme.palette.text.primary, p: 0.5 }}
+                    sx={{ color: 'text.primary', p: 0.5 }}
                   >
                     <Instagram fontSize="small" />
                   </IconButton>
@@ -123,10 +118,7 @@ const Header = () => {
                     >
                       <IconButton
                         size="small"
-                        sx={{
-                          color: theme.palette.common.black,
-                          p: 0.5,
-                        }}
+                        sx={{ color: 'text.primary', p: 0.5 }}
                       >
                         <StyledBadge badgeContent={3} top={2} right={-3}>
                           <NotificationsOutlinedIcon fontSize="small" />
@@ -145,10 +137,7 @@ const Header = () => {
                     >
                       <IconButton
                         size="small"
-                        sx={{
-                          color: theme.palette.common.black,
-                          p: 0.5,
-                        }}
+                        sx={{ color: 'text.primary', p: 0.5 }}
                       >
                         <StyledBadge
                           badgeContent={favorCount}
@@ -192,7 +181,7 @@ const Header = () => {
                       }}
                     >
                       Login
-                    </Link>{' '}
+                    </Link>
                   </>
                 )}
               </Stack>
@@ -202,13 +191,7 @@ const Header = () => {
       </AppBar>
 
       {/* Main Navbar */}
-      <AppBar
-        position="static"
-        elevation={0}
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-        }}
-      >
+      <AppBar position="static" elevation={0} color="default">
         <Container maxWidth="xl">
           <Box sx={{ py: 2 }}>
             <Stack
@@ -249,134 +232,134 @@ const Header = () => {
   );
 };
 
-function HeaderUserMenu({ isAuthenticated }) {
-  const account = useSelector((state) => state.account); // ← username, avatarUrl from Redux
-  const navigate = useNavigate();
-  const { logout, isLoggingOut } = useLogout();
+// function HeaderUserMenu() {
+//   const account = useSelector((state) => state.account); // ← username, avatarUrl from Redux
+//   const navigate = useNavigate();
+//   const { logout } = useLogout();
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleOpen = (e) => setAnchorEl(e.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+//   const [anchorEl, setAnchorEl] = React.useState(null);
+//   const open = Boolean(anchorEl);
+//   const handleOpen = (e) => setAnchorEl(e.currentTarget);
+//   const handleClose = () => setAnchorEl(null);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+//   const handleLogout = () => {
+//     logout();
+//     navigate('/login');
+//   };
 
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Tooltip title="Account" arrow>
-        <IconButton
-          onClick={handleOpen}
-          size="small"
-          sx={{
-            p: 0.5,
-            pl: 0.75,
-            pr: 1,
-            borderRadius: 999,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            color: 'common.white',
-            transition: 'background-color .2s ease, transform .15s ease',
-            backgroundColor: 'transparent',
-            '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.12)',
-              transform: 'translateY(-1px)',
-            },
-            '& .MuiAvatar-root': {
-              border: '2px solid rgba(255,255,255,0.28)',
-            },
-          }}
-        >
-          <Avatar
-            src={account?.user?.avatarUrl || ''}
-            alt={account?.user?.name || 'avatar'}
-            sx={{ width: 28, height: 28 }}
-          />
+//   return (
+//     <Box sx={{ display: 'flex', alignItems: 'center' }}>
+//       <Tooltip title="Account" arrow>
+//         <IconButton
+//           onClick={handleOpen}
+//           size="small"
+//           sx={{
+//             p: 0.5,
+//             pl: 0.75,
+//             pr: 1,
+//             borderRadius: 999,
+//             display: 'flex',
+//             alignItems: 'center',
+//             gap: 1,
+//             color: 'common.white',
+//             transition: 'background-color .2s ease, transform .15s ease',
+//             backgroundColor: 'transparent',
+//             '&:hover': {
+//               backgroundColor: 'rgba(255,255,255,0.12)',
+//               transform: 'translateY(-1px)',
+//             },
+//             '& .MuiAvatar-root': {
+//               border: '2px solid rgba(255,255,255,0.28)',
+//             },
+//           }}
+//         >
+//           <Avatar
+//             src={account?.user?.avatarUrl || ''}
+//             alt={account?.user?.name || 'avatar'}
+//             sx={{ width: 28, height: 28 }}
+//           />
 
-          <Typography
-            variant="body2"
-            sx={{
-              display: { xs: 'none', sm: 'inline' },
-              color: 'text.secondary', // ← username in white
-              fontWeight: 600,
-              letterSpacing: 0.2,
-            }}
-          >
-            {account?.user?.name}
-          </Typography>
-        </IconButton>
-      </Tooltip>
+//           <Typography
+//             variant="body2"
+//             sx={{
+//               display: { xs: 'none', sm: 'inline' },
+//               color: 'text.secondary', // ← username in white
+//               fontWeight: 600,
+//               letterSpacing: 0.2,
+//             }}
+//           >
+//             {account?.user?.name}
+//           </Typography>
+//         </IconButton>
+//       </Tooltip>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            mt: 1.5,
-            minWidth: 220,
-            borderRadius: 2,
-            overflow: 'visible',
-            backgroundColor: 'secondary.main',
-            boxShadow:
-              '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 8px rgba(0,0,0,0.12)',
-            '& .MuiMenuItem-root': {
-              py: 1,
-              '& .MuiListItemIcon-root': {
-                minWidth: 32,
-                color: 'text.secondary',
-              },
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-            },
-            // small arrow
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 20,
-              width: 10,
-              height: 10,
-              bgcolor: '#a855f7',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
-      >
-        <MenuItem component={RouterLink} to="/profile" onClick={handleClose}>
-          <ListItemIcon>
-            <AccountCircle fontSize="small" />
-          </ListItemIcon>
-          My Account
-        </MenuItem>
+//       <Menu
+//         anchorEl={anchorEl}
+//         open={open}
+//         onClose={handleClose}
+//         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+//         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+//         PaperProps={{
+//           elevation: 0,
+//           sx: {
+//             mt: 1.5,
+//             minWidth: 220,
+//             borderRadius: 2,
+//             overflow: 'visible',
+//             backgroundColor: 'secondary.main',
+//             boxShadow:
+//               '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 8px rgba(0,0,0,0.12)',
+//             '& .MuiMenuItem-root': {
+//               py: 1,
+//               '& .MuiListItemIcon-root': {
+//                 minWidth: 32,
+//                 color: 'text.secondary',
+//               },
+//               '&:hover': {
+//                 backgroundColor: 'action.hover',
+//               },
+//             },
+//             // small arrow
+//             '&:before': {
+//               content: '""',
+//               display: 'block',
+//               position: 'absolute',
+//               top: 0,
+//               right: 20,
+//               width: 10,
+//               height: 10,
+//               bgcolor: '#a855f7',
+//               transform: 'translateY(-50%) rotate(45deg)',
+//               zIndex: 0,
+//             },
+//           },
+//         }}
+//       >
+//         <MenuItem component={RouterLink} to="/profile" onClick={handleClose}>
+//           <ListItemIcon>
+//             <AccountCircle fontSize="small" />
+//           </ListItemIcon>
+//           My Account
+//         </MenuItem>
 
-        <MenuItem component={RouterLink} to="/purchase" onClick={handleClose}>
-          <ListItemIcon>
-            <ReceiptLong fontSize="small" />
-          </ListItemIcon>
-          My Purchase
-        </MenuItem>
+//         <MenuItem component={RouterLink} to="/purchase" onClick={handleClose}>
+//           <ListItemIcon>
+//             <ReceiptLong fontSize="small" />
+//           </ListItemIcon>
+//           My Purchase
+//         </MenuItem>
 
-        <Divider sx={{ my: 0.5 }} />
+//         <Divider sx={{ my: 0.5 }} />
 
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
-      </Menu>
-    </Box>
-  );
-}
+//         <MenuItem onClick={handleLogout}>
+//           <ListItemIcon>
+//             <Logout fontSize="small" />
+//           </ListItemIcon>
+//           Logout
+//         </MenuItem>
+//       </Menu>
+//     </Box>
+//   );
+// }
 
 export default Header;

@@ -39,9 +39,9 @@ export default function Cart() {
           alignItems="center"
           spacing={2}
           sx={{
-            background: theme.palette.secondary.main,
             borderRadius: 2,
             boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+            bgcolor: 'background.default',
             minWidth: 80,
             flexShrink: 0,
             mb: 3,
@@ -52,7 +52,7 @@ export default function Cart() {
           {/* Select All */}
           <StyledCheckbox
             checked={allSelected}
-            onChange={(e) => dispatch(setAllSelected(e.target.checked))}
+            onChange={(e: any) => dispatch(setAllSelected(e.target.checked))}
             bgColor="none"
           />
 
@@ -95,11 +95,7 @@ export default function Cart() {
         </Stack>
         <div className="space-y-4">
           {cartItems.map((item) => (
-            <CartItem
-              key={item.id}
-              item={item}
-              onAddToFavorites={handleAddToFavorites}
-            />
+            <CartItem key={item.id} item={item} />
           ))}
         </div>
       </Grid>

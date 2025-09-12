@@ -147,8 +147,7 @@ export function FilterSidebar({
       elevation={2}
       sx={{
         p: 3,
-        borderRadius: 4, // ~ rounded-2xl
-        background: theme.palette.primary.main,
+        borderRadius: theme.shape.borderRadius, // uses the global 12
       }}
     >
       {/* Header */}

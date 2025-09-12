@@ -35,7 +35,6 @@ export function CartSummary({ items, onCheckout }: CartSummaryProps) {
         maxWidth: 400,
         borderRadius: 2,
         boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-        background: theme.palette.primary.main,
       }}
     >
       <CardHeader
