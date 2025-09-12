@@ -27,11 +27,7 @@ export default function ProductListing() {
     useProductQueryParams({ priceMax: MAX_PRICE, size: 4, sort: 'relevance' });
 
   return (
-    <Grid
-      container
-      spacing={3}
-      sx={{ width: '100%', minHeight: '100vh', p: 2 }}
-    >
+    <Grid container spacing={3} sx={{ width: '86%', minHeight: '100vh', p: 2 }}>
       <Grid size={{ xs: 12, md: 3 }}>
         <FilterSidebar
           filters={filters}

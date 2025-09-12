@@ -9,23 +9,12 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  Tooltip,
-  Avatar,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  Divider,
 } from '@mui/material';
 import { Search as SearchIcon, Instagram } from '@mui/icons-material';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import ReceiptLong from '@mui/icons-material/ReceiptLong';
-import Logout from '@mui/icons-material/Logout';
-
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useLogout } from '../hooks/useLogout';
+import { Link as RouterLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProductSearchBar from '../features/Product/ProductSearchBar';
 import StyledBadge from '../components/StyledBadge';
@@ -42,12 +31,25 @@ const Header = () => {
   const isAuthenticated = useSelector((state) => state.account.isAuthenticated);
   const favorCount = useAppSelector(selectFavoritesCount);
 
+  // Common style for both AppBars → glass effect
+  const glassStyles = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bgcolor: 'rgba(255,255,255,0.65)', // translucent white (light mode)
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+    zIndex: theme.zIndex.appBar,
+  };
+
   return (
-    <Box>
-      {/* Top Header */}
-      <AppBar position="static" elevation={0} color="default">
+    <Box sx={{ pb: { xs: 12 } }}>
+      <AppBar elevation={0} sx={{ ...glassStyles, px: 4 }}>
+        {/* Top Header */}
         <Container maxWidth="xl">
-          <Box sx={{ py: 1.5 }}>
+          <Box sx={{ py: 1 }}>
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -111,10 +113,6 @@ const Header = () => {
                       to="#"
                       color="inherit"
                       underline="none"
-                      sx={{
-                        fontSize: theme.typography.body2.fontSize,
-                        '&:hover': { opacity: 0.8 },
-                      }}
                     >
                       <IconButton
                         size="small"
@@ -130,10 +128,6 @@ const Header = () => {
                       to="#"
                       color="inherit"
                       underline="none"
-                      sx={{
-                        fontSize: theme.typography.body2.fontSize,
-                        '&:hover': { opacity: 0.8 },
-                      }}
                     >
                       <IconButton
                         size="small"
@@ -187,13 +181,7 @@ const Header = () => {
               </Stack>
             </Stack>
           </Box>
-        </Container>
-      </AppBar>
-
-      {/* Main Navbar */}
-      <AppBar position="static" elevation={0} color="default">
-        <Container maxWidth="xl">
-          <Box sx={{ py: 2 }}>
+          <Box sx={{ pb: 1.5 }}>
             <Stack
               direction="row"
               spacing={3}
@@ -231,135 +219,5 @@ const Header = () => {
     </Box>
   );
 };
-
-// function HeaderUserMenu() {
-//   const account = useSelector((state) => state.account); // ← username, avatarUrl from Redux
-//   const navigate = useNavigate();
-//   const { logout } = useLogout();
-
-//   const [anchorEl, setAnchorEl] = React.useState(null);
-//   const open = Boolean(anchorEl);
-//   const handleOpen = (e) => setAnchorEl(e.currentTarget);
-//   const handleClose = () => setAnchorEl(null);
-
-//   const handleLogout = () => {
-//     logout();
-//     navigate('/login');
-//   };
-
-//   return (
-//     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-//       <Tooltip title="Account" arrow>
-//         <IconButton
-//           onClick={handleOpen}
-//           size="small"
-//           sx={{
-//             p: 0.5,
-//             pl: 0.75,
-//             pr: 1,
-//             borderRadius: 999,
-//             display: 'flex',
-//             alignItems: 'center',
-//             gap: 1,
-//             color: 'common.white',
-//             transition: 'background-color .2s ease, transform .15s ease',
-//             backgroundColor: 'transparent',
-//             '&:hover': {
-//               backgroundColor: 'rgba(255,255,255,0.12)',
-//               transform: 'translateY(-1px)',
-//             },
-//             '& .MuiAvatar-root': {
-//               border: '2px solid rgba(255,255,255,0.28)',
-//             },
-//           }}
-//         >
-//           <Avatar
-//             src={account?.user?.avatarUrl || ''}
-//             alt={account?.user?.name || 'avatar'}
-//             sx={{ width: 28, height: 28 }}
-//           />
-
-//           <Typography
-//             variant="body2"
-//             sx={{
-//               display: { xs: 'none', sm: 'inline' },
-//               color: 'text.secondary', // ← username in white
-//               fontWeight: 600,
-//               letterSpacing: 0.2,
-//             }}
-//           >
-//             {account?.user?.name}
-//           </Typography>
-//         </IconButton>
-//       </Tooltip>
-
-//       <Menu
-//         anchorEl={anchorEl}
-//         open={open}
-//         onClose={handleClose}
-//         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-//         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-//         PaperProps={{
-//           elevation: 0,
-//           sx: {
-//             mt: 1.5,
-//             minWidth: 220,
-//             borderRadius: 2,
-//             overflow: 'visible',
-//             backgroundColor: 'secondary.main',
-//             boxShadow:
-//               '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 8px rgba(0,0,0,0.12)',
-//             '& .MuiMenuItem-root': {
-//               py: 1,
-//               '& .MuiListItemIcon-root': {
-//                 minWidth: 32,
-//                 color: 'text.secondary',
-//               },
-//               '&:hover': {
-//                 backgroundColor: 'action.hover',
-//               },
-//             },
-//             // small arrow
-//             '&:before': {
-//               content: '""',
-//               display: 'block',
-//               position: 'absolute',
-//               top: 0,
-//               right: 20,
-//               width: 10,
-//               height: 10,
-//               bgcolor: '#a855f7',
-//               transform: 'translateY(-50%) rotate(45deg)',
-//               zIndex: 0,
-//             },
-//           },
-//         }}
-//       >
-//         <MenuItem component={RouterLink} to="/profile" onClick={handleClose}>
-//           <ListItemIcon>
-//             <AccountCircle fontSize="small" />
-//           </ListItemIcon>
-//           My Account
-//         </MenuItem>
-
-//         <MenuItem component={RouterLink} to="/purchase" onClick={handleClose}>
-//           <ListItemIcon>
-//             <ReceiptLong fontSize="small" />
-//           </ListItemIcon>
-//           My Purchase
-//         </MenuItem>
-
-//         <Divider sx={{ my: 0.5 }} />
-
-//         <MenuItem onClick={handleLogout}>
-//           <ListItemIcon>
-//             <Logout fontSize="small" />
-//           </ListItemIcon>
-//           Logout
-//         </MenuItem>
-//       </Menu>
-//     </Box>
-//   );
-// }
 
 export default Header;

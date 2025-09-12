@@ -10,7 +10,13 @@ import { useLoaderData } from 'react-router';
 export default function ProductDetailsPage() {
   const product = useLoaderData() as ProductDetailsView;
   return (
-    <Stack direction="column" gap={2}>
+    <Stack
+      direction="column"
+      gap={2}
+      sx={{
+        width: '86%',
+      }}
+    >
       {/* Main section (images + details) */}
       <Grid container spacing={3} sx={{ width: '100%', p: 4 }}>
         <Grid size={5}>

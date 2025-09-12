@@ -144,7 +144,14 @@ export default function ProductCard({ product }: ProductCardProps) {
               justifyContent: 'space-between',
             }}
           >
-            <Pill variant="outlined" color="default" label={product.category} />
+            <Pill
+              variant="outlined"
+              color="default"
+              label={product.category}
+              sx={{
+                bgcolor: 'background.default',
+              }}
+            />
             <Typography variant="caption" sx={{ color: 'grey.600' }}>
               {product.sales} sold
             </Typography>

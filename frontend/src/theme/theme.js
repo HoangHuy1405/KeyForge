@@ -8,13 +8,14 @@ const TEXT_MUTED = '#5f5f5f';
 const BRAND = '#3b82f6'; // use as primary accent (CTA)
 const BRAND_2 = '#a855f7'; // optional gradient stop
 const OUTLINE = '#75757536';
+const BG_BLACK = '#0a082f';
 
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: { main: BRAND, contrastText: '#fff' },
     secondary: { main: BRAND_2, contrastText: '#fff' },
-    background: { default: BG_DEFAULT, paper: BG_PAPER },
+    background: { default: BG_DEFAULT, paper: BG_PAPER, contrast: BG_BLACK },
     text: { primary: TEXT_MAIN, secondary: '#5f5f5f' },
     divider: alpha(TEXT_MAIN, 0.12),
     gradient: `linear-gradient(135deg, ${BRAND}, ${BRAND_2})`,
@@ -66,6 +67,7 @@ const theme = createTheme({
           backgroundImage: 'none',
           color: TEXT_MAIN,
           border: 'none',
+          borderRadius: 0,
         },
         // Opt-in brand bar when you use color="primary"
         colorPrimary: {
@@ -125,7 +127,7 @@ const theme = createTheme({
 
     MuiDivider: {
       styleOverrides: {
-        root: { borderColor: alpha(TEXT_MAIN, 0.12) },
+        root: { borderColor: alpha(TEXT_MAIN, 0.24) },
       },
     },
   },

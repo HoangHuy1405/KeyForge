@@ -10,15 +10,7 @@ import { useAppSelector } from '../../hooks/hooks';
 
 export default function Cart() {
   const cartItems = useAppSelector(getCart);
-  const theme = useTheme();
   const dispatch = useDispatch();
-
-  const handleAddToFavorites = (id: string) => {
-    const item = cartItems.find((item) => item.id === id);
-    if (item) {
-      toast.success(`${item.name} added to favorites`);
-    }
-  };
 
   const handleCheckout = () => {
     const selectedItems = cartItems.filter((item) => item.selected);
@@ -31,7 +23,14 @@ export default function Cart() {
     cartItems.length > 0 && cartItems.every((item) => item.selected);
 
   return (
-    <Grid container spacing={3} className="my-4 min-h-screen w-full">
+    <Grid
+      container
+      spacing={3}
+      className="my-4 min-h-screen"
+      sx={{
+        width: '86%',
+      }}
+    >
       <Grid size={8}>
         {/* Header Row (one line) */}
         <Stack

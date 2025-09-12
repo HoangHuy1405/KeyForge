@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Homepage from './features/Homepage';
 import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
 import ProfilePage from './features/User/ProfilePage';
@@ -16,9 +15,12 @@ import { loader as profileLoader } from './features/User/profileLoader';
 import Error from './components/Error';
 import { loader as productsLoader } from './features/Product/ProductListingPage/productsLoader';
 import { loader as productLoader } from './features/Product/ProductDetailsPage/productLoader';
+import { loader as productsHomeLoader } from './features/HomePage/productsHomeLoader';
+
 import Cart from './features/Cart/Cart';
 import ProductListing from './features/Product/ProductListingPage/ProductListing';
 import ProductDetailsPage from './features/Product/ProductDetailsPage/ProductDetailsPage';
+import Homepage from './features/HomePage/Homepage';
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,7 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Homepage />,
+        loader: productsHomeLoader,
       },
       {
         path: '/',

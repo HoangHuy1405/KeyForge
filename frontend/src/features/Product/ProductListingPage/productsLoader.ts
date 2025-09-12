@@ -3,7 +3,7 @@ import { Sort } from '../../../services/interfaces/paramsType';
 import { getProducts } from '../../../services/ProductService';
 
 // accept "field-asc" or "field,asc"
-function parseSortParam(value: string | null): Sort | null {
+export function parseSortParam(value: string | null): Sort | null {
   if (!value) return null;
   const m = value.trim().match(/^(.+?)[-,](asc|desc)$/i);
   if (!m) return null;
@@ -27,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const q = sp.get('q')?.trim() ?? '';
   const page = Number(sp.get('page') ?? 0);
-  const size = Number(sp.get('size') ?? 4);
+  const size = Number(sp.get('size') ?? 8);
   const sort = parseSortParam(sp.get('sort'));
 
   // multi-value filters come in as repeated keys: ?categories=A&categories=B
