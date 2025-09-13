@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class ProductMediaController {
 
     @PostMapping(path = "/thumbnail", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiMessage("Thumbnail uploaded successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse uploadThumbnail(
             @PathVariable UUID productId,
             @RequestPart("file") MultipartFile file) {
@@ -36,6 +38,7 @@ public class ProductMediaController {
 
     @PostMapping(path = "/gallery", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiMessage("Gallery Image uploaded successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse uploadGallery(
             @PathVariable UUID productId,
             @RequestPart("files") List<MultipartFile> files) {
@@ -44,6 +47,7 @@ public class ProductMediaController {
 
     @PutMapping(path = "/thumbnail", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiMessage("Thumbnail updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse updateThumbnail(
             @PathVariable UUID productId,
             @RequestPart("file") MultipartFile file) {
@@ -52,6 +56,7 @@ public class ProductMediaController {
 
     @PutMapping(path = "/gallery/{imageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiMessage("Gallery Image updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse updateGalleryImage(
             @PathVariable UUID productId,
             @PathVariable UUID imageId,
@@ -61,12 +66,14 @@ public class ProductMediaController {
 
     @DeleteMapping("/thumbnail")
     @ApiMessage("Thumbnail deleted successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse deleteThumbnail(@PathVariable UUID productId) {
         return productMediaService.deleteThumbnail(productId);
     }
 
     @DeleteMapping("/gallery/{imageId}")
     @ApiMessage("Gallery Image deleted successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ProductMediaResponse deleteGalleryImage(
             @PathVariable UUID productId,
             @PathVariable UUID imageId) {

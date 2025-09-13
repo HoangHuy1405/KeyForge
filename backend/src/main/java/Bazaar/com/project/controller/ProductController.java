@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,7 @@ public class ProductController {
     // Create Basic info (Step 1)
     @PostMapping
     @ApiMessage("Product created successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ProductBasicResponse> create(@Valid @RequestBody CreateProductRequest productDto) {
         ProductBasicResponse response = this.productService.createBasic(productDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -50,6 +52,7 @@ public class ProductController {
     // Create Basic info (Step 1)
     @PutMapping("{id}/basic")
     @ApiMessage("Product basic updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ProductBasicResponse> updateBasic(
             @Valid @RequestBody UpdateBasicRequest productDto,
             @PathVariable UUID id,
@@ -63,6 +66,7 @@ public class ProductController {
      */
     @PutMapping("/{id}/details")
     @ApiMessage("Product details updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<DetailedResponse> updateDetails(
             @PathVariable UUID id,
             @RequestParam UUID sellerId, // in real app, take from auth context
@@ -73,6 +77,7 @@ public class ProductController {
 
     @PutMapping("/{id}/inventory")
     @ApiMessage("Product inventory updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<InventoryResponse> updateInventory(
             @PathVariable UUID id,
             @RequestParam UUID sellerId,
@@ -83,6 +88,7 @@ public class ProductController {
 
     @PutMapping("/{id}/logistics")
     @ApiMessage("Product logistic updated successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<LogisticsResponse> updateLogistics(
             @PathVariable UUID id,
             @RequestParam UUID sellerId,
@@ -94,6 +100,7 @@ public class ProductController {
     /* Read (edit + detail) */
     @GetMapping("/{id}/seller")
     @ApiMessage("Product fetched successfully")
+    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     public ResponseEntity<ProductFullResponse> getProductForSeller(@PathVariable UUID id) {
         ProductFullResponse product = productService.findProductById(id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
@@ -117,7 +124,8 @@ public class ProductController {
 
     @GetMapping("/by-seller/{sellerId}")
     @ApiMessage("Products by seller fetched successfully")
-    public ResponseEntity<ResultPaginationDTO> getBySeller(
+    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
+    public ResponseEntity<ResultPaginationDTO> getProductsBySeller(
             @PathVariable UUID sellerId,
             @Filter Specification<Product> spec,
             Pageable pageable) {
@@ -127,6 +135,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @ApiMessage("Products deleted successfully")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok().body(null);

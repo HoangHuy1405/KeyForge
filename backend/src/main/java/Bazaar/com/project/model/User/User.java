@@ -1,15 +1,18 @@
 package Bazaar.com.project.model.User;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import Bazaar.com.project.model.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -43,10 +46,6 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(nullable = true)
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
     @Column(unique = true)
     private String phoneNum;
 
@@ -61,6 +60,11 @@ public class User extends BaseEntity {
     @JoinColumn(name = "account_id")
     @JsonManagedReference
     private Account account;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
 
     public boolean verifyPassword(String rawPassword) {
         return this.password.equals(rawPassword);

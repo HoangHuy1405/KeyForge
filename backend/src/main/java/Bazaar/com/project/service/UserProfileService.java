@@ -13,6 +13,8 @@ import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.interfaces.CloudinaryService;
 import Bazaar.com.project.util.FileUploadUtil;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -85,6 +87,12 @@ public class UserProfileService {
     // === helpers ===
     private UserProfileResponseDto toDto(User u, String avatarUrl) {
         java.util.UUID accountId = (u.getAccount() != null ? u.getAccount().getId() : null);
+        // Convert roles -> list of strings
+        List<String> roleNames = u.getRoles() != null
+                ? u.getRoles().stream()
+                        .map(role -> role.getName().name()) // RoleName enum
+                        .toList()
+                : Collections.emptyList();
         return new UserProfileResponseDto(
                 u.getId(),
                 u.getUsername(),
@@ -92,7 +100,7 @@ public class UserProfileService {
                 u.getEmail(),
                 u.getPhoneNum(),
                 u.getDescription(),
-                (u.getRole() != null ? u.getRole().name() : null),
+                roleNames,
                 avatarUrl,
                 u.getProfilePhotoPublicId(),
                 accountId);

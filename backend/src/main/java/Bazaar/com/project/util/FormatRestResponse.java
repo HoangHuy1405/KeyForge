@@ -8,13 +8,13 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 
-@ControllerAdvice
+@RestControllerAdvice(basePackages = "Bazaar.com.project")
 public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
     @Override

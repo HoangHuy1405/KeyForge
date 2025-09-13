@@ -20,7 +20,6 @@ public abstract class Account extends BaseEntity {
                 .fullname(fullname)
                 .phoneNum(phoneNum)
                 .account(this)
-                .role(Role.User)
                 .build();
 
         return this.user;

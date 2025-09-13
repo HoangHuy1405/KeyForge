@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 // import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -33,7 +34,7 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    public String generateAccessToken(String email, ResLoginDTO resLoginDTO) {
+    public String generateAccessToken(String email, ResLoginDTO resLoginDTO, List<String> roleNames) {
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
@@ -44,6 +45,7 @@ public class JwtUtil {
             .expiresAt(validity) 
             .subject(email) 
             .claim("user", resLoginDTO.getUser()) 
+            .claim("roles", roleNames)
             .build(); 
 
         // header

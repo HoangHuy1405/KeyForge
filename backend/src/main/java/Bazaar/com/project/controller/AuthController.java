@@ -14,6 +14,8 @@ import Bazaar.com.project.util.SecurityUtil;
 import Bazaar.com.project.util.Annotation.ApiMessage;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -87,6 +89,7 @@ public class AuthController {
                 // response
                 ResLoginDTO res = new ResLoginDTO();
                 User currentUser = this.userService.fetchUserByEmail(request.email());
+                List<String> roleNames = null;
                 if (currentUser != null) {
                         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                                         currentUser.getId(),
@@ -95,9 +98,15 @@ public class AuthController {
                                         currentUser.getProfilePhotoUrl());
 
                         res.setUser(userLogin);
+
+                        // extract user roles
+                        // extract role names from user entity
+                        roleNames = currentUser.getRoles().stream()
+                                        .map(role -> role.getName().name()) // e.g. ROLE_USER
+                                        .toList();
                 }
                 // create a token
-                String access_token = this.jwtUtil.generateAccessToken(request.email(), res);
+                String access_token = this.jwtUtil.generateAccessToken(request.email(), res, roleNames);
                 res.setAccessToken(access_token);
 
                 // generate refresh_token
@@ -159,6 +168,8 @@ public class AuthController {
 
                 // Create response and access token
                 ResLoginDTO res = new ResLoginDTO();
+
+                List<String> roleNames = null;
                 if (currentUser != null) {
                         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                                         currentUser.getId(),
@@ -166,10 +177,15 @@ public class AuthController {
                                         currentUser.getUsername(),
                                         currentUser.getProfilePhotoUrl());
                         res.setUser(userLogin);
+
+                        // extract role
+                        roleNames = currentUser.getRoles().stream()
+                                        .map(role -> role.getName().name()) // e.g. ROLE_USER
+                                        .toList();
                 }
 
                 // create access token
-                String access_token = this.jwtUtil.generateAccessToken(email, res);
+                String access_token = this.jwtUtil.generateAccessToken(email, res, roleNames);
                 res.setAccessToken(access_token);
 
                 // create new refresh token

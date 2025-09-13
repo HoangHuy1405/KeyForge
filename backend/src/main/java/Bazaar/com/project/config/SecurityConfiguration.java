@@ -7,6 +7,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -39,29 +40,36 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+            CustomAccessDeniedHandler customAccessDeniedHandler) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        authz -> authz
-                                .requestMatchers("/",
-                                        "/auth/login",
-                                        "/auth/register",
-                                        "/auth/refresh",
-                                        "/api/products",
-                                        "/api/products/*")
-                                .permitAll()
-                                .anyRequest().authenticated()
-                // .anyRequest().permitAll()
-                )
-                .oauth2ResourceServer(
-                        (oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                                .authenticationEntryPoint(customAuthenticationEntryPoint))
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/", "/auth/login", "/auth/register", "/auth/refresh",
+                                "/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/products",
+                                "/api/products/*")
+                        .hasRole("SELLER")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasRole("SELLER")
+                        .anyRequest().authenticated())
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
                 // .exceptionHandling(
                 // exceptions -> exceptions
                 // .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
                 // .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
+                .exceptionHandling(
+                        exceptions -> exceptions.accessDeniedHandler(customAccessDeniedHandler) // ✅ custom
+                                                                                                // 403
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
@@ -95,7 +103,7 @@ public class SecurityConfiguration {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
