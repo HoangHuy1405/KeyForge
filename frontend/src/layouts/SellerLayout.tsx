@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme } from '@mui/material/styles';
@@ -11,7 +10,11 @@ import { AppProvider, type Navigation } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
 import { Inventory2 } from '@mui/icons-material';
+import Logo from '../components/Logo';
 import ProductManagerPage from '../features/Seller/ProductManagerPage';
+import { Link as RouterLink } from 'react-router-dom';
+import { Link } from '@mui/material';
+import RegisterSellerPage from '../features/Seller/Register/RegisterPage';
 
 const NAVIGATION: Navigation = [
   {
@@ -79,8 +82,20 @@ const demoTheme = createTheme({
     },
   },
 });
+interface DemoPageContentProps {
+  pathname: string;
+}
+function DemoPageContent({ pathname }: DemoPageContentProps) {
+  // Map paths to page components for easy expansion
+  const pageMap: Record<string, React.ReactNode> = {
+    '/inventory': (
+      <>
+        <Typography variant="h6">Inventory</Typography>
+        <ProductManagerPage />
+      </>
+    ),
+  };
 
-function DemoPageContent({ pathname }: { pathname: string }) {
   return (
     <Box
       sx={{
@@ -91,16 +106,11 @@ function DemoPageContent({ pathname }: { pathname: string }) {
         textAlign: 'center',
       }}
     >
-      {pathname === "/inventory" ? (
-        <>
-          <Typography variant="h6">Inventory</Typography>
-          <ProductManagerPage />
-        </>
-      ) : (
+      {/* Render the matching page if it exists, otherwise fallback */}
+      {pageMap[pathname] ?? (
         <Typography>Dashboard content for {pathname}</Typography>
-
       )}
-    </Box >
+    </Box>
   );
 }
 
@@ -116,7 +126,6 @@ export default function DashboardLayoutBasic(props: DemoProps) {
   const { window } = props;
 
   const router = useDemoRouter('/dashboard');
-
   // Remove this const when copying and pasting into your project.
   const demoWindow = window !== undefined ? window() : undefined;
 
@@ -129,6 +138,11 @@ export default function DashboardLayoutBasic(props: DemoProps) {
         router={router}
         theme={demoTheme}
         window={demoWindow}
+        branding={{
+          logo: <CustomBranding />,
+          title: '',
+          homeUrl: 'http://localhost:8080/',
+        }}
       >
         <DashboardLayout>
           <DemoPageContent pathname={router.pathname} />
@@ -136,5 +150,26 @@ export default function DashboardLayoutBasic(props: DemoProps) {
       </AppProvider>
       {/* preview-end */}
     </DemoProvider>
+  );
+}
+
+function CustomBranding() {
+  return (
+    <Link
+      component={RouterLink}
+      to="/"
+      color="inherit"
+      underline="none"
+      sx={{
+        '&:hover': { opacity: 0.9 },
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Logo />
+        <h1 className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
+          Bazaar
+        </h1>
+      </Box>
+    </Link>
   );
 }

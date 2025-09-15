@@ -1,7 +1,10 @@
 package Bazaar.com.project.service.auth;
 
+import Bazaar.com.project.model.User.Role;
+import Bazaar.com.project.model.User.RoleName;
 import Bazaar.com.project.model.User.User;
 import Bazaar.com.project.repository.LocalAccountRepository;
+import Bazaar.com.project.repository.RoleRepository;
 import Bazaar.com.project.repository.UserRepository;
 import Bazaar.com.project.service.auth.command.CreateUserCommand;
 import Bazaar.com.project.service.auth.command.LoginByUsernameOrEmailCommand;
@@ -17,6 +20,8 @@ public class AuthCommandHandler {
     private LocalAccountRepository localAccountRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     public User handle(LoginByUsernameOrEmailCommand command) {
         var account = localAccountRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
@@ -29,25 +34,14 @@ public class AuthCommandHandler {
     }
 
     public User handle(CreateUserCommand command) {
-        // if (localAccountRepository.existsByUsername(command.username()))
-        // throw new UsernameAlreadyExistException();
-
-        // if (localAccountRepository.existsByEmail(command.email()))
-        // throw new EmailAlreadyExistException();
-
-        // LocalAccount account = LocalAccount.builder()
-        // .username(command.username())
-        // .email(command.email())
-        // .password(command.password())
-        // .build();
-
-        // User user = account.createUser(command.fullname(), command.phoneNum());
-        // localAccountRepository.save(account);
         if (userRepository.existsByEmail(command.email()))
             throw new EmailAlreadyExistException();
 
         if (userRepository.existsByUsername(command.username()))
             throw new UsernameAlreadyExistException();
+
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
 
         User user = User.builder()
                 .username(command.username())
@@ -56,6 +50,8 @@ public class AuthCommandHandler {
                 .fullname(command.fullname())
                 .phoneNum(command.phoneNum())
                 .build();
+
+        user.getRoles().add(userRole);
 
         return userRepository.save(user);
     }

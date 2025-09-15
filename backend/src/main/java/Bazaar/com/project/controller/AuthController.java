@@ -91,19 +91,21 @@ public class AuthController {
                 User currentUser = this.userService.fetchUserByEmail(request.email());
                 List<String> roleNames = null;
                 if (currentUser != null) {
-                        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
-                                        currentUser.getId(),
-                                        currentUser.getEmail(),
-                                        currentUser.getUsername(),
-                                        currentUser.getProfilePhotoUrl());
-
-                        res.setUser(userLogin);
-
                         // extract user roles
                         // extract role names from user entity
                         roleNames = currentUser.getRoles().stream()
                                         .map(role -> role.getName().name()) // e.g. ROLE_USER
                                         .toList();
+
+                        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
+                                        currentUser.getId(),
+                                        currentUser.getEmail(),
+                                        currentUser.getUsername(),
+                                        currentUser.getProfilePhotoUrl(),
+                                        roleNames);
+
+                        res.setUser(userLogin);
+
                 }
                 // create a token
                 String access_token = this.jwtUtil.generateAccessToken(request.email(), res, roleNames);
@@ -171,17 +173,19 @@ public class AuthController {
 
                 List<String> roleNames = null;
                 if (currentUser != null) {
-                        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
-                                        currentUser.getId(),
-                                        currentUser.getEmail(),
-                                        currentUser.getUsername(),
-                                        currentUser.getProfilePhotoUrl());
-                        res.setUser(userLogin);
 
                         // extract role
                         roleNames = currentUser.getRoles().stream()
                                         .map(role -> role.getName().name()) // e.g. ROLE_USER
                                         .toList();
+                        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
+                                        currentUser.getId(),
+                                        currentUser.getEmail(),
+                                        currentUser.getUsername(),
+                                        currentUser.getProfilePhotoUrl(),
+                                        roleNames);
+                        res.setUser(userLogin);
+
                 }
 
                 // create access token

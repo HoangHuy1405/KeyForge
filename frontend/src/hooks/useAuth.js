@@ -1,4 +1,4 @@
-import { useMutation, useMutationState } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { loginUser } from '../services/AuthService';
@@ -26,23 +26,15 @@ export default function useAuth() {
       dispatch(setUserLoginInfo(data.user));
 
       toast.success('login successfully.', {
+        toastId: 'login successfully',
         position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
       navigate('/');
     },
     onError: (error) => {
       toast.error(`login fail: ${error.message}`, {
+        toastId: 'login successfully',
         position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
     },
   });

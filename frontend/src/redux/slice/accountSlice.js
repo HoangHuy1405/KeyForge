@@ -10,11 +10,7 @@ const initialState = {
     email: '',
     name: '',
     avatarUrl: '',
-    role: {
-      id: '',
-      name: '',
-      permissions: [],
-    },
+    roles: [],
   },
 };
 
@@ -31,6 +27,7 @@ export const accountSlice = createSlice({
       state.user.email = action?.payload?.email;
       state.user.name = action?.payload?.name;
       state.user.avatarUrl = action?.payload?.avatarUrl;
+      state.user.roles = action?.payload?.roles;
     },
     updateAvatar: (state, action) => {
       state.user.avatarUrl = action?.payload;
@@ -44,3 +41,4 @@ export const { setUserLoginInfo, updateAvatar, logout } = accountSlice.actions;
 export default accountSlice.reducer;
 
 export const getUserId = (state) => state.account.user.id;
+export const getRoles = (state) => state.account.user.roles;

@@ -32,6 +32,7 @@ export async function getProducts(params: GetListParams): Promise<ProductList> {
     searchParams.append('filter', params.filters);
   }
   console.log(searchParams.toString());
+  console.log(`${BASE}?${searchParams.toString()}`);
   const data = await api.get<ProductList>(`${BASE}?${searchParams.toString()}`);
   return data;
 }

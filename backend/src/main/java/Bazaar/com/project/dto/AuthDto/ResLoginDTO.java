@@ -1,5 +1,6 @@
 package Bazaar.com.project.dto.AuthDto;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class ResLoginDTO {
         private String email;
         private String name;
         private String avatarUrl;
+        private List<String> roles;
     }
 
     @Getter

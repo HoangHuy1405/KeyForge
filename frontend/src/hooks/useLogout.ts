@@ -31,7 +31,10 @@ export function useLogout(): {
 
       dispatch(logoutAction());
       qc.clear();
-      toast.error('Logout failed on server; signed out locally.');
+
+      toast.error('Logout failed on server; signed out locally.', {
+        toastId: 'Logout failed',
+      });
       navigate('/login');
     },
   });
