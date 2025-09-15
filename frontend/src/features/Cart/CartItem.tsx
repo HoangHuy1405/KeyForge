@@ -115,60 +115,6 @@ export function CartItem({ item }: CartItemProps) {
         </Box>
 
         {/* Quantity Controls */}
-        {/* <Box sx={{ flexShrink: 0 }}>
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <IconButton
-              size="small"
-              onClick={() => dispatch(decreaseItemQuantity(item.id))}
-              disabled={item.quantity < 1}
-              color="inherit"
-              sx={{
-                width: 32,
-                height: 32,
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-                borderRadius: 1,
-              }}
-            >
-              <RemoveIcon fontSize="inherit" />
-            </IconButton>
-
-            <TextField
-              type="number"
-              value={item.quantity}
-              disabled={true}
-              size="small"
-              sx={{
-                width: 40,
-                '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
-                  {
-                    WebkitAppearance: 'none',
-                    margin: 0,
-                  },
-                '& input[type=number]': {
-                  MozAppearance: 'textfield',
-                },
-                '& .MuiOutlinedInput-root': {
-                  height: 32,
-                },
-              }}
-            />
-
-            <IconButton
-              size="small"
-              onClick={() => dispatch(increaseItemQuantity(item.id))}
-              disabled={item.quantity < 1}
-              color="inherit"
-              sx={{
-                width: 32,
-                height: 32,
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-                borderRadius: 1,
-              }}
-            >
-              <AddIcon fontSize="inherit" />
-            </IconButton>
-          </Stack>
-        </Box> */}
         <QuantityControl
           value={item.quantity}
           min={1}

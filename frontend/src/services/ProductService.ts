@@ -122,3 +122,7 @@ export async function getProductsBySeller(
     `${BASE}/by-seller/${sellerId}?${searchParams.toString()}`,
   );
 }
+
+export async function deleteProduct(productId: string) {
+  return await api.delete(`${BASE}/${productId}`);
+}

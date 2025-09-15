@@ -79,5 +79,4 @@ public class ProductMediaController {
             @PathVariable UUID imageId) {
         return productMediaService.deleteGalleryImage(productId, imageId);
     }
-
 }
