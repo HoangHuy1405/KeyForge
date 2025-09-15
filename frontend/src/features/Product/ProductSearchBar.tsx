@@ -10,7 +10,7 @@ const ProductSearchBar: React.FC = () => {
   const [query, setQuery] = React.useState(() => searchParams.get('q') ?? '');
 
   // keep current size from URL (default 10)
-  const sizeFromUrl = searchParams.get('size') ?? '10';
+  // const sizeFromUrl = searchParams.get('size') ?? '10';
 
   // if URL changes elsewhere, keep input in sync
   React.useEffect(() => {
@@ -49,7 +49,7 @@ const ProductSearchBar: React.FC = () => {
       >
         {/* reset page on new search; preserve size */}
         <input type="hidden" name="page" value="0" />
-        <input type="hidden" name="size" value={sizeFromUrl} />
+        {/* <input type="hidden" name="size" value={sizeFromUrl} /> */}
 
         <InputBase
           placeholder="Search for products, brands, or seller"

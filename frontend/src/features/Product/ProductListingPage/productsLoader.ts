@@ -21,13 +21,16 @@ const arrToList = (arr: string[]) =>
 const containsAny = (field: string, values: string[]) =>
   `(${values.map((v) => `${field} ~~ '*${esc(v)}*'`).join(' or ')})`;
 
+const INIT_PAGE = 0;
+const PAGE_SIZE = 8;
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const sp = url.searchParams;
 
   const q = sp.get('q')?.trim() ?? '';
-  const page = Number(sp.get('page') ?? 0);
-  const size = Number(sp.get('size') ?? 8);
+  const page = Number(sp.get('page') ?? INIT_PAGE);
+  const size = Number(sp.get('size') ?? PAGE_SIZE);
   const sort = parseSortParam(sp.get('sort'));
 
   // multi-value filters come in as repeated keys: ?categories=A&categories=B

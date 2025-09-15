@@ -16,13 +16,20 @@ import {
 
 const BASE = 'api/products';
 
+const DEFAULT_CURR_PAGE = 0;
+const DEFAULT_PAGE_SIZE = 18;
+
 export async function getProducts(params: GetListParams): Promise<ProductList> {
   const searchParams = new URLSearchParams();
 
-  if (params.size !== undefined)
-    searchParams.append('size', String(params.size));
-  if (params.page !== undefined)
-    searchParams.append('page', String(params.page));
+  searchParams.append(
+    'size',
+    params.size ? String(params.size) : DEFAULT_PAGE_SIZE.toString(),
+  );
+  searchParams.append(
+    'page',
+    params.page ? String(params.page) : DEFAULT_CURR_PAGE.toString(),
+  );
   if (params.sort) {
     params.sort.forEach(({ field, direction }) => {
       searchParams.append('sort', `${field},${direction}`);

@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Hero from './Hero';
 import CategorySlider from './CategorySlider';
 import { useLoaderData } from 'react-router';
@@ -29,6 +29,18 @@ function Homepage() {
         }}
       />
       <div className="mb-12 px-24">
+        <Box
+          mb={3}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            Our products
+          </Typography>
+        </Box>
         <ProductGrid products={products} columns={5} spacing={2} mt={2} />
       </div>
       <Newsletter />

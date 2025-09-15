@@ -19,6 +19,7 @@ import UpdateLogisticsStep from './DialogSteps/UpdateLogisticStep';
 import { useSelector } from 'react-redux';
 import { getUserId } from '../../redux/slice/accountSlice';
 import { toast } from 'react-toastify';
+import UpdateImagesStep from './DialogSteps/UpdateImagesStep';
 
 export default function CreateProductDialogFormik({
   open,
@@ -32,6 +33,7 @@ export default function CreateProductDialogFormik({
   const steps: IStepComponent<any>[] = [
     CreateBasicStep,
     UpdateDetailStep,
+    UpdateImagesStep,
     UpdateInventoryStep,
     UpdateLogisticsStep,
   ];
