@@ -45,6 +45,7 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                // .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/auth/login", "/auth/register", "/auth/refresh",
                                 "/swagger-ui.html", "/swagger-ui/**",

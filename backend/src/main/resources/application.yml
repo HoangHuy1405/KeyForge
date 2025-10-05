@@ -1,0 +1,45 @@
+spring:
+  config:
+    import: optional:file:.env.properties
+  application:
+    name: project
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.tool.schema: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET}
+  access:
+    expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh:
+    expiration: ${JWT_REFRESH_EXPIRATION}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
+server:
+  port: 8080
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-type: PKCS12
+    key-store-password: ${SERVER_SSL_KEYSTORE_PASSWORD}

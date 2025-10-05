@@ -121,6 +121,7 @@ public class AuthController {
                                 .httpOnly(true)
                                 .secure(true)
                                 .path("/")
+                                .sameSite("None")
                                 .maxAge(refreshTokenExpiration)
                                 .build();
 
@@ -203,6 +204,7 @@ public class AuthController {
                                 .httpOnly(true)
                                 .secure(true)
                                 .path("/")
+                                .sameSite("None")
                                 .maxAge(refreshTokenExpiration)
                                 .build();
 
@@ -230,6 +232,7 @@ public class AuthController {
                                 .httpOnly(true)
                                 .secure(true)
                                 .path("/")
+                                .sameSite("None")
                                 .maxAge(0)
                                 .build();
 

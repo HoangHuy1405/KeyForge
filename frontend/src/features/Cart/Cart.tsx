@@ -26,7 +26,7 @@ export default function Cart() {
     <Grid
       container
       spacing={3}
-      className="my-4 min-h-screen"
+      className="my-10 min-h-screen"
       sx={{
         width: '86%',
       }}

@@ -4,11 +4,11 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
-} from "axios";
-import { refresh } from "./AuthService";
+} from 'axios';
+import { refresh } from './AuthService';
 
 interface ApiResponse<T = any> {
-  status: "success" | "error";
+  status: 'success' | 'error';
   data?: T;
   message?: any;
   statusCode?: string;
@@ -22,7 +22,7 @@ interface FailedRequest {
 
 // === Khởi tạo axios instance ===
 const instance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:8080/",
+  baseURL: 'https://localhost:8080/',
   withCredentials: true,
   // headers: { "Content-Type": "application/json" }, // Bỏ nếu upload file
 });
@@ -30,13 +30,13 @@ const instance: AxiosInstance = axios.create({
 // === Request Interceptor ===
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = localStorage.getItem("access_token");
+    const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error),
 );
 
 // === Avoid Race Condition ===
@@ -59,7 +59,7 @@ instance.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const apiResponse = response.data;
 
-    if (apiResponse.status === "success") {
+    if (apiResponse.status === 'success') {
       return apiResponse.data;
     } else {
       return Promise.reject({
@@ -74,22 +74,22 @@ instance.interceptors.response.use(
 
     // Nếu bị 401 (Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
-
-
       // nếu có thằng khác đang gọi refresh => đưa vào queue
       // sau khi xong, gọi resolve(token)
       if (isRefreshing) {
-        return new Promise<string | null>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          // sau khi đã có token
-          .then((token) => {
-            if (token) {
-              originalRequest.headers["Authorization"] = "Bearer " + token;
-            }
-            return instance(originalRequest);
+        return (
+          new Promise<string | null>((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
           })
-          .catch((err) => Promise.reject(err));
+            // sau khi đã có token
+            .then((token) => {
+              if (token) {
+                originalRequest.headers['Authorization'] = 'Bearer ' + token;
+              }
+              return instance(originalRequest);
+            })
+            .catch((err) => Promise.reject(err))
+        );
       }
 
       // thằng đầu gọi refresh và set isRefreshing = true
@@ -101,9 +101,9 @@ instance.interceptors.response.use(
         const newToken = data.accessToken;
 
         // set access_token mới
-        localStorage.setItem("access_token", newToken);
-        instance.defaults.headers.common["Authorization"] =
-          "Bearer " + newToken;
+        localStorage.setItem('access_token', newToken);
+        instance.defaults.headers.common['Authorization'] =
+          'Bearer ' + newToken;
 
         processQueue(null, newToken);
 
@@ -111,7 +111,7 @@ instance.interceptors.response.use(
         // xử lý refresh fail
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem("access_token");
+        localStorage.removeItem('access_token');
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
@@ -122,22 +122,30 @@ instance.interceptors.response.use(
     if (error.response && error.response.data) {
       const data = error.response.data as ApiResponse;
       return Promise.reject({
-        message: data.message || "Unknown server error",
-        errorCode: data.statusCode || "UNKNOWN_ERROR",
+        message: data.message || 'Unknown server error',
+        errorCode: data.statusCode || 'UNKNOWN_ERROR',
         timestamp: data.timestamp,
       });
     }
 
     return Promise.reject({
-      message: error.message || "Network error",
-      errorCode: "NETWORK_ERROR",
+      message: error.message || 'Network error',
+      errorCode: 'NETWORK_ERROR',
     });
-  }
+  },
 );
 type ApiInstance = {
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
-  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<T>;
+  put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<T>;
   delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
 };
 
