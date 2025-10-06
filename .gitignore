@@ -1,0 +1,7 @@
+### VS Code ###
+.vscode/
+
+# .gitignore
+.env
+.env.docker
+

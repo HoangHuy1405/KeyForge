@@ -3,34 +3,32 @@
 ############################################
 FROM node:20 AS frontend-builder
 WORKDIR /app/frontend
-COPY Frontend/package*.json ./
+COPY frontend/package*.json ./
 RUN npm install
-COPY Frontend .
+COPY frontend .
 RUN npm run build
 
 ############################################
 # Stage 2: Build Backend (Spring Boot with Maven)
 ############################################
-FROM maven:3.9.6-eclipse-temurin-17 AS backend-builder
+FROM maven:3.9.6-eclipse-temurin-21 AS backend-builder
 WORKDIR /app/backend
-COPY Backend/pom.xml .
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
-COPY Backend .
+COPY backend .
 RUN mvn clean package -DskipTests
 
 ############################################
 # Stage 3: Final Image
 ############################################
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy backend jar
 COPY --from=backend-builder /app/backend/target/*.jar app.jar
 
 # Copy frontend build output
-COPY --from=frontend-builder /app/frontend/.next /app/frontend/.next
-COPY --from=frontend-builder /app/frontend/public /app/frontend/public
-COPY --from=frontend-builder /app/frontend/package*.json /app/frontend/
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Set environment variables (Spring Boot)
 ENV PORT=8080

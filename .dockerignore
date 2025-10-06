@@ -1,0 +1,22 @@
+
+.env
+.env.*
+.env.properties
+.env.docker
+*.p12
+*.jks
+
+# Build outputs & caches
+**/node_modules
+**/dist
+**/build
+**/.next
+**/.vite
+**/target
+**/.gradle
+
+# VCS/OS noise
+.git
+.gitignore
+.DS_Store
+*.log
