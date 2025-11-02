@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import Bazaar.com.project.service.auth.exception.CannotLoginException;
-import Bazaar.com.project.service.auth.exception.EmailAlreadyExistException;
-import Bazaar.com.project.service.auth.exception.UsernameAlreadyExistException;
-import Bazaar.com.project.util.ApiResponse;
+import Bazaar.com.project.feature.User._Auth.exception.CannotLoginException;
+import Bazaar.com.project.feature.User._Auth.exception.EmailAlreadyExistException;
+import Bazaar.com.project.feature.User._Auth.exception.UsernameAlreadyExistException;
+import Bazaar.com.project.feature._common.response.ApiResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

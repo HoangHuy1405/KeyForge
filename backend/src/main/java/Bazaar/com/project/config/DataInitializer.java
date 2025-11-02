@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import Bazaar.com.project.model.User.Role;
-import Bazaar.com.project.model.User.RoleName;
-import Bazaar.com.project.model.User.User;
-import Bazaar.com.project.repository.RoleRepository;
-import Bazaar.com.project.repository.UserRepository;
+import Bazaar.com.project.feature.User.model.Role;
+import Bazaar.com.project.feature.User.model.RoleName;
+import Bazaar.com.project.feature.User.model.User;
+import Bazaar.com.project.feature.User.repository.RoleRepository;
+import Bazaar.com.project.feature.User.repository.UserRepository;
 
 @Configuration
 public class DataInitializer {
@@ -22,6 +22,7 @@ public class DataInitializer {
 
     // create role in db
     @Bean
+    @SuppressWarnings("null")
     CommandLineRunner initRoles(RoleRepository roleRepository, UserRepository userRepository) {
         return args -> {
             if (roleRepository.count() == 0) {

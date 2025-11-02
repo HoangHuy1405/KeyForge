@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Bazaar.com.project.util.ApiResponse;
+import Bazaar.com.project.feature._common.response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,20 +28,22 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
-        this.delegate.commence(request, response, authException); // default behavior of BearerTokenAuthenticationEntryPoint
-        //hỗ trợ tiếng việt 
-        response.setContentType("application/json;charset=UTF-8");  
+        this.delegate.commence(request, response, authException); // default behavior of
+                                                                  // BearerTokenAuthenticationEntryPoint
+        // hỗ trợ tiếng việt
+        response.setContentType("application/json;charset=UTF-8");
         ApiResponse<Object> res = new ApiResponse<Object>();
         res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
 
         String errorMessage = Optional.ofNullable(authException.getCause())
                 .map(Throwable::getMessage)
                 .orElse(authException.getMessage());
-        // res.setMessage("Token không hợp lệ (hết hạn, không đúng định dạng, hoặc không truyền đúng jwt)");
+        // res.setMessage("Token không hợp lệ (hết hạn, không đúng định dạng, hoặc không
+        // truyền đúng jwt)");
         res.setMessage(errorMessage);
 
         mapper.writeValue(response.getWriter(), res);
 
     }
-    
+
 }

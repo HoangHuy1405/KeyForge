@@ -11,11 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Bazaar.com.project.model.Product.Product;
-import Bazaar.com.project.model.Product.ProductEnum.ProductStatus;
-import Bazaar.com.project.model.User.User;
-import Bazaar.com.project.repository.ProductRepository;
-import Bazaar.com.project.repository.UserRepository;
+import Bazaar.com.project.feature.Product.enums.ProductStatus;
+import Bazaar.com.project.feature.Product.model.Product;
+import Bazaar.com.project.feature.Product.repository.ProductRepository;
+import Bazaar.com.project.feature.User.model.User;
+import Bazaar.com.project.feature.User.repository.UserRepository;
 
 import org.springframework.http.MediaType;
 import static org.assertj.core.api.Assertions.assertThat;

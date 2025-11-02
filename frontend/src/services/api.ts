@@ -22,7 +22,7 @@ interface FailedRequest {
 
 // === Khởi tạo axios instance ===
 const instance: AxiosInstance = axios.create({
-  baseURL: 'https://localhost:8080/',
+  baseURL: 'http://localhost:8080/',
   withCredentials: true,
   // headers: { "Content-Type": "application/json" }, // Bỏ nếu upload file
 });
