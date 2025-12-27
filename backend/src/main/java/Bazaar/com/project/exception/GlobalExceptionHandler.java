@@ -11,6 +11,7 @@ import Bazaar.com.project.feature._common.response.ApiResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -72,6 +74,8 @@ public class GlobalExceptionHandler {
                                 .collect(Collectors.toList());
 
                 String errors = String.join("; ", errorList);
+                logger.warn("Validation failed: {}", errors);
+
                 ApiResponse<Object> response = new ApiResponse<>(
                                 HttpStatus.BAD_REQUEST,
                                 errors,
@@ -80,20 +84,22 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<ApiResponse<Void>> handle(Exception ex) {
-                logger.error("Unexpected error occurred", ex);
+        @ExceptionHandler(AuthorizationDeniedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+                logger.warn("Access denied: {}", ex.getMessage());
 
                 ApiResponse<Void> response = new ApiResponse<>(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                ex.getMessage(),
+                                HttpStatus.FORBIDDEN,
+                                "Access denied: You don't have permission to access this resource",
                                 null,
-                                HttpStatus.INTERNAL_SERVER_ERROR.value());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                                HttpStatus.FORBIDDEN.value());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
         @ExceptionHandler(InvalidFilterValueException.class)
         public ResponseEntity<ApiResponse<Void>> handleInvalidFilterValue(InvalidFilterValueException ex) {
+                logger.warn("Invalid filter value: {}", ex.getMessage());
+
                 ApiResponse<Void> response = new ApiResponse<>(
                                 HttpStatus.BAD_REQUEST,
                                 ex.getMessage(), // "Invalid filter value provided"
@@ -104,6 +110,8 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(InvalidDataAccessApiUsageException.class)
         public ResponseEntity<?> handleInvalidDataAccess(InvalidDataAccessApiUsageException ex) {
+                logger.warn("Invalid data access: {}", ex.getMessage());
+
                 ApiResponse<Void> response = new ApiResponse<>(
                                 HttpStatus.BAD_REQUEST,
                                 "Invalid data access request. Please check your input.",
@@ -115,4 +123,54 @@ public class GlobalExceptionHandler {
                                 .body(response);
         }
 
+        @ExceptionHandler(InvalidArgumentException.class)
+        public ResponseEntity<ApiResponse<Void>> handleInvalidArgument(InvalidArgumentException ex) {
+                logger.warn("Invalid argument: {}", ex.getMessage());
+
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                null,
+                                HttpStatus.BAD_REQUEST.value());
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+        public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
+                        org.springframework.security.authentication.BadCredentialsException ex) {
+                logger.warn("Authentication failed: {}", ex.getMessage());
+
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.UNAUTHORIZED,
+                                "Invalid username or password",
+                                null,
+                                HttpStatus.UNAUTHORIZED.value());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+                logger.error("Data integrity violation: {}", ex.getMessage());
+
+                String userMessage = "Data validation failed. Please check your input and ensure all required fields are provided.";
+
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.BAD_REQUEST,
+                                userMessage,
+                                null,
+                                HttpStatus.BAD_REQUEST.value());
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Void>> handle(Exception ex) {
+                logger.error("Unexpected error occurred", ex);
+
+                ApiResponse<Void> response = new ApiResponse<>(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "An unexpected error occurred. Please try again later.",
+                                null,
+                                HttpStatus.INTERNAL_SERVER_ERROR.value());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
 }

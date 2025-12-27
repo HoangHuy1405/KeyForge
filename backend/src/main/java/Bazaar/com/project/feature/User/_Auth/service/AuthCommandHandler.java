@@ -5,12 +5,11 @@ import Bazaar.com.project.feature.User._Auth.command.LoginByUsernameOrEmailComma
 import Bazaar.com.project.feature.User._Auth.exception.CannotLoginException;
 import Bazaar.com.project.feature.User._Auth.exception.EmailAlreadyExistException;
 import Bazaar.com.project.feature.User._Auth.exception.UsernameAlreadyExistException;
-import Bazaar.com.project.feature.User.model.Role;
-import Bazaar.com.project.feature.User.model.RoleName;
+import Bazaar.com.project.feature.User.constant.Role;
 import Bazaar.com.project.feature.User.model.User;
-import Bazaar.com.project.feature.User.repository.LocalAccountRepository;
-import Bazaar.com.project.feature.User.repository.RoleRepository;
 import Bazaar.com.project.feature.User.repository.UserRepository;
+
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,20 +17,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthCommandHandler {
     @Autowired
-    private LocalAccountRepository localAccountRepository;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
     public User handle(LoginByUsernameOrEmailCommand command) {
-        var account = localAccountRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
+        User user = userRepository.findByUsernameOrEmail(command.identifier(), command.identifier())
                 .orElseThrow(CannotLoginException::new);
 
-        if (!account.verifyPassword(command.password()))
+        if (!user.verifyPassword(command.password()))
             throw new CannotLoginException();
 
-        return account.getUser();
+        return user;
     }
 
     public User handle(CreateUserCommand command) {
@@ -41,20 +36,16 @@ public class AuthCommandHandler {
         if (userRepository.existsByUsername(command.username()))
             throw new UsernameAlreadyExistException();
 
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
-
+        // Grant USER role on registration
         User user = User.builder()
                 .username(command.username())
                 .password(command.password())
                 .email(command.email())
                 .fullname(command.fullname())
                 .phoneNum(command.phoneNum())
+                .roles(Set.of(Role.USER))
                 .build();
-
-        user.getRoles().add(userRole);
 
         return userRepository.save(user);
     }
-
 }

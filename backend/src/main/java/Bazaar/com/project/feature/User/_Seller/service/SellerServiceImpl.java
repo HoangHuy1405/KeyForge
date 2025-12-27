@@ -1,17 +1,19 @@
 package Bazaar.com.project.feature.User._Seller.service;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import Bazaar.com.project.exception.InvalidArgumentException;
+import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.feature.User._Seller.dto.SellerShippingRequest;
 import Bazaar.com.project.feature.User._Seller.dto.SellerStartRequest;
 import Bazaar.com.project.feature.User._Seller.repository.SellerRepository;
-import Bazaar.com.project.feature.User.model.Role;
-import Bazaar.com.project.feature.User.model.RoleName;
+import Bazaar.com.project.feature.User.constant.Role;
 import Bazaar.com.project.feature.User.model.Seller;
 import Bazaar.com.project.feature.User.model.User;
-import Bazaar.com.project.feature.User.repository.RoleRepository;
 import Bazaar.com.project.feature.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -20,16 +22,14 @@ import lombok.RequiredArgsConstructor;
 public class SellerServiceImpl implements SellerService {
         private final SellerRepository sellerRepository;
         private final UserRepository userRepository;
-        private final RoleRepository roleRepository;
 
         @Override
         public Seller startRegistration(SellerStartRequest request) {
-                User user = userRepository.findById(
-                                request.userId())
-                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                User user = userRepository.findById(request.userId())
+                                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
                 if (sellerRepository.findByUser(user).isPresent()) {
-                        throw new IllegalStateException("User is already a seller");
+                        throw new InvalidArgumentException("User is already a seller");
                 }
 
                 Seller seller = Seller.builder()
@@ -47,30 +47,18 @@ public class SellerServiceImpl implements SellerService {
         @Override
         public Seller configureShipping(UUID sellerId, SellerShippingRequest request) {
                 Seller seller = sellerRepository.findById(sellerId)
-                                .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+                                .orElseThrow(() -> new UserNotFoundException("Seller not found"));
 
-                Seller.ShippingOptions options = new Seller.ShippingOptions(
-                                request.express() != null ? request.express() : false,
-                                request.standard() != null ? request.standard() : true,
-                                request.economy() != null ? request.economy() : false);
+                User user = seller.getUser();
 
-                User user = userRepository.findById(sellerId)
-                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-                seller.setShippingOptions(options);
-                seller.setUser(user);
-                // ✅ Fetch managed Role entity
-                Role sellerRole = roleRepository.findByName(RoleName.ROLE_SELLER)
-                                .orElseThrow(() -> new IllegalStateException("ROLE_SELLER not initialized in DB"));
-                // Grant ROLE_SELLER if not already present
-                boolean hasSellerRole = user.getRoles().stream()
-                                .anyMatch(r -> r.getName() == RoleName.ROLE_SELLER);
-                if (!hasSellerRole) {
-                        user.getRoles().add(sellerRole);
+                // Grant SELLER role if not already present
+                if (!user.getRoles().contains(Role.SELLER)) {
+                        Set<Role> updatedRoles = new HashSet<>(user.getRoles());
+                        updatedRoles.add(Role.SELLER);
+                        user.setRoles(updatedRoles);
                         userRepository.save(user);
                 }
 
-                userRepository.save(user);
                 return sellerRepository.save(seller);
         }
 }

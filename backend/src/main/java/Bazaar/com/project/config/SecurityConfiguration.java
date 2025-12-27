@@ -30,6 +30,17 @@ import Bazaar.com.project.util.JwtUtil;
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
+    private final String[] WHITELIST = {
+            "/", "/auth/login", "/auth/register", "/auth/refresh",
+            "/swagger-ui.html", "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
+    private final String[] ADMIN = {
+            "/admin", "/admin/**",
+    };
+    private final String[] SELLER = {
+            "/seller", "/seller/**",
+    };
     @Value("${jwt.secret}")
     private String jwtKey;
 
@@ -47,17 +58,10 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 // .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/auth/login", "/auth/register", "/auth/refresh",
-                                "/swagger-ui.html", "/swagger-ui/**",
-                                "/v3/api-docs/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/products",
-                                "/api/products/*")
-                        .hasRole("SELLER")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("SELLER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasRole("SELLER")
+                        .requestMatchers(WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products", "/products/{id}").permitAll()
+                        .requestMatchers(ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(SELLER).hasAuthority("SELLER")
                         .anyRequest().authenticated())
 
                 .oauth2ResourceServer(oauth2 -> oauth2

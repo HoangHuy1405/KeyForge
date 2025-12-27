@@ -23,7 +23,7 @@ import Bazaar.com.project.feature._common.annotation.ApiMessage;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("/users")
 public class UserController {
     private final OrderService orderService;
     private final UserProfileService profileService;

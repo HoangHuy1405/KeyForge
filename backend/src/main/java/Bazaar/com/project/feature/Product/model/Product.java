@@ -1,17 +1,23 @@
 package Bazaar.com.project.feature.Product.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.hibernate.annotations.Type;
+
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import Bazaar.com.project.feature.Product._ProductMedia.model.ProductImage;
 import Bazaar.com.project.feature.Product.enums.ProductCategory;
+import Bazaar.com.project.feature.Product.enums.ProductCondition;
 import Bazaar.com.project.feature.Product.enums.ProductStatus;
+import Bazaar.com.project.feature.Product.enums.StockStatus;
 import Bazaar.com.project.feature.Product.model.embeddables.InventoryInfo;
 import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo;
-import Bazaar.com.project.feature.Product.model.embeddables.ProductDetails;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature._common.model.BaseEntity;
 import jakarta.persistence.Entity;
@@ -32,6 +38,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * KeyForge Product entity for mechanical keyboard marketplace.
+ * Uses JSONB for category-specific technical attributes.
+ */
 @Entity
 @Table(name = "products")
 @Data
@@ -46,18 +56,40 @@ public class Product extends BaseEntity {
     @Size(max = 100)
     private String name;
 
-    @Column(length = 500)
-    @Size(max = 500)
+    @Column(length = 2000)
+    @Size(max = 2000)
     private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
+    @NotNull
     private ProductCategory category;
 
-    /* Detailed information (embeddable) */
-    @Embedded
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_condition", nullable = false, length = 20)
+    @NotNull
     @Builder.Default
-    private ProductDetails details = new ProductDetails();
+    private ProductCondition productCondition = ProductCondition.NEW;
+
+    /* Stock status for Group Buy lifecycle */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stock_status", length = 30)
+    @Builder.Default
+    private StockStatus stockStatus = StockStatus.IN_STOCK;
+
+    /**
+     * Dynamic category-specific attributes stored as JSONB.
+     * - For SWITCH: type, actuationForce, totalTravel, pins, manufacturer,
+     * soundSignature
+     * - For KEYBOARD_KIT: layout, caseMaterial, plateMaterial, mountingStyle,
+     * connectivity, hotswap
+     * - For KEYCAP: profile, material, legendType, compatibleLayouts
+     * - For STABILIZER: mountType, size, material
+     */
+    @Type(JsonType.class)
+    @Column(name = "attributes", columnDefinition = "jsonb")
+    @Builder.Default
+    private Map<String, Object> attributes = new HashMap<>();
 
     /* Sell information */
     @Embedded
@@ -69,10 +101,11 @@ public class Product extends BaseEntity {
     @Builder.Default
     private LogisticsInfo logistics = new LogisticsInfo();
 
-    /* Other (not for input) */
+    /* Internal status (not for input) */
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private ProductStatus status;
+    @Builder.Default
+    private ProductStatus status = ProductStatus.DRAFT;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
@@ -96,11 +129,40 @@ public class Product extends BaseEntity {
     @Builder.Default
     private List<ProductImage> images = new ArrayList<>();
 
+    // ===== Helper methods =====
+
     public boolean isAvailable(int quantity) {
         return inventory != null && inventory.canFulfill(quantity);
     }
 
     public void buyProduct(int quantity) {
-        inventory.allocate(quantity); // trans
+        inventory.allocate(quantity);
+    }
+
+    /**
+     * Get a typed attribute from the JSONB column.
+     * 
+     * @param key   The attribute key
+     * @param clazz The expected type
+     * @return The attribute value or null if not found
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String key, Class<T> clazz) {
+        Object value = attributes.get(key);
+        if (value == null)
+            return null;
+        if (clazz.isInstance(value))
+            return (T) value;
+        return null;
+    }
+
+    /**
+     * Set an attribute in the JSONB column.
+     */
+    public void setAttribute(String key, Object value) {
+        if (attributes == null) {
+            attributes = new HashMap<>();
+        }
+        attributes.put(key, value);
     }
 }

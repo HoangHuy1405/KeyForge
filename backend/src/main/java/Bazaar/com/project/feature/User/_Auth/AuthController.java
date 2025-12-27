@@ -7,6 +7,7 @@ import Bazaar.com.project.feature.User._Auth.dto.LoginRequest;
 import Bazaar.com.project.feature.User._Auth.dto.RegisterRequest;
 import Bazaar.com.project.feature.User._Auth.dto.ResLoginDTO;
 import Bazaar.com.project.feature.User._Auth.service.AuthCommandHandler;
+import Bazaar.com.project.feature.User.constant.Role;
 import Bazaar.com.project.feature.User.dto.UserCreateResponseDTO;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature.User.service.UserService;
@@ -95,7 +96,7 @@ public class AuthController {
                         // extract user roles
                         // extract role names from user entity
                         roleNames = currentUser.getRoles().stream()
-                                        .map(role -> role.getName().name()) // e.g. ROLE_USER
+                                        .map(Role::name) // e.g. USER
                                         .toList();
 
                         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
@@ -181,7 +182,7 @@ public class AuthController {
 
                         // extract role
                         roleNames = currentUser.getRoles().stream()
-                                        .map(role -> role.getName().name()) // e.g. ROLE_USER
+                                        .map(Role::name) // e.g. USER
                                         .toList();
                         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                                         currentUser.getId(),

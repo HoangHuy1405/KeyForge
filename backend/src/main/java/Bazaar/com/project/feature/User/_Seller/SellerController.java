@@ -6,21 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Bazaar.com.project.feature.User._Seller.dto.SellerCreateResponse;
-import Bazaar.com.project.feature.User._Seller.dto.SellerShippingRequest;
 import Bazaar.com.project.feature.User._Seller.dto.SellerStartRequest;
 import Bazaar.com.project.feature.User._Seller.service.SellerService;
 import Bazaar.com.project.feature.User.model.Seller;
 import Bazaar.com.project.feature._common.annotation.ApiMessage;
 
 @RestController
-@RequestMapping("/api/sellers")
+@RequestMapping("/sellers")
 public class SellerController {
     @Autowired
     private SellerService sellerService;
@@ -36,14 +34,16 @@ public class SellerController {
     }
 
     // Step 2: Configure shipping
-    @PostMapping("/{sellerId}/shipping")
-    public ResponseEntity<SellerCreateResponse> configureShipping(
-            @PathVariable UUID sellerId,
-            @RequestBody SellerShippingRequest request) {
-        Seller seller = sellerService.configureShipping(sellerId, request);
-        SellerCreateResponse response = toSellerResponse(seller);
-        return ResponseEntity.ok(response);
-    }
+    // @PostMapping("/shipping")
+    // @PreAuthorize("hasAnyAuthority('SELLER', 'ADMIN')")
+    // public ResponseEntity<SellerCreateResponse> configureShipping(
+    // @RequestBody SellerShippingRequest request) {
+    // UUID sellerId = SecurityUtil.getCurrentUserId()
+    // .orElseThrow(() -> new UserNotFoundException("Not authenticated"));
+    // Seller seller = sellerService.configureShipping(sellerId, request);
+    // SellerCreateResponse response = toSellerResponse(seller);
+    // return ResponseEntity.ok(response);
+    // }
 
     private SellerCreateResponse toSellerResponse(Seller seller) {
         return SellerCreateResponse.builder()
@@ -53,9 +53,6 @@ public class SellerController {
                 .phoneNum(seller.getPhoneNum())
                 .address(seller.getAddress())
                 .rating(seller.getRating())
-                .express(seller.getShippingOptions().getExpress())
-                .standard(seller.getShippingOptions().getStandard())
-                .economy(seller.getShippingOptions().getEconomy())
                 .build();
     }
 }

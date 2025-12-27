@@ -1,5 +1,6 @@
 package Bazaar.com.project.feature.Product.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -9,32 +10,28 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.IdInvalidException;
+import Bazaar.com.project.exception.InvalidArgumentException;
 import Bazaar.com.project.exception.InvalidFilterValueException;
 import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.feature.Product.dto.ProductMapper;
 import Bazaar.com.project.feature.Product.dto.request.CreateProductRequest;
-import Bazaar.com.project.feature.Product.dto.request.UpdateBasicRequest;
-import Bazaar.com.project.feature.Product.dto.request.UpdateDetailsRequest;
 import Bazaar.com.project.feature.Product.dto.request.UpdateInventoryRequest;
 import Bazaar.com.project.feature.Product.dto.request.UpdateLogisticsRequest;
-import Bazaar.com.project.feature.Product.dto.response.DetailedResponse;
+import Bazaar.com.project.feature.Product.dto.request.UpdateProductRequest;
 import Bazaar.com.project.feature.Product.dto.response.InventoryResponse;
 import Bazaar.com.project.feature.Product.dto.response.LogisticsResponse;
 import Bazaar.com.project.feature.Product.dto.response.ProductBasicResponse;
 import Bazaar.com.project.feature.Product.dto.response.ProductFullResponse;
 import Bazaar.com.project.feature.Product.dto.response.ProductSummaryResponse;
 import Bazaar.com.project.feature.Product.dto.response.ProductViewerResponse;
-import Bazaar.com.project.feature.Product.dto.response.ShippingOptionsResponse;
 import Bazaar.com.project.feature.Product.enums.ProductStatus;
 import Bazaar.com.project.feature.Product.model.Product;
 import Bazaar.com.project.feature.Product.model.embeddables.InventoryInfo;
 import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo;
-import Bazaar.com.project.feature.Product.model.embeddables.ProductDetails;
 import Bazaar.com.project.feature.Product.repository.ProductRepository;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature.User.repository.UserRepository;
@@ -43,8 +40,18 @@ import Bazaar.com.project.feature._common.response.Meta;
 import Bazaar.com.project.feature._common.response.ResultPaginationDTO;
 import jakarta.transaction.Transactional;
 
+/**
+ * KeyForge Product service implementation.
+ * 
+ * Multi-step creation flow:
+ * 1. createProduct() - Creates DRAFT with basic info + attributes
+ * 2. updateInventory() - Adds pricing/stock
+ * 3. updateLogistics() - Adds shipping info
+ * 4. changeStatus(ACTIVE) - Activates product (validates inventory is set)
+ */
 @Service
 public class ProductServiceImpl implements ProductService {
+
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -52,128 +59,181 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private UserProfileService userProfileService;
 
+    // ===== Step 1: Create DRAFT =====
+
     @Override
     @Transactional
-    public ProductBasicResponse createBasic(CreateProductRequest req) {
-        User seller = userRepository.findById(req.sellerId())
+    public ProductBasicResponse createProduct(CreateProductRequest req, UUID sellerId) {
+        User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new UserNotFoundException("Seller not found"));
 
         Product p = new Product();
         p.setName(req.name());
         p.setDescription(req.description());
         p.setCategory(req.category());
+        p.setProductCondition(req.productCondition());
+        p.setStockStatus(req.stockStatus());
         p.setSeller(seller);
         p.setStatus(ProductStatus.DRAFT);
 
-        // init embeddables
-        if (p.getDetails() == null)
-            p.setDetails(new ProductDetails());
-        if (p.getInventory() == null)
-            p.setInventory(new InventoryInfo());
-        if (p.getLogistics() == null)
-            p.setLogistics(new LogisticsInfo());
+        // Set attributes (JSONB)
+        p.setAttributes(req.attributes() != null ? req.attributes() : new HashMap<>());
+
+        // Initialize empty inventory and logistics
+        p.setInventory(new InventoryInfo());
+        p.setLogistics(new LogisticsInfo());
+
+        // TODO: Handle imageUrls - upload to cloudinary or store references
 
         p = productRepository.save(p);
         return ProductMapper.toBasic(p);
     }
 
-    @Override
-    @Transactional
-    public DetailedResponse updateDetails(UUID productId, UUID sellerId, UpdateDetailsRequest req) {
-        Product p = getOwned(productId, sellerId);
-        ProductDetails d = p.getDetails();
-        d.setBrand(req.brand());
-        d.setModel(req.model());
-        d.setSize(req.size());
-        d.setMaterial(req.material());
-        d.setOrigin(req.origin());
-        d.setCondition(req.condition());
-        return new DetailedResponse(
-                d.getBrand(), d.getModel(), d.getSize(),
-                d.getMaterial(), d.getOrigin(), d.getCondition());
-    }
-
-    @Override
-    public ProductBasicResponse updateBasic(UpdateBasicRequest req, UUID productId, UUID sellerId) {
-        Product p = getOwned(productId, sellerId);
-
-        p.setName(req.name());
-        p.setDescription(req.description());
-        p.setCategory(req.category());
-
-        p = productRepository.save(p);
-        return ProductMapper.toBasic(p);
-    }
+    // ===== Step 2: Update Inventory =====
 
     @Override
     @Transactional
     public InventoryResponse updateInventory(UUID productId, UUID sellerId, UpdateInventoryRequest req) {
         Product p = getOwned(productId, sellerId);
+
         InventoryInfo inv = p.getInventory();
+        if (inv == null) {
+            inv = new InventoryInfo();
+            p.setInventory(inv);
+        }
+
         inv.setPrice(req.price());
         inv.setStockQuantity(req.stockQuantity());
-        inv.setReservedQuantity(req.reservedQuantity());
         inv.setMinOrderQuantity(defaultIfNull(req.minOrderQuantity(), 1));
         inv.setMaxOrderQuantity(req.maxOrderQuantity());
 
-        // sanity
+        // Sanity check
         if (inv.getMaxOrderQuantity() != null && inv.getMinOrderQuantity() != null &&
                 inv.getMaxOrderQuantity() < inv.getMinOrderQuantity()) {
-            throw new IllegalArgumentException("maxOrderQuantity must be >= minOrderQuantity");
+            throw new InvalidArgumentException("maxOrderQuantity must be >= minOrderQuantity");
         }
-        return new InventoryResponse(
-                inv.getPrice(),
-                inv.getStockQuantity(),
-                inv.getReservedQuantity(),
-                inv.availableQuantity(),
-                inv.getMinOrderQuantity(),
-                inv.getMaxOrderQuantity());
+
+        // Auto-activate if all required fields are set
+        if (isReadyForActivation(p)) {
+            p.setStatus(ProductStatus.ACTIVE);
+        }
+
+        productRepository.save(p);
+        return ProductMapper.toInventoryResponse(inv);
     }
+
+    // ===== Step 3: Update Logistics =====
 
     @Override
     @Transactional
     public LogisticsResponse updateLogistics(UUID productId, UUID sellerId, UpdateLogisticsRequest req) {
-        var p = getOwned(productId, sellerId);
-        var lg = p.getLogistics();
+        Product p = getOwned(productId, sellerId);
 
-        lg.setWeightGrams(req.weightGrams());
-        if (lg.getDimensions() == null)
-            lg.setDimensions(new LogisticsInfo.Dimensions());
-        lg.getDimensions().setLengthCm(req.lengthCm());
-        lg.getDimensions().setWidthCm(req.widthCm());
-        lg.getDimensions().setHeightCm(req.heightCm());
+        LogisticsInfo lg = p.getLogistics();
+        if (lg == null) {
+            lg = new LogisticsInfo();
+            p.setLogistics(lg);
+        }
 
-        lg.setLocation(req.location());
-        lg.setPreOrder(Boolean.TRUE.equals(req.preOrder()));
-        lg.setPreOrderLeadTimeDays(req.preOrderLeadTimeDays());
+        if (req.location() != null)
+            lg.setLocation(req.location());
 
-        if (lg.getShipping() == null)
+        if (lg.getShipping() == null) {
             lg.setShipping(new LogisticsInfo.ShippingOptions());
-        lg.getShipping().setFast(Boolean.TRUE.equals(req.supportFastShipping()));
-        lg.getShipping().setRegular(Boolean.TRUE.equals(req.supportRegularShipping()));
-        lg.getShipping().setEconomy(Boolean.TRUE.equals(req.supportEconomyShipping()));
+        }
+        if (req.supportFastShipping() != null)
+            lg.getShipping().setFast(req.supportFastShipping());
+        if (req.supportRegularShipping() != null)
+            lg.getShipping().setRegular(req.supportRegularShipping());
+        if (req.supportEconomyShipping() != null)
+            lg.getShipping().setEconomy(req.supportEconomyShipping());
 
-        var dim = lg.getDimensions();
-        var ship = lg.getShipping();
-        return new LogisticsResponse(
-                lg.getWeightGrams(),
-                dim != null ? dim.getLengthCm() : null,
-                dim != null ? dim.getWidthCm() : null,
-                dim != null ? dim.getHeightCm() : null,
-                lg.getLocation(),
-                lg.getPreOrder(),
-                lg.getPreOrderLeadTimeDays(),
-                new ShippingOptionsResponse(
-                        ship != null ? ship.getFast() : null,
-                        ship != null ? ship.getRegular() : null,
-                        ship != null ? ship.getEconomy() : null));
+        // Auto-activate if all required fields are set
+        if (isReadyForActivation(p)) {
+            p.setStatus(ProductStatus.ACTIVE);
+        }
+
+        productRepository.save(p);
+        return ProductMapper.toLogisticsResponse(lg);
     }
+
+    // ===== General Update =====
+
+    @Override
+    @Transactional
+    public ProductFullResponse updateProduct(UUID productId, UUID sellerId, UpdateProductRequest req) {
+        Product p = getOwned(productId, sellerId);
+
+        // Update basic info
+        p.setName(req.name());
+        p.setDescription(req.description());
+        p.setCategory(req.category());
+        p.setStockStatus(req.stockStatus());
+
+        // Update attributes (JSONB)
+        p.setAttributes(req.attributes() != null ? req.attributes() : new HashMap<>());
+
+        // Update inventory
+        InventoryInfo inv = p.getInventory();
+        if (inv == null) {
+            inv = new InventoryInfo();
+            p.setInventory(inv);
+        }
+        inv.setPrice(req.price());
+        inv.setStockQuantity(req.stockQuantity());
+        inv.setMinOrderQuantity(defaultIfNull(req.minOrderQuantity(), 1));
+        inv.setMaxOrderQuantity(req.maxOrderQuantity());
+
+        // Update logistics if provided
+        LogisticsInfo lg = p.getLogistics();
+        if (lg == null) {
+            lg = new LogisticsInfo();
+            p.setLogistics(lg);
+        }
+        if (req.location() != null)
+            lg.setLocation(req.location());
+        if (lg.getShipping() == null) {
+            lg.setShipping(new LogisticsInfo.ShippingOptions());
+        }
+        if (req.supportFastShipping() != null)
+            lg.getShipping().setFast(req.supportFastShipping());
+        if (req.supportRegularShipping() != null)
+            lg.getShipping().setRegular(req.supportRegularShipping());
+        if (req.supportEconomyShipping() != null)
+            lg.getShipping().setEconomy(req.supportEconomyShipping());
+
+        p = productRepository.save(p);
+        return ProductMapper.toFull(p);
+    }
+
+    // ===== Status Management =====
+
+    @Override
+    @Transactional
+    public ProductBasicResponse changeStatus(UUID productId, UUID sellerId, ProductStatus status) {
+        Product p = getOwned(productId, sellerId);
+
+        // Validate before activating
+        if (status == ProductStatus.ACTIVE) {
+            InventoryInfo inv = p.getInventory();
+            if (inv == null || inv.getPrice() == null) {
+                throw new FuncErrorException(
+                        "Cannot activate product: inventory/price not set. Complete Step 2 (updateInventory) first.");
+            }
+        }
+
+        p.setStatus(status);
+        productRepository.save(p);
+        return ProductMapper.toBasic(p);
+    }
+
+    // ===== Read Operations =====
 
     @Override
     public ProductFullResponse findProductById(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
-        return ProductMapper.toResponse(product);
+        return ProductMapper.toFull(product);
     }
 
     @Override
@@ -191,29 +251,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResultPaginationDTO getAllProduct(Specification<Product> specification, Pageable pageable) {
+    public ResultPaginationDTO getAllProducts(Specification<Product> specification, Pageable pageable) {
         Page<Product> pageProducts;
         try {
             pageProducts = this.productRepository.findAll(specification, pageable);
         } catch (InvalidDataAccessApiUsageException e) {
-            // translate low-level exception into your own domain exception
             throw new InvalidFilterValueException("Invalid filter value provided", e);
         }
-        ResultPaginationDTO res = new ResultPaginationDTO();
-        Meta meta = new Meta();
-
-        meta.setPage(pageable.getPageNumber());
-        meta.setPageSize(pageable.getPageSize());
-        meta.setPages(pageProducts.getTotalPages());
-        meta.setTotal(pageProducts.getTotalElements());
-
-        res.setMeta(meta);
-        List<ProductSummaryResponse> listProduct = pageProducts.getContent()
-                .stream().map(ProductMapper::toSummary)
-                .toList();
-
-        res.setResult(listProduct);
-        return res;
+        return buildPaginationResult(pageProducts, pageable);
     }
 
     @Override
@@ -225,42 +270,24 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> pageProducts;
         try {
             Specification<Product> sellerSpec = (root, query, cb) -> cb.equal(root.get("seller").get("id"), sellerId);
-            // If it's a relation: cb.equal(root.get("seller").get("id"), sellerId);
-            // Combine provided spec (may be null) with seller filter
             Specification<Product> combined = (spec == null) ? sellerSpec : sellerSpec.and(spec);
             pageProducts = productRepository.findAll(combined, pageable);
         } catch (InvalidDataAccessApiUsageException e) {
             throw new InvalidFilterValueException("Invalid filter value provided", e);
         }
-
-        ResultPaginationDTO res = new ResultPaginationDTO();
-        Meta meta = new Meta();
-
-        meta.setPage(pageable.getPageNumber());
-        meta.setPageSize(pageable.getPageSize());
-        meta.setPages(pageProducts.getTotalPages());
-        meta.setTotal(pageProducts.getTotalElements());
-        res.setMeta(meta);
-
-        // Map to summaries
-        List<ProductSummaryResponse> listProduct = pageProducts.getContent()
-                .stream().map(ProductMapper::toSummary)
-                .toList();
-
-        res.setResult(listProduct);
-        return res;
-
+        return buildPaginationResult(pageProducts, pageable);
     }
+
+    // ===== Delete =====
 
     @Override
-    public void deleteProduct(UUID id) {
-        if (!productRepository.existsById(id)) {
-            throw new NoSuchElementException("Product not found");
-        }
-        productRepository.deleteById(id);
+    public void deleteProduct(UUID id, UUID sellerId) {
+        Product p = getOwned(id, sellerId);
+        productRepository.delete(p);
     }
 
-    // ==== Helper API ===============
+    // ===== Inventory helpers =====
+
     @Override
     @Transactional
     public InventoryResponse increaseStock(UUID productId, int quantity) {
@@ -270,10 +297,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new IdInvalidException("Product not found"));
         var inv = p.getInventory();
         inv.setStockQuantity(inv.getStockQuantity() + quantity);
-        return new InventoryResponse(
-                inv.getPrice(),
-                inv.getStockQuantity(), inv.getReservedQuantity(),
-                inv.availableQuantity(), inv.getMinOrderQuantity(), inv.getMaxOrderQuantity());
+        return ProductMapper.toInventoryResponse(inv);
     }
 
     @Override
@@ -291,28 +315,71 @@ public class ProductServiceImpl implements ProductService {
         if (inv.availableQuantity() < 0) {
             throw new FuncErrorException("Available would be negative due to existing reservations");
         }
-        return new InventoryResponse(
-                inv.getPrice(),
-                inv.getStockQuantity(), inv.getReservedQuantity(),
-                inv.availableQuantity(), inv.getMinOrderQuantity(), inv.getMaxOrderQuantity());
+        return ProductMapper.toInventoryResponse(inv);
     }
 
-    @Override
-    public ProductBasicResponse changeStatus(UUID id, ProductStatus status) {
-        var p = productRepository.findById(id)
-                .orElseThrow(() -> new IdInvalidException("Product not found"));
-        p.setStatus(status);
-        return ProductMapper.toBasic(p);
-    }
+    // ===== Helpers =====
 
-    // ===== Helper =================
     @Transactional
     public Product getOwned(UUID id, UUID sellerId) {
         return productRepository.findByIdAndSellerId(id, sellerId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found or not owned"));
     }
 
+    private ResultPaginationDTO buildPaginationResult(Page<Product> pageProducts, Pageable pageable) {
+        ResultPaginationDTO res = new ResultPaginationDTO();
+        Meta meta = new Meta();
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(pageProducts.getTotalPages());
+        meta.setTotal(pageProducts.getTotalElements());
+        res.setMeta(meta);
+
+        List<ProductSummaryResponse> listProduct = pageProducts.getContent()
+                .stream().map(ProductMapper::toSummary)
+                .toList();
+        res.setResult(listProduct);
+        return res;
+    }
+
     private static Integer defaultIfNull(Integer v, Integer def) {
         return v == null ? def : v;
+    }
+
+    /**
+     * Checks if product has all required fields set for activation.
+     * Excludes image-related fields (thumbnail) from validation.
+     */
+    private boolean isReadyForActivation(Product p) {
+        // Basic info (already required at creation, but double-check)
+        if (p.getName() == null || p.getCategory() == null ||
+                p.getProductCondition() == null || p.getStockStatus() == null) {
+            return false;
+        }
+
+        // Inventory validation
+        InventoryInfo inv = p.getInventory();
+        if (inv == null || inv.getPrice() == null || inv.getStockQuantity() == null) {
+            return false;
+        }
+
+        // Logistics validation
+        LogisticsInfo lg = p.getLogistics();
+        if (lg == null || lg.getLocation() == null || lg.getLocation().isBlank()) {
+            return false;
+        }
+
+        // At least one shipping option must be enabled
+        LogisticsInfo.ShippingOptions shipping = lg.getShipping();
+        if (shipping == null) {
+            return false;
+        }
+        boolean hasShipping = Boolean.TRUE.equals(shipping.getFast()) ||
+                Boolean.TRUE.equals(shipping.getRegular()) ||
+                Boolean.TRUE.equals(shipping.getEconomy());
+        if (!hasShipping) {
+            return false;
+        }
+        return true;
     }
 }

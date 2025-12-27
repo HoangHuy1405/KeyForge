@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Bazaar.com.project.feature.Product._ProductMedia.dto.ProductImageDto;
 import Bazaar.com.project.feature.Product._ProductMedia.model.ProductImage;
-import Bazaar.com.project.feature.Product.dto.response.DetailedResponse;
 import Bazaar.com.project.feature.Product.dto.response.InventoryResponse;
 import Bazaar.com.project.feature.Product.dto.response.LogisticsResponse;
 import Bazaar.com.project.feature.Product.dto.response.ProductBasicResponse;
@@ -18,155 +17,88 @@ import Bazaar.com.project.feature.Product.dto.response.ShippingOptionsResponse;
 import Bazaar.com.project.feature.Product.model.Product;
 import Bazaar.com.project.feature.Product.model.embeddables.InventoryInfo;
 import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo;
-import Bazaar.com.project.feature.Product.model.embeddables.ProductDetails;
-import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo.Dimensions;
 import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo.ShippingOptions;
 import Bazaar.com.project.feature.User.dto.UserProfileResponseDto;
 import Bazaar.com.project.feature.User.model.User;
 
+/**
+ * Mapper for KeyForge Product entity to various DTOs.
+ */
 public class ProductMapper {
-        /** For createBasic response (step 1) */
+
+        /**
+         * Basic response after product creation.
+         */
         @Transactional(readOnly = true)
         public static ProductBasicResponse toBasic(Product p) {
+                InventoryInfo inv = p.getInventory();
                 return ProductBasicResponse.builder()
                                 .id(p.getId())
                                 .name(p.getName())
                                 .description(p.getDescription())
                                 .category(p.getCategory())
+                                .stockStatus(p.getStockStatus())
                                 .status(p.getStatus())
+                                .price(inv != null ? inv.getPrice() : null)
+                                .stockQuantity(inv != null ? inv.getStockQuantity() : 0)
+                                .attributes(p.getAttributes())
                                 .build();
         }
 
+        /**
+         * Full response for seller's product management.
+         */
         @Transactional(readOnly = true)
-        public static ProductFullResponse toResponse(Product p) {
-                ProductDetails d = p.getDetails();
+        public static ProductFullResponse toFull(Product p) {
                 InventoryInfo inv = p.getInventory();
                 LogisticsInfo lg = p.getLogistics();
-                Dimensions dim = lg != null ? lg.getDimensions() : null;
-                ShippingOptions ship = lg != null ? lg.getShipping() : null;
-
-                DetailedResponse detailed = DetailedResponse.builder()
-                                .brand(d != null ? d.getBrand() : null)
-                                .model(d != null ? d.getModel() : null)
-                                .size(d != null ? d.getSize() : null)
-                                .material(d != null ? d.getMaterial() : null)
-                                .origin(d != null ? d.getOrigin() : null)
-                                .condition(d != null ? d.getCondition() : null)
-                                .build();
-
-                InventoryResponse inventory = InventoryResponse.builder()
-                                .price(inv != null ? inv.getPrice() : null)
-                                .stockQuantity(inv != null ? inv.getStockQuantity() : 0)
-                                .reservedQuantity(inv != null ? inv.getReservedQuantity() : 0)
-                                .availableQuantity(inv != null ? inv.availableQuantity() : 0)
-                                .minOrderQuantity(inv != null ? inv.getMinOrderQuantity() : 1)
-                                .maxOrderQuantity(inv != null ? inv.getMaxOrderQuantity() : null)
-                                .build();
-
-                ShippingOptionsResponse shipping = ShippingOptionsResponse.builder()
-                                .fast(ship != null ? ship.getFast() : null)
-                                .regular(ship != null ? ship.getRegular() : null)
-                                .economy(ship != null ? ship.getEconomy() : null)
-                                .build();
-
-                LogisticsResponse logistics = LogisticsResponse.builder()
-                                .weightGrams(lg != null ? lg.getWeightGrams() : null)
-                                .lengthCm(dim != null ? dim.getLengthCm() : null)
-                                .widthCm(dim != null ? dim.getWidthCm() : null)
-                                .heightCm(dim != null ? dim.getHeightCm() : null)
-                                .location(lg != null ? lg.getLocation() : null)
-                                .preOrder(lg != null ? lg.getPreOrder() : null)
-                                .preOrderLeadTimeDays(lg != null ? lg.getPreOrderLeadTimeDays() : null)
-                                .shipping(shipping)
-                                .build();
 
                 return ProductFullResponse.builder()
                                 .id(p.getId())
                                 .name(p.getName())
                                 .description(p.getDescription())
                                 .category(p.getCategory())
+                                .stockStatus(p.getStockStatus())
                                 .status(p.getStatus())
-                                .details(detailed)
-                                .inventory(inventory)
-                                .logistics(logistics)
+                                .thumbnailUrl(p.getThumbnailUrl())
+                                .attributes(p.getAttributes())
+                                .inventory(toInventoryResponse(inv))
+                                .logistics(toLogisticsResponse(lg))
+                                .createdAt(p.getCreatedAt())
+                                .updatedAt(p.getUpdatedAt())
                                 .build();
         }
 
-        /** Summary card for product listing pages */
+        /**
+         * Summary for product listing grid.
+         */
         @Transactional(readOnly = true)
         public static ProductSummaryResponse toSummary(Product p) {
                 InventoryInfo inv = p.getInventory();
-                ProductDetails d = p.getDetails();
-                LogisticsInfo log = p.getLogistics();
-                Integer available = (inv != null) ? inv.availableQuantity() : 0;
-
-                DetailedResponse detailed = DetailedResponse.builder()
-                                .brand(d != null ? d.getBrand() : null)
-                                .model(d != null ? d.getModel() : null)
-                                .size(d != null ? d.getSize() : null)
-                                .material(d != null ? d.getMaterial() : null)
-                                .origin(d != null ? d.getOrigin() : null)
-                                .condition(d != null ? d.getCondition() : null)
-                                .build();
-
-                LogisticsResponse logistic = LogisticsResponse.builder()
-                                .location(log.getLocation())
-                                .build();
-
-                InventoryResponse inventory = InventoryResponse.builder()
-                                .price(inv != null ? inv.getPrice() : null)
-                                .build();
+                LogisticsInfo lg = p.getLogistics();
 
                 return ProductSummaryResponse.builder()
                                 .id(p.getId())
                                 .name(p.getName())
                                 .thumbnailUrl(p.getThumbnailUrl())
                                 .category(p.getCategory())
+                                .stockStatus(p.getStockStatus())
                                 .status(p.getStatus())
-                                .details(detailed)
-                                .logistic(logistic)
-                                .inventory(inventory)
-                                .availableQuantity(available)
+                                .price(inv != null ? inv.getPrice() : null)
+                                .availableQuantity(inv != null ? inv.availableQuantity() : 0)
+                                .location(lg != null ? lg.getLocation() : null)
+                                .attributes(p.getAttributes())
                                 .createdAt(p.getCreatedAt())
                                 .build();
         }
 
+        /**
+         * Full detail for product viewer page (customer-facing).
+         */
         public static ProductViewerResponse toViewer(Product p, User u, String avatarUrl) {
                 InventoryInfo inv = p.getInventory();
-                ProductDetails d = p.getDetails();
-                LogisticsInfo log = p.getLogistics();
+                LogisticsInfo lg = p.getLogistics();
 
-                DetailedResponse detailed = DetailedResponse.builder()
-                                .brand(d != null ? d.getBrand() : null)
-                                .model(d != null ? d.getModel() : null)
-                                .size(d != null ? d.getSize() : null)
-                                .material(d != null ? d.getMaterial() : null)
-                                .origin(d != null ? d.getOrigin() : null)
-                                .condition(d != null ? d.getCondition() : null)
-                                .build();
-
-                LogisticsResponse logistic = LogisticsResponse.builder()
-                                .weightGrams(log != null ? log.getWeightGrams() : null)
-                                .lengthCm(log != null ? log.getDimensions().getLengthCm() : null)
-                                .widthCm(log != null ? log.getDimensions().getWidthCm() : null)
-                                .heightCm(log != null ? log.getDimensions().getHeightCm() : null)
-                                .location(log != null ? log.getLocation() : null)
-                                .preOrder(log != null ? log.getPreOrder() : null)
-                                .preOrderLeadTimeDays(log != null ? log.getPreOrderLeadTimeDays() : null)
-                                .shipping(new ShippingOptionsResponse(
-                                                log != null ? log.getShipping().getFast() : null,
-                                                log != null ? log.getShipping().getRegular() : null,
-                                                log != null ? log.getShipping().getEconomy() : null))
-                                .build();
-
-                InventoryResponse inventory = InventoryResponse.builder()
-                                .price(inv != null ? inv.getPrice() : null)
-                                .availableQuantity(inv != null ? inv.availableQuantity() : null)
-                                .minOrderQuantity(inv != null ? inv.getMinOrderQuantity()
-                                                : null)
-                                .maxOrderQuantity(inv != null ? inv.getMaxOrderQuantity()
-                                                : null)
-                                .build();
                 UserProfileResponseDto seller = UserProfileResponseDto.builder()
                                 .id(u.getId())
                                 .username(u.getUsername())
@@ -180,13 +112,48 @@ public class ProductMapper {
                                 .name(p.getName())
                                 .description(p.getDescription())
                                 .category(p.getCategory())
+                                .stockStatus(p.getStockStatus())
                                 .status(p.getStatus())
                                 .thumbnailUrl(p.getThumbnailUrl())
                                 .images(toImageDtoList(p.getImages()))
-                                .details(detailed)
-                                .inventory(inventory)
-                                .logistics(logistic)
+                                .attributes(p.getAttributes())
+                                .inventory(toInventoryResponse(inv))
+                                .logistics(toLogisticsResponse(lg))
                                 .seller(seller)
+                                .build();
+        }
+
+        // ===== Helper methods =====
+
+        public static InventoryResponse toInventoryResponse(InventoryInfo inv) {
+                if (inv == null) {
+                        return InventoryResponse.builder().build();
+                }
+                return InventoryResponse.builder()
+                                .price(inv.getPrice())
+                                .stockQuantity(inv.getStockQuantity())
+                                .reservedQuantity(inv.getReservedQuantity())
+                                .availableQuantity(inv.availableQuantity())
+                                .minOrderQuantity(inv.getMinOrderQuantity())
+                                .maxOrderQuantity(inv.getMaxOrderQuantity())
+                                .build();
+        }
+
+        public static LogisticsResponse toLogisticsResponse(LogisticsInfo lg) {
+                if (lg == null) {
+                        return LogisticsResponse.builder().build();
+                }
+                ShippingOptions ship = lg.getShipping();
+
+                ShippingOptionsResponse shipping = ShippingOptionsResponse.builder()
+                                .fast(ship != null ? ship.getFast() : null)
+                                .regular(ship != null ? ship.getRegular() : null)
+                                .economy(ship != null ? ship.getEconomy() : null)
+                                .build();
+
+                return LogisticsResponse.builder()
+                                .location(lg.getLocation())
+                                .shipping(shipping)
                                 .build();
         }
 
@@ -194,7 +161,7 @@ public class ProductMapper {
                 if (entity == null)
                         return null;
                 return new ProductImageDto(
-                                entity.getId(), // from BaseEntity (UUID)
+                                entity.getId(),
                                 entity.getUrl(),
                                 entity.getPublicId(),
                                 entity.getVersion(),

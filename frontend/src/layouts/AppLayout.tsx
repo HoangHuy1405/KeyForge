@@ -1,26 +1,46 @@
+import React from 'react';
 import { Outlet, useNavigation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, useTheme, alpha } from '@mui/material';
 import useRestoreSession from '../hooks/useAutoLogin';
 
-function AppLayout() {
+const AppLayout: React.FC = () => {
   useRestoreSession();
-
+  const theme = useTheme();
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
   return (
-    <div className="mx-auto grid h-full min-h-screen grid-rows-[auto_1fr_auto] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <Box
+      sx={{
+        display: 'grid',
+        minHeight: '100vh',
+        gridTemplateRows: 'auto 1fr auto',
+        background: theme.palette.mode === 'light'
+          ? `linear-gradient(to bottom right, ${alpha(theme.palette.primary.light, 0.1)}, ${alpha(theme.palette.secondary.light, 0.1)}, ${alpha('#ec4899', 0.1)})`
+          : theme.palette.background.default,
+        transition: 'background 0.3s ease',
+      }}
+    >
       <Header />
-      {/* <main className="mx-auto max-w-7xl"> */}
-      <main className="mx-auto flex w-screen flex-col items-center justify-center">
+      <Box
+        component="main"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          mx: 'auto',
+        }}
+      >
         {isLoading ? <CircularProgress color="inherit" /> : <Outlet />}
-        {/* <Outlet /> */}
-      </main>
+      </Box>
       <Footer />
-    </div>
+    </Box>
   );
-}
+};
 
 export default AppLayout;
+

@@ -1,3 +1,4 @@
+import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ToastContainer, Bounce } from 'react-toastify';
 import AuthPage from './features/Auth/AuthPage';
@@ -15,13 +16,13 @@ import { loader as profileLoader } from './features/User/profileLoader';
 import Error from './components/Error';
 import { loader as productsLoader } from './features/Product/ProductListingPage/productsLoader';
 import { loader as productLoader } from './features/Product/ProductDetailsPage/productLoader';
-import { loader as productsHomeLoader } from './features/HomePage/productsHomeLoader';
 
 import Cart from './features/Cart/Cart';
 import ProductListing from './features/Product/ProductListingPage/ProductListing';
 import ProductDetailsPage from './features/Product/ProductDetailsPage/ProductDetailsPage';
 import Homepage from './features/HomePage/Homepage';
 import RegisterSellerPage from './features/Seller/Register/RegisterPage';
+import { useColorMode } from './theme/ThemeContext';
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,6 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Homepage />,
-        loader: productsHomeLoader,
       },
       {
         path: '/',
@@ -80,7 +80,9 @@ const router = createBrowserRouter([
   },
 ]);
 
-export default function App() {
+const App: React.FC = () => {
+  const { mode } = useColorMode();
+
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
@@ -93,10 +95,12 @@ export default function App() {
         rtl={false}
         draggable={false}
         pauseOnHover={false}
-        theme="light"
+        theme={mode}
         transition={Bounce}
         limit={1}
       />
     </QueryClientProvider>
   );
-}
+};
+
+export default App;

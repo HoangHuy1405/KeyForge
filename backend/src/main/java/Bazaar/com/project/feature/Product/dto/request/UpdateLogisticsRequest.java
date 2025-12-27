@@ -1,16 +1,12 @@
 package Bazaar.com.project.feature.Product.dto.request;
 
-import jakarta.validation.constraints.Size;
-
+/**
+ * Request DTO for updating product logistics (Step 3).
+ * After this step, product can become ACTIVE.
+ */
 public record UpdateLogisticsRequest(
-                Integer weightGrams,
-                Integer lengthCm,
-                Integer widthCm,
-                Integer heightCm,
-                @Size(max = 100) String location,
-                Boolean preOrder,
-                Integer preOrderLeadTimeDays,
-                Boolean supportFastShipping,
-                Boolean supportRegularShipping,
-                Boolean supportEconomyShipping) {
+        String location,
+        Boolean supportFastShipping,
+        Boolean supportRegularShipping,
+        Boolean supportEconomyShipping) {
 }

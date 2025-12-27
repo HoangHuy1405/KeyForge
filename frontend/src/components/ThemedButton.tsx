@@ -1,8 +1,14 @@
-// src/components/ThemedButton.jsx
-import Button from '@mui/material/Button';
+// src/components/ThemedButton.tsx
+import React, { ReactNode } from 'react';
+import Button, { ButtonProps } from '@mui/material/Button';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 
-export default function ThemedButton({
+interface ThemedButtonProps extends Omit<ButtonProps, 'startIcon'> {
+  children: ReactNode;
+  startIcon?: ReactNode;
+}
+
+const ThemedButton: React.FC<ThemedButtonProps> = ({
   children,
   startIcon = <ArrowBack />,
   variant = 'contained',
@@ -10,7 +16,7 @@ export default function ThemedButton({
   size = 'medium',
   onClick,
   ...rest
-}) {
+}) => {
   return (
     <Button
       startIcon={startIcon}
@@ -23,4 +29,6 @@ export default function ThemedButton({
       {children}
     </Button>
   );
-}
+};
+
+export default ThemedButton;

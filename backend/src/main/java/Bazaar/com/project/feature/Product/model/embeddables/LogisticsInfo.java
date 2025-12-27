@@ -8,41 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Logistics and shipping information for products.
+ * Used for shipping cost calculation and fulfillment.
+ * 
+ * Note: Pre-order status is now handled by StockStatus enum,
+ * not in this class.
+ */
 @Embeddable
 @Getter
 @Setter
 public class LogisticsInfo {
-    @Column(name = "weight_grams")
-    private Integer weightGrams;
-
-    @Embedded
-    private Dimensions dimensions = new Dimensions();
-
+    /** Seller/warehouse location for fulfillment */
     @Column(length = 100)
     private String location;
 
-    @Column(name = "pre_order")
-    private Boolean preOrder = false;
-
-    @Column(name = "pre_order_lead_time_days")
-    private Integer preOrderLeadTimeDays;
-
+    /** Supported shipping methods */
     @Embedded
     private ShippingOptions shipping = new ShippingOptions();
-
-    @Embeddable
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Dimensions {
-        @Column(name = "length_cm")
-        private Integer lengthCm;
-        @Column(name = "width_cm")
-        private Integer widthCm;
-        @Column(name = "height_cm")
-        private Integer heightCm;
-    }
 
     @Embeddable
     @Getter

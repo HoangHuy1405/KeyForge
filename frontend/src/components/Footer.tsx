@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   AppBar,
   Toolbar,
@@ -5,9 +6,11 @@ import {
   Link,
   Container,
   useTheme,
+  Box,
+  Stack,
 } from '@mui/material';
 
-export default function Footer() {
+const Footer: React.FC = () => {
   const theme = useTheme();
 
   return (
@@ -16,7 +19,7 @@ export default function Footer() {
       component="footer"
       elevation={0}
       sx={{
-        backgroundColor: '#1f2937', // luôn xám cho footer
+        backgroundColor: theme.palette.footer,
         color: theme.palette.common.white,
       }}
     >
@@ -31,44 +34,53 @@ export default function Footer() {
         >
           {/* Left side */}
           <Typography variant="body2" sx={{ color: 'grey.300' }}>
-            © 2025 Barazaar. All rights reserved.
+            © 2025 Bazaar. All rights reserved.
           </Typography>
 
           {/* Right side */}
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ mt: { xs: 1, md: 0 } }}
+          >
             <Link
               href="#"
               underline="none"
               sx={{
                 color: 'grey.300',
+                fontSize: '0.875rem',
                 '&:hover': { color: theme.palette.common.white },
               }}
             >
-              Chính sách bảo mật
+              Privacy Policy
             </Link>
             <Link
               href="#"
               underline="none"
               sx={{
                 color: 'grey.300',
+                fontSize: '0.875rem',
                 '&:hover': { color: theme.palette.common.white },
               }}
             >
-              Điều khoản sử dụng
+              Terms of Service
             </Link>
             <Link
               href="#"
               underline="none"
               sx={{
                 color: 'grey.300',
+                fontSize: '0.875rem',
                 '&:hover': { color: theme.palette.common.white },
               }}
             >
-              Liên hệ
+              Contact
             </Link>
-          </div>
+          </Stack>
         </Toolbar>
       </Container>
     </AppBar>
   );
-}
+};
+
+export default Footer;

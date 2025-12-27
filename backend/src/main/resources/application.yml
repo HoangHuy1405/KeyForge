@@ -38,6 +38,8 @@ cloudinary:
 
 server:
   port: ${PORT:8080}
+  servlet:
+    context-path: /api/v1
   ssl:
     enabled: false
     # key-store: classpath:keystore.p12

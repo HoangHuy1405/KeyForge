@@ -7,6 +7,7 @@ import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.feature.User.dto.UserProfileResponseDto;
 import Bazaar.com.project.feature.User.dto.UserProfileUpdateRequest;
+import Bazaar.com.project.feature.User.constant.Role;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature.User.repository.UserRepository;
 import Bazaar.com.project.feature._common.cloudinary.CloudinaryResDto;
@@ -86,11 +87,11 @@ public class UserProfileService {
 
     // === helpers ===
     private UserProfileResponseDto toDto(User u, String avatarUrl) {
-        java.util.UUID accountId = (u.getAccount() != null ? u.getAccount().getId() : null);
+        java.util.UUID accountId = null; // Account feature removed
         // Convert roles -> list of strings
         List<String> roleNames = u.getRoles() != null
                 ? u.getRoles().stream()
-                        .map(role -> role.getName().name()) // RoleName enum
+                        .map(Role::name) // Role enum name
                         .toList()
                 : Collections.emptyList();
         return new UserProfileResponseDto(
