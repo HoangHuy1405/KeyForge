@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
@@ -67,9 +69,18 @@ public class ProductServiceImpl implements ProductService {
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new UserNotFoundException("Seller not found"));
 
+        // 1. Define what HTML tags are allowed
+        // Safelist.relaxed() allows: a, b, blockquote, br, caption, cite, code, col,
+        // colgroup, dd, div, dl, dt, em, h1-h6, i, img, li, ol, p, pre, q, small, span,
+        // strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, u, ul
+        Safelist safeTags = Safelist.relaxed();
+
+        // 2. Clean the input
+        String cleanHtml = Jsoup.clean(req.description(), safeTags);
+
         Product p = new Product();
         p.setName(req.name());
-        p.setDescription(req.description());
+        p.setDescription(cleanHtml);
         p.setCategory(req.category());
         p.setProductCondition(req.productCondition());
         p.setStockStatus(req.stockStatus());
@@ -231,7 +242,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductFullResponse findProductById(UUID id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdWithImages(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with ID: " + id));
         return ProductMapper.toFull(product);
     }

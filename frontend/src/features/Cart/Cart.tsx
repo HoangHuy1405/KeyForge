@@ -1,22 +1,36 @@
 import { CartItem } from './CartItem';
 import { toast } from 'react-toastify';
-import { Grid, Stack, Typography, useTheme } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import StyledCheckbox from '../../components/StyledCheckbox';
 import { CartSummary } from './CartSummary';
-import { CartItemData, getCart } from '../../redux/slice/cartSlice';
+import { getCart } from '../../redux/slice/cartSlice';
 import { useDispatch } from 'react-redux';
 import { setAllSelected } from '../../redux/slice/cartSlice';
 import { useAppSelector } from '../../hooks/hooks';
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Cart() {
   const cartItems = useAppSelector(getCart);
+  const isAuthenticated = useAppSelector((state) => state.account.isAuthenticated);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleCheckout = () => {
     const selectedItems = cartItems.filter((item) => item.selected);
-    if (selectedItems.length > 0) {
-      toast.success('Proceeding to checkout...');
+    
+    if (selectedItems.length === 0) {
+      toast.error('Please select items to checkout');
+      return;
     }
+
+    if (!isAuthenticated) {
+      toast.info('Please login to proceed to checkout');
+      navigate('/login');
+      return;
+    }
+
+    navigate('/checkout');
   };
 
   const allSelected =
@@ -38,7 +52,7 @@ export default function Cart() {
           alignItems="center"
           spacing={2}
           sx={{
-            borderRadius: 2,
+            borderRadius: 1,
             boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
             bgcolor: 'background.default',
             minWidth: 80,

@@ -56,7 +56,6 @@ export function SortingControls({
       sx={{
         py: 2,
         px: 4,
-        borderRadius: 4, // ~ rounded-2xl
         width: '100%',
         display: 'flex',
         alignItems: 'center',

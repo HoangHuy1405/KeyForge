@@ -24,7 +24,6 @@ export interface ProductView {
   rating: number;
   reviewCount: number;
   image: string;
-  seller: string;
   location: string;
   category: string;
   brand: string;
@@ -101,21 +100,30 @@ export default function ProductCard({ product }: ProductCardProps) {
           >
             {product.name}
           </Typography>
-          <Typography variant="body2" sx={{ color: 'grey.600' }}>
-            by {product.seller}
-          </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
             <StarIcon fontSize="small" sx={{ color: 'warning.main' }} />
             <Typography variant="body2">{product.rating}</Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: 'grey.600' }}>
+          <Typography variant="body2" sx={{ color: 'grey.600', flexShrink: 0 }}>
             ({product.reviewCount})
           </Typography>
-          <Box sx={{ ml: 'auto' }}>
-            <Pill variant="filled" color="default" label={product.location} />
+          <Box sx={{ ml: 'auto', minWidth: 0, maxWidth: '50%' }}>
+            <Pill
+              variant="filled"
+              color="default"
+              label={product.location}
+              sx={{
+                maxWidth: '100%',
+                '& .MuiChip-label': {
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                },
+              }}
+            />
           </Box>
         </Box>
 
@@ -165,7 +173,7 @@ const Root = styled(Card)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
   border: 0,
-  borderRadius: Number(theme.shape.borderRadius) * 2, // ~ rounded-2xl
+  borderRadius: theme.shape.borderRadius, // reduced from * 2
   backgroundColor: '#fff',
   boxShadow: theme.shadows[1],
   transition: 'box-shadow 300ms ease',

@@ -9,29 +9,21 @@ import { ProductView } from './ProductListingPage/ProductCard';
 
 /** Map a single API product into the UI-friendly ProductView shape */
 export function mapProductToView(p: Product): ProductView {
+  const attributes = p.attributes || {};
+  
   return {
     id: p.id,
     name: p.name,
-    price: p.inventory?.price ?? 0,
-    // If you have promo price, put it here; otherwise leave undefined
+    price: p.price ?? 0,
     originalPrice: undefined,
-
-    // Your API doesn't include ratings/reviews; default to 0 for now
     rating: 0,
     reviewCount: 0,
-
     image: p.thumbnailUrl || '',
-    // No seller field in the API; using brand as a reasonable placeholder
-    seller: p.details?.brand || 'Unknown',
-
-    location: p.logistic?.location || '',
+    location: p.location || '',
     category: String(p.category ?? ''),
-    brand: p.details?.brand || '',
-
-    sales: 0, // API doesn't expose sales; default to 0
-
-    // If backend has createdAt/updatedAt, prefer those. For now, set ISO “now”
-    dateAdded: new Date().toISOString(),
+    brand: (attributes.brand as string) || '',
+    sales: 0,
+    dateAdded: p.createdAt || new Date().toISOString(),
   };
 }
 
@@ -55,6 +47,7 @@ export function mapFromProductViewToCartItem(
     selected,
   };
 }
+
 export function mapFromProductViewToProductFavorite(
   product: ProductView,
 ): ProductFavorite {
@@ -65,16 +58,18 @@ export function mapFromProductViewToProductFavorite(
     unitPrice: product.price,
   };
 }
+
 export function mapFromDetailsViewToFavorite(
   product: ProductDetailsView,
 ): ProductFavorite {
   return {
     id: product.id,
     name: product.name,
-    image: product.thumbnailUrl,
-    unitPrice: product.inventory.price,
+    image: product.thumbnailUrl || '',
+    unitPrice: product.inventory?.price ?? 0,
   };
 }
+
 export function mapFromCartItemToProductFavorite(
   item: CartItemData,
 ): ProductFavorite {
@@ -85,7 +80,10 @@ export function mapFromCartItemToProductFavorite(
     unitPrice: item.unitPrice,
   };
 }
+
 export function mapDetailsToView(p: ProductDetailsView): ProductView {
+  const attributes = p.attributes || {};
+  
   return {
     id: p.id,
     name: p.name,
@@ -94,10 +92,9 @@ export function mapDetailsToView(p: ProductDetailsView): ProductView {
     rating: 0,
     reviewCount: 0,
     image: p.thumbnailUrl || '',
-    seller: p.details?.brand || 'Unknown',
     location: p.logistics?.location || '',
     category: String(p.category ?? ''),
-    brand: p.details?.brand || '',
+    brand: (attributes.brand as string) || '',
     sales: 0,
     dateAdded: new Date().toISOString(),
   };

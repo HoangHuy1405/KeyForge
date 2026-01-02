@@ -61,6 +61,7 @@ public class ProductMapper {
                                 .stockStatus(p.getStockStatus())
                                 .status(p.getStatus())
                                 .thumbnailUrl(p.getThumbnailUrl())
+                                .images(toImageDtoList(p.getImages()))
                                 .attributes(p.getAttributes())
                                 .inventory(toInventoryResponse(inv))
                                 .logistics(toLogisticsResponse(lg))

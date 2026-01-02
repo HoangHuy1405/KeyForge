@@ -3,6 +3,7 @@ package Bazaar.com.project.feature.Order.model;
 import java.math.BigDecimal;
 import java.util.List;
 
+import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo.ShippingOptions;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature._common.model.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -39,6 +40,9 @@ public class Order extends BaseEntity {
     @NotNull(message = "Buyer is required")
     private User buyer;
 
+    private String recieverName;
+    private String recieverPhone;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotEmpty(message = "Order must have at least one item")
     private List<OrderItem> items;
@@ -68,14 +72,27 @@ public class Order extends BaseEntity {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ShippingOptions shippingMethod;
+
     // Handle create, set back-reference and calculate totalAmount
-    public static Order Create(User buyer, String shippingAddress, PaymentMethod paymentMethod,
+    public static Order Create(
+            User buyer,
+            String shippingAddress,
+            PaymentMethod paymentMethod,
+            ShippingOptions shippingMethod,
+            String recieverName,
+            String recieverPhone,
             List<OrderItem> orderItems) {
         Order order = new Order();
         order.setBuyer(buyer);
+        order.setRecieverName(recieverName);
+        order.setRecieverPhone(recieverPhone);
         order.setShippingAddress(shippingAddress);
         order.setOrderStatus(OrderStatus.PROCESSING);
         order.setPaymentMethod(paymentMethod);
+        order.setShippingMethod(shippingMethod);
         order.setItems(orderItems);
         order.setPaymentStatus(PaymentStatus.PENDING);
 

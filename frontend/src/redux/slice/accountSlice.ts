@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
 const initialState = {
   isAuthenticated: false,
@@ -8,7 +9,10 @@ const initialState = {
   user: {
     id: '',
     email: '',
-    name: '',
+    username: '',
+    fullname: '',
+    address: '',
+    phoneNumber: '',
     avatarUrl: '',
     roles: [],
   },
@@ -25,7 +29,10 @@ export const accountSlice = createSlice({
       state.isLoading = false;
       state.user.id = action?.payload?.id;
       state.user.email = action?.payload?.email;
-      state.user.name = action?.payload?.name;
+      state.user.username = action?.payload?.username;
+      state.user.fullname = action?.payload?.fullname;
+      state.user.address = action?.payload?.address;
+      state.user.phoneNumber = action?.payload?.phoneNum;
       state.user.avatarUrl = action?.payload?.avatarUrl;
       state.user.roles = action?.payload?.roles;
     },
@@ -40,5 +47,5 @@ export const { setUserLoginInfo, updateAvatar, logout } = accountSlice.actions;
 
 export default accountSlice.reducer;
 
-export const getUserId = (state) => state.account.user.id;
-export const getRoles = (state) => state.account.user.roles;
+export const getUserId = (state: RootState) => state.account.user.id;
+export const getRoles = (state: RootState) => state.account.user.roles;

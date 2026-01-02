@@ -103,6 +103,9 @@ public class AuthController {
                                         currentUser.getId(),
                                         currentUser.getEmail(),
                                         currentUser.getUsername(),
+                                        currentUser.getFullname(),
+                                        currentUser.getAddress(),
+                                        currentUser.getPhoneNum(),
                                         currentUser.getProfilePhotoUrl(),
                                         roleNames);
 
@@ -148,7 +151,7 @@ public class AuthController {
                 if (currentUser != null) {
                         userLogin.setId(currentUser.getId());
                         userLogin.setEmail(currentUser.getEmail());
-                        userLogin.setName(currentUser.getUsername());
+                        userLogin.setUsername(currentUser.getUsername());
                         userGetAccount.setUser(userLogin);
                 }
 
@@ -188,6 +191,9 @@ public class AuthController {
                                         currentUser.getId(),
                                         currentUser.getEmail(),
                                         currentUser.getUsername(),
+                                        currentUser.getFullname(),
+                                        currentUser.getAddress(),
+                                        currentUser.getPhoneNum(),
                                         currentUser.getProfilePhotoUrl(),
                                         roleNames);
                         res.setUser(userLogin);

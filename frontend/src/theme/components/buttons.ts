@@ -28,10 +28,10 @@ export const getButtonOverrides = (tokens: DesignTokens): Components<Theme> => (
       },
       // Contained variants
       containedPrimary: {
-        background: tokens.palette.gradient,
+        background: tokens.palette.primary.main,
         boxShadow: `0 4px 12px ${alpha(tokens.palette.primary.main, 0.35)}`,
         '&:hover': {
-          background: `linear-gradient(135deg, ${tokens.palette.primary.dark}, ${tokens.palette.secondary.dark})`,
+          background: tokens.palette.primary.dark,
           boxShadow: `0 6px 20px ${alpha(tokens.palette.primary.main, 0.45)}`,
           transform: 'translateY(-1px)',
         },

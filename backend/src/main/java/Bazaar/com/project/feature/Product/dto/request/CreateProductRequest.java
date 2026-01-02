@@ -16,13 +16,13 @@ import jakarta.validation.constraints.Size;
  * SellerId extracted from security context.
  */
 public record CreateProductRequest(
-        // Basic Info
-        @NotBlank @Size(max = 100) String name,
-        @Size(max = 2000) String description,
-        @NotNull ProductCategory category,
-        @NotNull ProductCondition productCondition,
-        @NotNull StockStatus stockStatus,
+                // Basic Info
+                @NotBlank @Size(max = 100) String name,
+                String description,
+                @NotNull ProductCategory category,
+                @NotNull ProductCondition productCondition,
+                @NotNull StockStatus stockStatus,
 
-        // Category-specific attributes (validated by service based on category)
-        @NotNull Map<String, Object> attributes) {
+                // Category-specific attributes (validated by service based on category)
+                @NotNull Map<String, Object> attributes) {
 }

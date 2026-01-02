@@ -9,10 +9,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import Bazaar.com.project.exception.FuncErrorException;
-import Bazaar.com.project.feature.Order.dto.OrderItemRequestDto;
+import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.feature.Order.dto.OrderItemResponseDto;
 import Bazaar.com.project.feature.Order.dto.OrderMapper;
 import Bazaar.com.project.feature.Order.dto.OrderRequestDto;
+import Bazaar.com.project.feature.Order.dto.OrderRequestDto.OrderItemRequestDto;
 import Bazaar.com.project.feature.Order.dto.OrderResponseDto;
 import Bazaar.com.project.feature.Order.model.Order;
 import Bazaar.com.project.feature.Order.model.OrderItem;
@@ -46,15 +47,9 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public OrderResponseDto placeOrder(@NonNull OrderRequestDto requestDto) {
-        // 1. Fetch and validate the buyer
-        UUID buyerId = requestDto.getBuyerId();
-        if (buyerId == null) {
-            throw new FuncErrorException("BuyerId is required");
-        }
-        User buyer = userRepository.findById(buyerId)
-                .orElseThrow(
-                        () -> new NoSuchElementException("Buyer not found with the id: " + buyerId));
+    public OrderResponseDto placeOrder(@NonNull UUID userId, @NonNull OrderRequestDto requestDto) {
+        User buyer = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Buyer not found with the id: " + userId));
         // 2. Fetch products involved
         List<UUID> productIds = requestDto.getItems().stream()
                 .map(OrderItemRequestDto::getProductId)
@@ -68,8 +63,14 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems = OrderMapper.toOrderItems(requestDto.getItems(), products);
 
         // 4. Create and link Order, auto calculate totalAmount
-        Order order = Order.Create(buyer, requestDto.getShippingAddress(),
-                PaymentMethod.valueOf(requestDto.getPaymentMethod().toUpperCase()), orderItems);
+        Order order = Order.Create(
+                buyer,
+                requestDto.getShippingAddress(),
+                requestDto.getPaymentMethod(),
+                requestDto.getShippingMethod(),
+                requestDto.getRecieverName(),
+                requestDto.getRecieverPhone(),
+                orderItems);
         if (order == null) {
             throw new FuncErrorException("Failed to create order");
         }

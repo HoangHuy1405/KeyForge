@@ -1,22 +1,28 @@
-import { Box, Card, CardContent, Chip } from '@mui/material';
-
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
-import {
-  Logistic,
-  ProductDetails,
-} from '../../../services/interfaces/productInterfaces';
+import { Logistic } from '../../../services/interfaces/productInterfaces';
 
 type ProductSpecificationProps = {
-  details: ProductDetails;
-  logistics: Logistic;
+  attributes?: Record<string, unknown> | null;
+  logistics?: Logistic | null;
+  stockStatus?: string;
 };
 
 export default function ProductSpecification({
-  details,
+  attributes,
   logistics,
+  stockStatus,
 }: ProductSpecificationProps) {
+  // Safe defaults for logistics
+  const location = logistics?.location || 'N/A';
+
+  // Convert attributes to array of key-value pairs for display
+  const attributeEntries = attributes
+    ? Object.entries(attributes).filter(([, value]) => value !== null && value !== undefined)
+    : [];
+
   return (
     <Card
       elevation={0}
@@ -35,61 +41,88 @@ export default function ProductSpecification({
       </Box>
       <CardContent className="mt-4">
         <div className="grid grid-cols-1 gap-12 p-4 lg:grid-cols-2">
-          {/* Product Details */}
+          {/* Product Attributes */}
           <div className="space-y-6">
             <div className="border-b pb-4">
               <h4 className="mb-4 flex items-center gap-2 text-slate-700">
                 <Inventory2OutlinedIcon className="h-4 w-4" />
-                Product Details
+                Product Attributes
               </h4>
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg bg-[#f3f3f5] px-4 py-3">
-                  <span className="text-muted-foreground">Brand</span>
-                  <span className="font-medium">{details.brand}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-[#f3f3f5] px-4 py-3">
-                  <span className="text-muted-foreground">Model</span>
-                  <span className="font-medium">{details.model}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-[#f3f3f5] px-4 py-3">
-                  <span className="text-muted-foreground">Material</span>
-                  <span className="font-medium">{details.material}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-[#f3f3f5] px-4 py-3">
-                  <span className="text-muted-foreground">Condition</span>
-                  <Chip label={details.condition} variant="outlined" />
-                </div>
+                {attributeEntries.length > 0 ? (
+                  attributeEntries.map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between rounded-lg bg-[#f3f3f5] px-4 py-3"
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textTransform: 'capitalize' }}
+                      >
+                        {key.replace(/_/g, ' ')}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {String(value)}
+                      </Typography>
+                    </div>
+                  ))
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No attributes available
+                  </Typography>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Physical Specifications */}
+          {/* Stock & Shipping Info */}
           <div className="space-y-6">
             <div className="border-b pb-4">
               <h4 className="mb-4 flex items-center gap-2 text-slate-700">
                 <PublicOutlinedIcon className="h-4 w-4" />
-                Physical Specifications
+                Shipping & Stock Information
               </h4>
               <div className="space-y-4">
+                {stockStatus && (
+                  <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
+                    <Typography variant="body2" color="text.secondary">
+                      Stock Status
+                    </Typography>
+                    <Chip
+                      label={stockStatus.replace(/_/g, ' ')}
+                      variant="outlined"
+                      size="small"
+                      color={stockStatus === 'IN_STOCK' ? 'success' : 'default'}
+                    />
+                  </div>
+                )}
                 <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                  <span className="text-muted-foreground">Weight</span>
-                  <span className="font-medium">{logistics.weightGrams}g</span>
+                  <Typography variant="body2" color="text.secondary">
+                    Ships From
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {location}
+                  </Typography>
                 </div>
-                <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                  <span className="text-muted-foreground">Dimensions</span>
-                  <span className="font-medium">
-                    {logistics.lengthCm} × {logistics.widthCm} ×{' '}
-                    {logistics.heightCm} cm
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                  <span className="text-muted-foreground">Origin</span>
-                  <span className="font-medium">{details.origin}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                  <span className="text-muted-foreground">Ships From</span>
-                  <span className="font-medium">{logistics.location}</span>
-                </div>
+                {logistics?.shipping && (
+                  <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
+                    <Typography variant="body2" color="text.secondary">
+                      Shipping Options
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      {logistics.shipping.fast && (
+                        <Chip label="Fast" size="small" color="primary" variant="outlined" />
+                      )}
+                      {logistics.shipping.regular && (
+                        <Chip label="Regular" size="small" variant="outlined" />
+                      )}
+                      {logistics.shipping.economy && (
+                        <Chip label="Economy" size="small" variant="outlined" />
+                      )}
+                    </Box>
+                  </div>
+                )}
               </div>
             </div>
           </div>

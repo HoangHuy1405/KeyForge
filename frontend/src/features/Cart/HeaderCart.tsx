@@ -13,6 +13,7 @@ import {
   Divider,
   Link,
   Avatar,
+  Button,
 } from '@mui/material';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useTheme } from '@mui/material/styles';
@@ -183,7 +184,12 @@ export function HeaderCart() {
                       underline="none"
                       sx={{ flex: 1 }}
                     >
-                      <StyledButton fullWidth>View Cart</StyledButton>
+                      <Button 
+                      variant="contained"
+                      size="large"
+                      fullWidth
+                      sx={{height: '100%'}}
+                      >View Cart</Button>
                     </Link>
                     <Link
                       component={RouterLink}

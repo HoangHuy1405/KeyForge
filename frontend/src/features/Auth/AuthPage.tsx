@@ -1,11 +1,9 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, Typography, useTheme, Stack } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
 import Logo from '../../components/Logo';
 
 const AuthPage: React.FC = () => {
-  const theme = useTheme();
-
   return (
     <Stack
       direction="row"
@@ -43,19 +41,16 @@ const AuthPage: React.FC = () => {
             variant="h4"
             sx={{
               fontWeight: 'bold',
-              background: theme.palette.gradient,
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: 'primary.main',
             }}
           >
-            Bazaar
+            KeyForge
           </Typography>
           <Typography
             variant="body1"
             sx={{ mt: 1, color: 'text.secondary' }}
           >
-            The favorite e-commerce platform <br /> in Southeast Asia & Taiwan
+            Premium Mechanical Keyboard <br /> Components & Accessories
           </Typography>
         </Box>
       </Box>

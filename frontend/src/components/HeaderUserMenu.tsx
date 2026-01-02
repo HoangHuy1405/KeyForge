@@ -131,14 +131,14 @@ function HeaderUserMenu() {
           }),
         }}
       >
-        <MenuItem component={RouterLink} to="/profile" onClick={handleClose}>
+        <MenuItem component={RouterLink} to="/user/profile" onClick={handleClose}>
           <ListItemIcon>
             <AccountCircle fontSize="small" />
           </ListItemIcon>
           My Account
         </MenuItem>
 
-        <MenuItem component={RouterLink} to="/purchase" onClick={handleClose}>
+        <MenuItem component={RouterLink} to="/user/purchase" onClick={handleClose}>
           <ListItemIcon>
             <ReceiptLong fontSize="small" />
           </ListItemIcon>

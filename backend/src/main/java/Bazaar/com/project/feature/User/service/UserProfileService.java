@@ -78,6 +78,18 @@ public class UserProfileService {
             user.setDescription(req.description().trim());
         }
 
+        if (req.dob() != null) {
+            user.setDob(req.dob());
+        }
+
+        if (req.gender() != null) {
+            user.setGender(req.gender());
+        }
+
+        if (req.address() != null) {
+            user.setAddress(req.address().trim());
+        }
+
         // Persist updates
         userRepository.save(user);
 
@@ -101,6 +113,9 @@ public class UserProfileService {
                 u.getEmail(),
                 u.getPhoneNum(),
                 u.getDescription(),
+                u.getDob(),
+                u.getGender(),
+                u.getAddress(),
                 roleNames,
                 avatarUrl,
                 u.getProfilePhotoPublicId(),
@@ -117,7 +132,7 @@ public class UserProfileService {
 
         return cloudinary.url()
                 .secure(true)
-                .transformation(new Transformation()
+                .transformation(new Transformation<>()
                         .width(128).height(128)
                         .crop("thumb").gravity("face")
                         .radius("max")

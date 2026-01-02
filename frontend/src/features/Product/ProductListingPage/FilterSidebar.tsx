@@ -34,75 +34,86 @@ interface FilterSidebarProps {
   maxPrice: number;
 }
 
-// Get unique values for filters
+// KeyForge - Mechanical Keyboard Marketplace Categories
 const availableCategories = [
-  // Fashion
-  'FASHION',
-  'JEWELRY',
-  'WATCHES',
-
-  // Electronics
-  'ELECTRONICS',
-  'PHONES',
-  'LAPTOPS',
-  'TABLETS',
-  'CAMERAS',
-  'ACCESSORIES',
-
-  // Home
-  'FURNITURE',
-  'HOME_APPLIANCES',
-  'KITCHEN',
-  'DECOR',
-
-  // Beauty & Health
-  'BEAUTY',
-  'COSMETICS',
-  'SKINCARE',
-  'HAIRCARE',
-  'SUPPLEMENTS',
-
-  // Others
-  'BOOKS',
-  'TOYS',
-  'SPORTS',
-  'AUTOMOTIVE',
-  'PET',
-
-  // Food
-  'FOOD',
+  'KEYBOARD_KIT',
+  'SWITCH',
+  'KEYCAP',
+  'STABILIZER',
+  'PCB',
+  'PLATE',
+  'CASE',
+  'ACCESSORY',
 ];
+
+// Category display labels
+const categoryLabels: Record<string, string> = {
+  KEYBOARD_KIT: 'Keyboard Kit',
+  SWITCH: 'Switches',
+  KEYCAP: 'Keycaps',
+  STABILIZER: 'Stabilizers',
+  PCB: 'PCB Boards',
+  PLATE: 'Plates',
+  CASE: 'Cases',
+  ACCESSORY: 'Accessories',
+};
 
 const availableLocations = [
   'HCM',
   'HANOI',
   'DN',
-  'EUROPE',
-  'ASIA',
-  'AUSTRALIA',
-  'MIDDLE_EAST',
-  'AFRICA',
+  'US',
+  'EU',
+  'JP',
+  'KR',
+  'CN',
 ];
 
+// Location display labels
+const locationLabels: Record<string, string> = {
+  HCM: 'Ho Chi Minh',
+  HANOI: 'Hanoi',
+  DN: 'Da Nang',
+  US: 'United States',
+  EU: 'Europe',
+  JP: 'Japan',
+  KR: 'Korea',
+  CN: 'China',
+};
+
+// Popular mechanical keyboard brands
 const availableBrands = [
-  'APPLE',
-  'SAMSUNG',
-  'SONY',
-  'NIKE',
-  'ADIDAS',
-  'GUCCI',
-  'ROLEX',
-  'TESLA',
-  'HONDA',
-  'TOYOTA',
-  'IKEA',
-  'LG',
-  'DELL',
-  'HP',
-  'CANON',
+  'GMK',
+  'CHERRY',
+  'GATERON',
+  'DUROCK',
+  'NOVELKEYS',
+  'KBD_FANS',
+  'AKKO',
+  'KEYCHRON',
+  'GLORIOUS',
+  'RAZER',
+  'DROP',
+  'KINETIC_LABS',
 ];
 
-const maxPrice = 2000;
+// Brand display labels
+const brandLabels: Record<string, string> = {
+  GMK: 'GMK',
+  CHERRY: 'Cherry MX',
+  GATERON: 'Gateron',
+  DUROCK: 'Durock',
+  NOVELKEYS: 'NovelKeys',
+  KBD_FANS: 'KBDfans',
+  AKKO: 'Akko',
+  KEYCHRON: 'Keychron',
+  GLORIOUS: 'Glorious',
+  RAZER: 'Razer',
+  DROP: 'Drop',
+  KINETIC_LABS: 'Kinetic Labs',
+};
+
+// const maxPrice = 2000;
 
 export function FilterSidebar({
   filters,
@@ -147,7 +158,6 @@ export function FilterSidebar({
       elevation={2}
       sx={{
         p: 3,
-        borderRadius: theme.shape.borderRadius, // uses the global 12
       }}
     >
       {/* Header */}

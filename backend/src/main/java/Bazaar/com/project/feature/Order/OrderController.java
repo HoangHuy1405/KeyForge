@@ -8,11 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import Bazaar.com.project.exception.UserNotFoundException;
 import Bazaar.com.project.feature.Order.dto.OrderRequestDto;
 import Bazaar.com.project.feature.Order.dto.OrderResponseDto;
 import Bazaar.com.project.feature.Order.dto.OrderStatusUpdateRequest;
 import Bazaar.com.project.feature.Order.service.OrderService;
 import Bazaar.com.project.feature._common.annotation.ApiMessage;
+import Bazaar.com.project.util.SecurityUtil;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,13 +32,9 @@ public class OrderController {
     @PostMapping
     @ApiMessage("Order created successfully")
     public ResponseEntity<OrderResponseDto> placeOrder(@Valid @RequestBody OrderRequestDto orderDto) {
-        OrderResponseDto newOrder = orderService.placeOrder(orderDto);
-        // ApiResponse<OrderResponseDto> response = new ApiResponse<>(
-        // HttpStatus.CREATED,
-        // "Order created successfully",
-        // newOrder,
-        // String.valueOf(HttpStatus.CREATED.value())
-        // );
+        UUID userId = SecurityUtil.getCurrentUserId()
+                .orElseThrow(() -> new UserNotFoundException("Not authenticated"));
+        OrderResponseDto newOrder = orderService.placeOrder(userId, orderDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
     }
 
@@ -44,12 +42,6 @@ public class OrderController {
     @ApiMessage("Order fetched successfully")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable UUID id) {
         OrderResponseDto order = orderService.findOrderById(id);
-        // ApiResponse<OrderResponseDto> response = new ApiResponse<>(
-        // HttpStatus.OK,
-        // "Order fetched successfully",
-        // order,
-        // String.valueOf(HttpStatus.OK.value())
-        // );
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
@@ -57,12 +49,6 @@ public class OrderController {
     @ApiMessage("Order cancelled successfully")
     public ResponseEntity<OrderResponseDto> cancelOrder(@PathVariable UUID id) {
         OrderResponseDto order = orderService.cancelOrder(id);
-        // ApiResponse<OrderResponseDto> response = new ApiResponse<>(
-        // HttpStatus.OK,
-        // "Order cancelled successfully",
-        // order,
-        // String.valueOf(HttpStatus.OK.value())
-        // );
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
@@ -72,12 +58,6 @@ public class OrderController {
             @PathVariable UUID id,
             @RequestBody OrderStatusUpdateRequest request) {
         OrderResponseDto order = orderService.updateOrderStatus(id, request.getStatus());
-        // ApiResponse<OrderResponseDto> response = new ApiResponse<>(
-        // HttpStatus.OK,
-        // "Status updated successfully",
-        // order,
-        // String.valueOf(HttpStatus.OK.value())
-        // );
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 

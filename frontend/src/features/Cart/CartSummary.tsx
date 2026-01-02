@@ -6,10 +6,9 @@ import {
   Divider,
   Stack,
   Box,
-  useTheme,
+  Button,
 } from '@mui/material';
 import { CartItemData } from '../../redux/slice/cartSlice';
-import { StyledButton } from '../../components/StyledButton';
 
 interface CartSummaryProps {
   items: CartItemData[];
@@ -17,8 +16,6 @@ interface CartSummaryProps {
 }
 
 export function CartSummary({ items, onCheckout }: CartSummaryProps) {
-  const theme = useTheme();
-
   const selectedItems = items.filter((item) => item.selected);
   const subtotal = selectedItems.reduce(
     (total, item) => total + item.unitPrice * item.quantity,
@@ -106,7 +103,17 @@ export function CartSummary({ items, onCheckout }: CartSummaryProps) {
         </Stack>
 
         {/* Checkout Button */}
-        <StyledButton onClick={onCheckout}>Proceed to checkout</StyledButton>
+        <Button 
+          variant="contained"
+          size="large"
+          onClick={onCheckout}
+          sx={{
+            width: '100%',
+            mt: 2,
+          }}
+        >
+          Proceed to checkout
+        </Button>
       </CardContent>
     </Card>
   );

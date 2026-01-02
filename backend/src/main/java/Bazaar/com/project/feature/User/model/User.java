@@ -3,6 +3,7 @@ package Bazaar.com.project.feature.User.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import Bazaar.com.project.feature.User.constant.Gender;
 import Bazaar.com.project.feature.User.constant.Role;
 import Bazaar.com.project.feature._common.model.BaseEntity;
 import jakarta.persistence.CollectionTable;
@@ -49,7 +50,17 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String phoneNum;
 
+    @Column(nullable = true)
+    private Gender gender;
+
+    @Column(nullable = true)
+    private java.time.LocalDate dob;
+
+    @Column(columnDefinition = "text")
+    private String address;
+
     private String profilePhotoUrl;
+
     private String profilePhotoPublicId; // canonical
     private Long profilePhotoVersion;
 

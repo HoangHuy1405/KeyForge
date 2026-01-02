@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+/**
+ * Product Manager Page
+ * Uses TanStack Table with styled Box components (no MUI Table)
+ */
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -11,32 +16,27 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   CircularProgress,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
+  Chip,
+  alpha,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import CreateProductDialog from './CreateProductDialog';
-import { Meta, Product } from '../../services/interfaces/productInterfaces';
-import { useSelector } from 'react-redux';
-import { getUserId } from '../../redux/slice/accountSlice';
 import {
-  deleteProduct,
-  getProductsBySeller,
-} from '../../services/ProductService';
+  PaginationMeta,
+  ProductSummaryResponse,
+  StockStatus,
+  StockStatusLabels,
+} from '../../services/interfaces/productTypes';
+import { deleteProduct, getProductsBySeller } from '../../services/ProductService';
 import { toast } from 'react-toastify';
 import {
   useReactTable,
@@ -46,13 +46,22 @@ import {
   PaginationState,
 } from '@tanstack/react-table';
 
-const columnHelper = createColumnHelper<Product>();
+const columnHelper = createColumnHelper<ProductSummaryResponse>();
+
+const stockStatusColors: Record<StockStatus, string> = {
+  [StockStatus.IN_STOCK]: '#22c55e',
+  [StockStatus.PRE_ORDER]: '#3b82f6',
+  [StockStatus.GROUP_BUY]: '#8b5cf6',
+  [StockStatus.INTEREST_CHECK]: '#f59e0b',
+  [StockStatus.OUT_OF_STOCK]: '#6b7280',
+};
 
 export default function ProductManagerPage() {
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const theme = useTheme();
+  const navigate = useNavigate();
   const [refresh, setRefresh] = useState(false);
-  const [rows, setRows] = useState<Product[]>([]);
-  const [meta, setMeta] = useState<Meta>({
+  const [rows, setRows] = useState<ProductSummaryResponse[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta>({
     page: 0,
     pageSize: 10,
     pages: 0,
@@ -63,7 +72,6 @@ export default function ProductManagerPage() {
     pageSize: 10,
   });
 
-  const sellerId = useSelector(getUserId);
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -96,14 +104,39 @@ export default function ProductManagerPage() {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('id', {
-        header: 'ID',
-        cell: (info) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {String(info.getValue()).slice(0, 8)}...
-          </Typography>
-        ),
-        size: 100,
+      columnHelper.accessor('thumbnailUrl', {
+        header: 'Image',
+        cell: (info) => {
+          const url = info.getValue();
+          return (
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 1,
+                overflow: 'hidden',
+                bgcolor: 'grey.100',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {url ? (
+                <Box
+                  component="img"
+                  src={url}
+                  alt="Product"
+                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <Typography variant="caption" color="text.secondary">
+                  No img
+                </Typography>
+              )}
+            </Box>
+          );
+        },
+        size: 80,
       }),
       columnHelper.accessor('name', {
         header: 'Product Name',
@@ -115,39 +148,61 @@ export default function ProductManagerPage() {
       }),
       columnHelper.accessor('category', {
         header: 'Category',
-        cell: (info) => info.getValue(),
-        size: 150,
+        cell: (info) => (
+          <Typography variant="body2">{info.getValue()}</Typography>
+        ),
+        size: 130,
+      }),
+      columnHelper.accessor('stockStatus', {
+        header: 'Stock Status',
+        cell: (info) => {
+          const status = info.getValue();
+          return (
+            <Chip
+              label={StockStatusLabels[status] || status}
+              size="small"
+              sx={{
+                bgcolor: alpha(stockStatusColors[status] || '#6b7280', 0.15),
+                color: stockStatusColors[status] || '#6b7280',
+                fontWeight: 600,
+                fontSize: '0.7rem',
+              }}
+            />
+          );
+        },
+        size: 130,
       }),
       columnHelper.accessor('availableQuantity', {
         header: 'Available',
-        cell: (info) => info.getValue(),
-        size: 100,
+        cell: (info) => (
+          <Typography variant="body2">{info.getValue() ?? 0}</Typography>
+        ),
+        size: 90,
       }),
       columnHelper.accessor('status', {
         header: 'Status',
         cell: (info) => {
           const status = info.getValue();
           return (
-            <Box
-              sx={(theme) => ({
-                display: 'inline-block',
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                backgroundColor:
-                  status === 'ACTIVE'
-                    ? theme.palette.success.main + '20'
-                    : theme.palette.warning.main + '20',
-                color:
-                  status === 'ACTIVE'
-                    ? theme.palette.success.main
-                    : theme.palette.warning.main,
-              })}
-            >
-              {status}
-            </Box>
+            <Chip
+              label={status}
+              size="small"
+              color={status === 'ACTIVE' ? 'success' : 'warning'}
+              variant="outlined"
+              sx={{ fontWeight: 600, fontSize: '0.7rem' }}
+            />
+          );
+        },
+        size: 100,
+      }),
+      columnHelper.accessor('price', {
+        header: 'Price',
+        cell: (info) => {
+          const price = info.getValue();
+          return (
+            <Typography variant="body2" fontWeight={500}>
+              {price ? `₫${Number(price).toLocaleString()}` : '-'}
+            </Typography>
           );
         },
         size: 120,
@@ -156,12 +211,12 @@ export default function ProductManagerPage() {
         id: 'actions',
         header: 'Actions',
         cell: (info) => (
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={0.5}>
             <Tooltip title="Edit">
               <IconButton
                 color="primary"
                 size="small"
-                onClick={() => console.log('Edit', info.row.original)}
+                onClick={() => navigate(`/seller/products/${info.row.original.id}/edit`)}
               >
                 <EditIcon fontSize="small" />
               </IconButton>
@@ -177,10 +232,10 @@ export default function ProductManagerPage() {
             </Tooltip>
           </Stack>
         ),
-        size: 120,
+        size: 100,
       }),
     ],
-    []
+    [navigate]
   );
 
   const table = useReactTable({
@@ -199,7 +254,7 @@ export default function ProductManagerPage() {
     const fetchProducts = async (page: number, size: number) => {
       try {
         setLoading(true);
-        const data = await getProductsBySeller({ page, size }, sellerId);
+        const data = await getProductsBySeller({ page, size });
         setRows(data.result);
         setMeta(data.meta);
       } catch (error: any) {
@@ -211,89 +266,117 @@ export default function ProductManagerPage() {
     };
 
     fetchProducts(pagination.pageIndex, pagination.pageSize);
-  }, [pagination.pageIndex, pagination.pageSize, refresh, sellerId]);
+  }, [pagination.pageIndex, pagination.pageSize, refresh]);
 
   return (
     <Box sx={{ p: 3, width: '100%' }}>
       {/* Header */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Typography variant="h4">Products</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h5" fontWeight={600}>
+          Products
+        </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setOpenDialog(true)}
+          onClick={() => navigate('/seller/products/new')}
+          sx={{ borderRadius: 1 }}
         >
           Add Product
         </Button>
       </Stack>
 
       {/* Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableCell
-                    key={header.id}
-                    sx={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} align="center" sx={{ py: 6 }}>
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} align="center" sx={{ py: 6 }}>
-                  <Typography color="text.secondary">No products found</Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 1,
+          border: `1px solid ${theme.palette.divider}`,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Table Header */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: table
+              .getAllColumns()
+              .map((col) => (col.getSize() !== 150 ? `${col.getSize()}px` : '1fr'))
+              .join(' '),
+            bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50',
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          {table.getHeaderGroups().map((headerGroup) =>
+            headerGroup.headers.map((header) => (
+              <Box
+                key={header.id}
+                sx={{
+                  px: 2,
+                  py: 1.5,
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  color: 'text.secondary',
+                }}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(header.column.columnDef.header, header.getContext())}
+              </Box>
+            ))
+          )}
+        </Box>
+
+        {/* Table Body */}
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress />
+          </Box>
+        ) : rows.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 6 }}>
+            <Typography color="text.secondary">No products found</Typography>
+          </Box>
+        ) : (
+          table.getRowModel().rows.map((row) => (
+            <Box
+              key={row.id}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: table
+                  .getAllColumns()
+                  .map((col) => (col.getSize() !== 150 ? `${col.getSize()}px` : '1fr'))
+                  .join(' '),
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                '&:last-child': { borderBottom: 'none' },
+                '&:hover': {
+                  bgcolor: theme.palette.action.hover,
+                },
+              }}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <Box
+                  key={cell.id}
+                  sx={{
+                    px: 2,
+                    py: 1.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Box>
+              ))}
+            </Box>
+          ))
+        )}
+      </Paper>
 
       {/* Pagination */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mt: 2 }}
-      >
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
         <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant="body2" color="text.secondary">
             Rows per page:
           </Typography>
-          <FormControl size="small" sx={{ minWidth: 80 }}>
+          <FormControl size="small" sx={{ minWidth: 70 }}>
             <Select
               value={pagination.pageSize}
               onChange={(e) =>
@@ -303,6 +386,7 @@ export default function ProductManagerPage() {
                   pageIndex: 0,
                 }))
               }
+              sx={{ borderRadius: 1 }}
             >
               {[5, 10, 20, 50].map((size) => (
                 <MenuItem key={size} value={size}>
@@ -315,12 +399,12 @@ export default function ProductManagerPage() {
 
         <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant="body2" color="text.secondary">
-            {pagination.pageIndex * pagination.pageSize + 1}-
-            {Math.min(
-              (pagination.pageIndex + 1) * pagination.pageSize,
-              meta.total
-            )}{' '}
-            of {meta.total}
+            {meta.total > 0
+              ? `${pagination.pageIndex * pagination.pageSize + 1}-${Math.min(
+                  (pagination.pageIndex + 1) * pagination.pageSize,
+                  meta.total
+                )} of ${meta.total}`
+              : '0 results'}
           </Typography>
           <IconButton
             size="small"
@@ -344,31 +428,18 @@ export default function ProductManagerPage() {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this product? This action cannot be
-            undone.
+            Are you sure you want to delete this product? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel} color="inherit">
             Cancel
           </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color="error"
-            variant="contained"
-            disabled={loading}
-          >
+          <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={loading}>
             {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Create Product Dialog */}
-      <CreateProductDialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onCreateSuccess={() => setRefresh((prev) => !prev)}
-      />
     </Box>
   );
 }

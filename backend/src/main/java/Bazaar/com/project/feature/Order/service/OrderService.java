@@ -10,7 +10,7 @@ import Bazaar.com.project.feature.Order.dto.OrderResponseDto;
 import Bazaar.com.project.feature.Order.model.OrderStatus;
 
 public interface OrderService {
-    OrderResponseDto placeOrder(@NonNull OrderRequestDto dto);
+    OrderResponseDto placeOrder(@NonNull UUID userId, @NonNull OrderRequestDto dto);
 
     OrderResponseDto findOrderById(@NonNull UUID id);
 

@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { logout as logoutAction } from '../redux/slice/accountSlice';
 import { logout as logoutApi } from '../services/AuthService';
-import api from '../services/api';
 
 export function useLogout(): {
   logout: () => void;
@@ -23,7 +22,7 @@ export function useLogout(): {
       dispatch(logoutAction()); // ✅ resets slice
       qc.clear();
       toast.success('Logged out.');
-      navigate('/login');
+      // navigate('/login');
     },
     onError: () => {
       // even if server fails, force local logout
@@ -35,7 +34,7 @@ export function useLogout(): {
       toast.error('Logout failed on server; signed out locally.', {
         toastId: 'Logout failed',
       });
-      navigate('/login');
+      // navigate('/login');
     },
   });
 

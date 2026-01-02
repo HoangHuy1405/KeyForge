@@ -10,7 +10,7 @@ export default function SellerProtectedRoute({ children }) {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  if (!roles.includes('ROLE_SELLER')) {
+  if (!roles.includes('SELLER')) {
     toast.info('Please register as seller before doing this', {
       toastId: 'ERROR NOT SELLER',
     });

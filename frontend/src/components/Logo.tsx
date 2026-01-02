@@ -1,56 +1,39 @@
-// Logo.tsx
-import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import React from 'react';
+import { Box, useTheme } from '@mui/material';
+import { Keyboard } from 'lucide-react';
 
-type Props = { size?: number };
+interface LogoProps {
+  size?: number;
+  showIcon?: boolean;
+}
 
-export default function Logo({ size = 40 }: Props) {
+/**
+ * KeyForge Logo Component
+ * A clean, professional logo using the Keyboard icon
+ */
+const Logo: React.FC<LogoProps> = ({ size = 32, showIcon = true }) => {
   const theme = useTheme();
 
-  // Pull colors from theme
-  const brand = theme.palette.primary?.main ?? '#3b82f6';
-  const brand2 = theme.palette.secondary?.main ?? brand;
-
-  // Prefer a dedicated gradient token if you defined it in the theme:
-  // palette.gradient: `linear-gradient(135deg, ${BRAND}, ${BRAND_2})`
-  const gradientFromTheme = (theme.palette as any).gradient as
-    | string
-    | undefined;
-
-  const gradient =
-    gradientFromTheme && gradientFromTheme.includes('linear-gradient')
-      ? gradientFromTheme
-      : `linear-gradient(135deg, ${brand}, ${brand2})`;
+  if (!showIcon) {
+    return null;
+  }
 
   return (
     <Box
       sx={{
-        width: size,
-        height: size,
-        borderRadius: 2, // = 16px by default
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        // Ensure gradient shows even if other styles exist
-        backgroundColor: brand, // solid fallback
-        backgroundImage: gradient, // actual gradient
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: '100% 100%',
+        width: size,
+        height: size,
+        borderRadius: 1.5,
+        bgcolor: theme.palette.primary.main,
+        color: '#fff',
       }}
     >
-      <Typography
-        component="span"
-        sx={{
-          fontWeight: 700,
-          fontSize: size * 0.4,
-          color: theme.palette.primary.contrastText ?? '#fff',
-          lineHeight: 1,
-        }}
-      >
-        B
-      </Typography>
+      <Keyboard size={size * 0.6} strokeWidth={2.5} />
     </Box>
   );
-}
+};
+
+export default Logo;

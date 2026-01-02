@@ -15,28 +15,28 @@ import jakarta.validation.constraints.Size;
  * Request DTO for updating an existing KeyForge product.
  */
 public record UpdateProductRequest(
-        // Basic Info
-        @NotBlank @Size(max = 100) String name,
-        @Size(max = 2000) String description,
-        @NotNull ProductCategory category,
-        @NotNull StockStatus stockStatus,
+                // Basic Info
+                @NotBlank @Size(max = 100) String name,
+                String description,
+                @NotNull ProductCategory category,
+                @NotNull StockStatus stockStatus,
 
-        // Pricing & Inventory
-        @NotNull @Positive BigDecimal price,
-        @NotNull @PositiveOrZero Integer stockQuantity,
-        Integer minOrderQuantity,
-        Integer maxOrderQuantity,
+                // Pricing & Inventory
+                @NotNull @Positive BigDecimal price,
+                @NotNull @PositiveOrZero Integer stockQuantity,
+                Integer minOrderQuantity,
+                Integer maxOrderQuantity,
 
-        // Category-specific attributes
-        @NotNull Map<String, Object> attributes,
+                // Category-specific attributes
+                @NotNull Map<String, Object> attributes,
 
-        // Logistics (optional)
-        Integer weightGrams,
-        Integer lengthCm,
-        Integer widthCm,
-        Integer heightCm,
-        String location,
-        Boolean supportFastShipping,
-        Boolean supportRegularShipping,
-        Boolean supportEconomyShipping) {
+                // Logistics (optional)
+                Integer weightGrams,
+                Integer lengthCm,
+                Integer widthCm,
+                Integer heightCm,
+                String location,
+                Boolean supportFastShipping,
+                Boolean supportRegularShipping,
+                Boolean supportEconomyShipping) {
 }

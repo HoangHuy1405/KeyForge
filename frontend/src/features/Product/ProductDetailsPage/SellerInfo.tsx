@@ -1,12 +1,8 @@
-import * as React from 'react';
 import {
   Box,
   Card,
   Avatar,
-  Typography,
   Button,
-  Stack,
-  useTheme,
   Chip,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -21,8 +17,8 @@ export type SellerInfo = {
   id: string;
   username: string;
   email: string;
-  phoneNum: string;
-  avatarUrl: string;
+  phoneNum: string | null;
+  avatarUrl: string | null;
 };
 
 type SellerInformationCardProps = {
@@ -65,7 +61,7 @@ export default function SellerInfo({ seller }: SellerInformationCardProps) {
             <div className="flex flex-col items-center space-y-4 rounded-xl border bg-white p-6 text-center shadow-sm">
               <Avatar
                 className="h-40 w-40 border-4 border-white shadow-lg"
-                src={seller.avatarUrl}
+                src={seller.avatarUrl ?? undefined}
                 alt={seller.username}
                 sx={{ width: 64, height: 64 }}
               />
@@ -105,7 +101,7 @@ export default function SellerInfo({ seller }: SellerInformationCardProps) {
                   <PhoneCallbackOutlinedIcon className="h-4 w-4 text-green-600" />
                   <div>
                     <p className="text-muted-foreground text-xs">Phone</p>
-                    <p className="text-sm">{seller.phoneNum}</p>
+                    <p className="text-sm">{seller.phoneNum || 'Not provided'}</p>
                   </div>
                 </div>
               </div>
@@ -151,41 +147,5 @@ export default function SellerInfo({ seller }: SellerInformationCardProps) {
         </div>
       </Box>
     </Card>
-  );
-}
-
-/** Helper: contact info row */
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}) {
-  const theme = useTheme();
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={1.5}
-      sx={{
-        p: 1.25,
-        bgcolor: 'background.paper',
-        borderRadius: 1.5,
-        border: `1px solid ${theme.palette.divider}`,
-        transition: 'box-shadow .2s ease',
-        '&:hover': { boxShadow: theme.shadows[1] },
-      }}
-    >
-      <Box sx={{ display: 'grid', placeItems: 'center' }}>{icon}</Box>
-      <Box>
-        <Typography variant="caption" color="text.secondary">
-          {label}
-        </Typography>
-        <Typography variant="body2">{value}</Typography>
-      </Box>
-    </Stack>
   );
 }

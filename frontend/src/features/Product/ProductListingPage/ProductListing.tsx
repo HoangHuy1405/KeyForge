@@ -8,10 +8,10 @@ import { ProductView } from './ProductCard';
 import { SortingControls, ViewMode, SortOption } from './SortingControls';
 import ResultPageFooter from '../../../components/ResultPageFooter';
 import { mapProductListToViews } from '../productMappers';
-import { useProductQueryParams } from '../../../hooks/useProductQueryParams';
+import { useProductQueryParams } from '../../../hooks/query/useProductQueryParams';
 import { FilterSidebar } from './FilterSidebar';
 
-const MAX_PRICE = 2500;
+const MAX_PRICE = 10500;
 
 export default function ProductListing() {
   const { data } = useLoaderData() as { data: ProductList };
@@ -27,7 +27,7 @@ export default function ProductListing() {
     useProductQueryParams({ priceMax: MAX_PRICE, size: 4, sort: 'relevance' });
 
   return (
-    <Grid container spacing={3} sx={{ width: '86%', minHeight: '100vh', p: 2 }}>
+    <Grid container spacing={3} sx={{ width: '86%', minHeight: '100vh', p: 2, py: 4 }}>
       <Grid size={{ xs: 12, md: 3 }}>
         <FilterSidebar
           filters={filters}

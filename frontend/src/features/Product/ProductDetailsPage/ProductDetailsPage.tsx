@@ -4,6 +4,7 @@ import { ProductDetailsView } from '../../../services/interfaces/productInterfac
 import ProductMainInfo from './ProductMainInfo';
 import SellerInfo from './SellerInfo';
 import ProductSpecification from './ProductSpecification';
+import ProductDescription from './ProductDescription';
 import ShippingDetails from './ShippingDetails';
 import { useLoaderData } from 'react-router';
 
@@ -26,12 +27,15 @@ export default function ProductDetailsPage() {
           <ProductMainInfo product={product} />
         </Grid>
       </Grid>
+      {/* Product Description (WYSIWYG) */}
+      <ProductDescription description={product.description} />
       {/* Seller info */}
       <SellerInfo seller={product.seller} />
       {/* Product Specification */}
       <ProductSpecification
-        details={product.details}
+        attributes={product.attributes}
         logistics={product.logistics}
+        stockStatus={product.stockStatus}
       />
       {/* Shipping details */}
       <ShippingDetails logistics={product.logistics} />

@@ -30,15 +30,21 @@ interface productProps {
 export default function ProductMainInfo({ product }: productProps) {
   const { handleAddToCart } = useCartActions();
   const [quantity, setQuantity] = useState(
-    product.inventory.minOrderQuantity || 1,
+    product.inventory?.minOrderQuantity || 1,
   );
-  const { name, category } = product;
-  const { brand, model, origin, material, condition } = product.details;
-  const { availableQuantity, minOrderQuantity } = product.inventory;
+  const { name, category, stockStatus } = product;
 
-  const { username: sellerName } = product.seller;
-  const price = product.inventory.price?.toFixed(2);
-  const maxOrder = product.inventory.maxOrderQuantity ?? Infinity;
+  // Get key attributes for display (first 4)
+  const attributes = product.attributes || {};
+  const attributeEntries = Object.entries(attributes).slice(0, 4);
+
+  // Safely access inventory with fallbacks
+  const availableQuantity = product.inventory?.availableQuantity ?? 0;
+  const minOrderQuantity = product.inventory?.minOrderQuantity ?? 1;
+
+  const { username: sellerName } = product.seller || { username: 'Unknown' };
+  const price = product.inventory?.price?.toFixed(2) ?? '0.00';
+  const maxOrder = product.inventory?.maxOrderQuantity ?? Infinity;
   const maxAllowed = Math.min(
     maxOrder,
     Math.max(availableQuantity, 0) || Infinity,
@@ -87,11 +93,13 @@ export default function ProductMainInfo({ product }: productProps) {
           </Stack>
 
           <Stack direction="row" spacing={1} alignItems="center">
-            <Chip
-              label={condition}
-              color={conditionColor(condition)}
-              size="small"
-            />
+            {stockStatus && (
+              <Chip
+                label={stockStatus.replace(/_/g, ' ')}
+                color={stockStatus === 'IN_STOCK' ? 'success' : 'warning'}
+                size="small"
+              />
+            )}
             <Chip label={category} variant="outlined" size="small" />
           </Stack>
         </Stack>
@@ -110,33 +118,23 @@ export default function ProductMainInfo({ product }: productProps) {
           </Typography>
         </Box>
 
-        {/* Key Details */}
-        <Grid container spacing={2}>
-          <Grid size={6}>
-            <Typography variant="caption" color="text.secondary">
-              Brand
-            </Typography>
-            <Typography variant="body1">{brand}</Typography>
+        {/* Key Attributes (Dynamic) */}
+        {attributeEntries.length > 0 && (
+          <Grid container spacing={2}>
+            {attributeEntries.map(([key, value]) => (
+              <Grid key={key} size={6}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: 'capitalize' }}
+                >
+                  {key.replace(/_/g, ' ')}
+                </Typography>
+                <Typography variant="body1">{String(value)}</Typography>
+              </Grid>
+            ))}
           </Grid>
-          <Grid size={6}>
-            <Typography variant="caption" color="text.secondary">
-              Model
-            </Typography>
-            <Typography variant="body1">{model}</Typography>
-          </Grid>
-          <Grid size={6}>
-            <Typography variant="caption" color="text.secondary">
-              Material
-            </Typography>
-            <Typography variant="body1">{material}</Typography>
-          </Grid>
-          <Grid size={6}>
-            <Typography variant="caption" color="text.secondary">
-              Origin
-            </Typography>
-            <Typography variant="body1">{origin}</Typography>
-          </Grid>
-        </Grid>
+        )}
 
         <Divider />
 
@@ -150,11 +148,10 @@ export default function ProductMainInfo({ product }: productProps) {
               max={maxAllowed}
               onDecrease={() => setQuantity((i) => i - 1)}
               onIncrease={() => setQuantity((i) => i + 1)}
-              // disabled={itemIsLocked} // optional
               size="small"
             />
             <Typography variant="caption" color="text.secondary">
-              Min: {minOrderQuantity}, Max: {maxAllowed}
+              Min: {minOrderQuantity}, Max: {maxAllowed === Infinity ? '∞' : maxAllowed}
             </Typography>
           </span>
           <Stack
@@ -171,21 +168,7 @@ export default function ProductMainInfo({ product }: productProps) {
             <StyledButton color="secondary">Buy Now</StyledButton>
           </Stack>
         </Stack>
-
-        {/* Shipping */}
-        {/* <ShippingInfo location={product.logistics.location} /> */}
       </Stack>
     </Grid>
   );
-}
-
-// --- Helpers -------------------------------------------------------------
-function conditionColor(
-  condition: string,
-): 'default' | 'success' | 'warning' | 'error' | 'info' {
-  const c = condition.toLowerCase();
-  if (/(new|brand new|unused)/.test(c)) return 'success';
-  if (/(used|refurb|pre[- ]?owned)/.test(c)) return 'warning';
-  if (/(damaged|poor)/.test(c)) return 'error';
-  return 'info';
 }

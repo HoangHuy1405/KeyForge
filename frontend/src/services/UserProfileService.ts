@@ -9,9 +9,13 @@ export interface UserProfileResponseDto {
   fullname: string;
   email: string;
   phoneNum?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  address?: string | null;
   description?: string | null;
-  role: Role;
-  avatarUrl?: string | null; // transformed URL from backend
+  role: Role; // Primary role
+  roles?: string[]; // All roles
+  avatarUrl?: string | null;
   profilePhotoPublicId?: string | null;
   accountId?: string | null;
 }
@@ -21,26 +25,26 @@ export interface UserProfileUpdateRequest {
   fullname?: string | null;
   email?: string | null;
   phoneNum?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  address?: string | null;
   description?: string | null;
 }
 
-const BASE = 'api/users';
+const BASE = 'users/me';
 
-export async function getUserProfile(
-  userId: string,
-): Promise<UserProfileResponseDto> {
+export async function getUserProfile(): Promise<UserProfileResponseDto> {
   const data = await api.get<UserProfileResponseDto>(
-    `${BASE}/${userId}/profile`,
+    `${BASE}/profile`,
   );
   return data;
 }
 
 export async function updateUserProfile(
-  userId: string,
   payload: UserProfileUpdateRequest,
 ): Promise<UserProfileResponseDto> {
   const data = await api.put<UserProfileResponseDto>(
-    `${BASE}/${userId}/profile`,
+    `${BASE}/profile`,
     payload,
   );
   console.log(data);
@@ -48,14 +52,13 @@ export async function updateUserProfile(
 }
 
 export async function uploadUserAvatar(
-  userId: string,
   file: File,
 ): Promise<UserProfileResponseDto> {
   const body = new FormData();
   body.append('file', file); // must match @RequestPart("file")
 
   const data = await api.put<UserProfileResponseDto>(
-    `${BASE}/${userId}/avatar`,
+    `${BASE}/avatar`,
     body,
     {
       headers: {

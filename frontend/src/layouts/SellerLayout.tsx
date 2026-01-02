@@ -6,15 +6,13 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
+import { Inventory2 } from '@mui/icons-material';
 import { AppProvider, type Navigation } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
-import { Inventory2 } from '@mui/icons-material';
-import Logo from '../components/Logo';
-import ProductManagerPage from '../features/Seller/ProductManagerPage';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Link } from '@mui/material';
-import RegisterSellerPage from '../features/Seller/Register/RegisterPage';
+import Logo from '../components/Logo';
+import { useMemo } from 'react';
 
 const NAVIGATION: Navigation = [
   {
@@ -67,81 +65,7 @@ const NAVIGATION: Navigation = [
   },
 ];
 
-interface DemoPageContentProps {
-  pathname: string;
-}
-function DemoPageContent({ pathname }: DemoPageContentProps) {
-  // Map paths to page components for easy expansion
-  const pageMap: Record<string, React.ReactNode> = {
-    '/inventory': (
-      <>
-        <Typography variant="h6">Inventory</Typography>
-        <ProductManagerPage />
-      </>
-    ),
-  };
-
-  return (
-    <Box
-      sx={{
-        py: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}
-    >
-      {/* Render the matching page if it exists, otherwise fallback */}
-      {pageMap[pathname] ?? (
-        <Typography>Dashboard content for {pathname}</Typography>
-      )}
-    </Box>
-  );
-}
-
-interface DemoProps {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * Remove this when copying and pasting into your project.
-   */
-  window?: () => Window;
-}
-
-export default function DashboardLayoutBasic(props: DemoProps) {
-  const { window } = props;
-  const theme = useTheme();
-
-  const router = useDemoRouter('/dashboard');
-  // Remove this const when copying and pasting into your project.
-  const demoWindow = window !== undefined ? window() : undefined;
-
-  return (
-    // Remove this provider when copying and pasting into your project.
-    <DemoProvider window={demoWindow}>
-      {/* preview-start */}
-      <AppProvider
-        navigation={NAVIGATION}
-        router={router}
-        theme={theme}
-        window={demoWindow}
-        branding={{
-          logo: <CustomBranding />,
-          title: '',
-          homeUrl: 'http://localhost:8080/',
-        }}
-      >
-        <DashboardLayout>
-          <DemoPageContent pathname={router.pathname} />
-        </DashboardLayout>
-      </AppProvider>
-      {/* preview-end */}
-    </DemoProvider>
-  );
-}
-
 function CustomBranding() {
-  const theme = useTheme();
-
   return (
     <Link
       component={RouterLink}
@@ -159,15 +83,69 @@ function CustomBranding() {
           component="h1"
           sx={{
             fontWeight: 'bold',
-            background: theme.palette.gradient,
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: 'primary.main',
           }}
         >
-          Bazaar
+          KeyForge
         </Typography>
       </Box>
     </Link>
+  );
+}
+
+export default function SellerLayout() {
+  const theme = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const basePath = '/seller';
+
+  // Create a router adapter for Toolpad's AppProvider
+  const router = useMemo(
+    () => ({
+      pathname: location.pathname,
+      searchParams: new URLSearchParams(location.search),
+      navigate: (path: string | URL) => {
+        const pathStr = String(path);
+        // Allow direct navigation to homepage
+        if (pathStr === '/') {
+          navigate('/');
+        }
+        // Toolpad constructs paths from segments (e.g., '/inventory')
+        // We need to prepend the base path if not already included
+        else if (pathStr.startsWith('/') && !pathStr.startsWith(basePath)) {
+          navigate(`${basePath}${pathStr}`);
+        } else {
+          navigate(pathStr);
+        }
+      },
+    }),
+    [location, navigate]
+  );
+
+  return (
+    <AppProvider
+      navigation={NAVIGATION}
+      router={router}
+      theme={theme}
+      branding={{
+        logo: <CustomBranding />,
+        title: '',
+        homeUrl: '/',
+      }}
+    >
+      <DashboardLayout>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            py: 3,
+            px: 3,
+          }}
+        >
+          <Outlet />
+        </Box>
+      </DashboardLayout>
+    </AppProvider>
   );
 }

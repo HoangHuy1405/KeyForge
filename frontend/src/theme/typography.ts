@@ -1,10 +1,6 @@
-import { TypographyOptions } from '@mui/material/styles/createTypography';
+import { ThemeOptions } from '@mui/material/styles';
 
-// ============================================================================
-// Typography Configuration
-// ============================================================================
-
-export const typography: TypographyOptions = {
+export const typography: ThemeOptions['typography'] = {
   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
     fontSize: '2.25rem',

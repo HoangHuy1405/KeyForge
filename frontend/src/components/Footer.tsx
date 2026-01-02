@@ -6,7 +6,6 @@ import {
   Link,
   Container,
   useTheme,
-  Box,
   Stack,
 } from '@mui/material';
 
@@ -34,7 +33,7 @@ const Footer: React.FC = () => {
         >
           {/* Left side */}
           <Typography variant="body2" sx={{ color: 'grey.300' }}>
-            © 2025 Bazaar. All rights reserved.
+            © 2025 KeyForge. All rights reserved.
           </Typography>
 
           {/* Right side */}

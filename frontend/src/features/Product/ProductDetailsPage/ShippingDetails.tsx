@@ -1,5 +1,5 @@
 import { Logistic } from '../../../services/interfaces/productInterfaces';
-import { Box, Card, CardContent, Chip } from '@mui/material';
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -8,10 +8,34 @@ import GppGoodIcon from '@mui/icons-material/GppGood';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface props {
-  logistics: Logistic;
+  logistics?: Logistic | null;
 }
 
 export default function ShippingDetails({ logistics }: props) {
+  // If logistics not available, show message
+  if (!logistics) {
+    return (
+      <div className="mb-16">
+        <Card
+          elevation={0}
+          sx={{
+            backgroundImage:
+              'linear-gradient(to bottom right, #eff6ff, #ffffff, #f5f3ff)',
+            borderRadius: '12px',
+            border: '1px solid #75757536',
+            p: 4,
+          }}
+        >
+          <Typography variant="body1" color="text.secondary" textAlign="center">
+            Shipping information not available
+          </Typography>
+        </Card>
+      </div>
+    );
+  }
+
+  const shipping = logistics.shipping || {};
+
   return (
     <div className="mb-16">
       <Card
@@ -45,7 +69,7 @@ export default function ShippingDetails({ logistics }: props) {
                         <AccessTimeIcon className="h-4 w-4 text-gray-600" />
                         <span className="font-medium">Economy Shipping</span>
                       </div>
-                      {!logistics.shipping.economy && (
+                      {!shipping.economy && (
                         <Chip
                           label="Not supported"
                           className="bg-green-100 text-green-800"
@@ -62,7 +86,7 @@ export default function ShippingDetails({ logistics }: props) {
                         <LocalShippingIcon className="h-4 w-4 text-blue-600" />
                         <span className="font-medium">Standard Shipping</span>
                       </div>
-                      {!logistics.shipping.regular && (
+                      {!shipping.regular && (
                         <Chip
                           label="Not supported"
                           className="bg-green-100 text-green-800"
@@ -79,7 +103,7 @@ export default function ShippingDetails({ logistics }: props) {
                         <BoltIcon className="h-4 w-4 text-purple-600" />
                         <span className="font-medium">Express Shipping</span>
                       </div>
-                      {!logistics.shipping.fast && (
+                      {!shipping.fast && (
                         <Chip
                           label="Not supported"
                           className="bg-green-100 text-green-800"

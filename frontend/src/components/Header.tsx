@@ -222,13 +222,10 @@ const Header: React.FC = () => {
                     component="h1"
                     sx={{
                       fontWeight: 'bold',
-                      background: theme.palette.gradient,
-                      backgroundClip: 'text',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
+                      color: 'primary.main',
                     }}
                   >
-                    Bazaar
+                    KeyForge
                   </Typography>
                 </Box>
               </Link>

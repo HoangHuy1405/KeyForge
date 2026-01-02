@@ -1,114 +1,74 @@
+/**
+ * Product Service - API calls for product management
+ * Uses new productTypes aligned with backend DTOs
+ */
 import api from './api';
-import { GetListParams } from './interfaces/paramsType';
-import {
+import type { GetListParams } from './interfaces/paramsType';
+import type {
   CreateProductRequest,
-  ProductBasicResponse,
-  UpdateDetailsRequest,
-  ProductDetailedResponse,
   UpdateInventoryRequest,
-  ProductInventoryResponse,
   UpdateLogisticsRequest,
-  ProductLogisticsResponse,
-  ProductList,
-  UpdateBasicRequest,
-  ProductDetailsView,
-} from './interfaces/productInterfaces';
+  UpdateProductRequest,
+  ProductBasicResponse,
+  InventoryResponse,
+  LogisticsResponse,
+  ProductFullResponse,
+  ProductViewerResponse,
+  ProductListResponse,
+  ProductMediaResponse,
+} from './interfaces/productTypes';
 
-const BASE = 'api/products';
+const BASE = '/products';
 
-const DEFAULT_CURR_PAGE = 0;
-const DEFAULT_PAGE_SIZE = 18;
-
-export async function getProducts(params: GetListParams): Promise<ProductList> {
-  const searchParams = new URLSearchParams();
-
-  searchParams.append(
-    'size',
-    params.size ? String(params.size) : DEFAULT_PAGE_SIZE.toString(),
-  );
-  searchParams.append(
-    'page',
-    params.page ? String(params.page) : DEFAULT_CURR_PAGE.toString(),
-  );
-  if (params.sort) {
-    params.sort.forEach(({ field, direction }) => {
-      searchParams.append('sort', `${field},${direction}`);
-    });
-  }
-  if (params.filters) {
-    searchParams.append('filter', params.filters);
-  }
-  console.log(searchParams.toString());
-  console.log(`${BASE}?${searchParams.toString()}`);
-  const data = await api.get<ProductList>(`${BASE}?${searchParams.toString()}`);
-  return data;
-}
-
-export async function getProduct(id: string): Promise<ProductDetailsView> {
-  const data = await api.get<ProductDetailsView>(`${BASE}/${id}`);
-  return data;
-}
-
+// ===== Step 1: Create Product (DRAFT) =====
 export async function createProduct(
   payload: CreateProductRequest,
 ): Promise<ProductBasicResponse> {
-  return await api.post<ProductBasicResponse>(`${BASE}`, payload);
+  return await api.post<ProductBasicResponse>(BASE, payload);
 }
 
-export async function updateBasicProduct(
-  payload: UpdateBasicRequest,
+// ===== Step 2: Update Inventory =====
+export async function updateInventory(
   productId: string,
-  sellerId: string,
-) {
-  return await api.put<ProductBasicResponse>(
-    `${BASE}/${productId}/basic?sellerId=${sellerId}`,
-    payload,
-  );
-}
-
-export async function updateDetailsProduct(
-  payload: UpdateDetailsRequest,
-  productId: string,
-  sellerId: string,
-) {
-  return await api.put<ProductDetailedResponse>(
-    `${BASE}/${productId}/details?sellerId=${sellerId}`,
-    payload,
-  );
-}
-
-export async function updateInventoryProduct(
   payload: UpdateInventoryRequest,
-  productId: string,
-  sellerId: string,
-) {
-  return await api.put<ProductInventoryResponse>(
-    `${BASE}/${productId}/inventory?sellerId=${sellerId}`,
-    payload,
-  );
+): Promise<InventoryResponse> {
+  return await api.put<InventoryResponse>(`${BASE}/${productId}/inventory`, payload);
 }
 
-export async function updateLogisticProduct(
+// ===== Step 3: Update Logistics =====
+export async function updateLogistics(
+  productId: string,
   payload: UpdateLogisticsRequest,
-  productId: string,
-  sellerId: string,
-) {
-  return await api.put<ProductLogisticsResponse>(
-    `${BASE}/${productId}/logistics?sellerId=${sellerId}`,
-    payload,
-  );
+): Promise<LogisticsResponse> {
+  return await api.put<LogisticsResponse>(`${BASE}/${productId}/logistics`, payload);
 }
 
-export async function getProductsBySeller(
-  params: GetListParams,
-  sellerId: string,
-) {
+// ===== General Update =====
+export async function updateProduct(
+  productId: string,
+  payload: UpdateProductRequest,
+): Promise<ProductFullResponse> {
+  return await api.put<ProductFullResponse>(`${BASE}/${productId}`, payload);
+}
+
+// ===== Status Management =====
+export async function changeProductStatus(
+  productId: string,
+  status: 'DRAFT' | 'ACTIVE' | 'INACTIVE',
+): Promise<ProductBasicResponse> {
+  return await api.put<ProductBasicResponse>(`${BASE}/${productId}/status?status=${status}`);
+}
+
+// ===== Read Operations =====
+export async function getProductForSeller(productId: string): Promise<ProductFullResponse> {
+  return await api.get<ProductFullResponse>(`${BASE}/${productId}/seller`);
+}
+
+export async function getProductsBySeller(params: GetListParams): Promise<ProductListResponse> {
   const searchParams = new URLSearchParams();
 
-  if (params.size !== undefined)
-    searchParams.append('size', String(params.size));
-  if (params.page !== undefined)
-    searchParams.append('page', String(params.page));
+  if (params.size !== undefined) searchParams.append('size', String(params.size));
+  if (params.page !== undefined) searchParams.append('page', String(params.page));
   if (params.sort) {
     params.sort.forEach(({ field, direction }) => {
       searchParams.append('sort', `${field},${direction}`);
@@ -117,12 +77,50 @@ export async function getProductsBySeller(
   if (params.filters) {
     searchParams.append('filter', params.filters);
   }
-  console.log(searchParams.toString());
-  return await api.get(
-    `${BASE}/by-seller/${sellerId}?${searchParams.toString()}`,
-  );
+
+  return await api.get<ProductListResponse>(`${BASE}/by-seller?${searchParams.toString()}`);
 }
 
-export async function deleteProduct(productId: string) {
-  return await api.delete(`${BASE}/${productId}`);
+// ===== Public APIs =====
+export async function getProducts(params: GetListParams): Promise<ProductListResponse> {
+  const searchParams = new URLSearchParams();
+
+  searchParams.append('size', params.size ? String(params.size) : '18');
+  searchParams.append('page', params.page ? String(params.page) : '0');
+
+  if (params.sort) {
+    params.sort.forEach(({ field, direction }) => {
+      searchParams.append('sort', `${field},${direction}`);
+    });
+  }
+  if (params.filters) {
+    searchParams.append('filter', params.filters);
+  }
+
+  return await api.get<ProductListResponse>(`${BASE}?${searchParams.toString()}`);
+}
+
+export async function getProduct(id: string): Promise<ProductViewerResponse> {
+  return await api.get<ProductViewerResponse>(`${BASE}/${id}`);
+}
+
+// ===== Delete =====
+export async function deleteProduct(productId: string): Promise<void> {
+  await api.delete(`${BASE}/${productId}`);
+}
+
+// ===== Media Management =====
+export async function getProductMedia(productId: string): Promise<ProductMediaResponse> {
+  return await api.get<ProductMediaResponse>(`${BASE}/${productId}/media`);
+}
+
+export async function deleteThumbnail(productId: string): Promise<ProductMediaResponse> {
+  return await api.delete<ProductMediaResponse>(`${BASE}/${productId}/media/thumbnail`);
+}
+
+export async function deleteGalleryImage(
+  productId: string,
+  imageId: string,
+): Promise<ProductMediaResponse> {
+  return await api.delete<ProductMediaResponse>(`${BASE}/${productId}/media/gallery/${imageId}`);
 }

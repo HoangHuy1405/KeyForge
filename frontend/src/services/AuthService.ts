@@ -14,9 +14,6 @@ export const registerUser = async (data: any) => {
 };
 
 export const loginUser = async (payload: LoginRequest) => {
-  // const { email, password } = payload;
-  // console.log(email);
-  // console.log(password);
   return api.post('auth/login', payload);
 };
 

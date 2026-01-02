@@ -1,28 +1,21 @@
-import { useState } from 'react';
 import {
   Box,
   Paper,
   Checkbox,
   IconButton,
-  TextField,
   Typography,
-  Button,
   Stack,
-  useTheme,
 } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
 import {
   CartItemData,
   decreaseItemQuantity,
-  deleteItem,
   increaseItemQuantity,
   setItemSelected,
 } from '../../redux/slice/cartSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useCartActions } from '../../hooks/useCartActions';
 import { isFavorite, toggleFavorite } from '../../redux/slice/favoriteSlice';
 import { mapFromCartItemToProductFavorite } from '../Product/productMappers';
@@ -34,7 +27,6 @@ interface CartItemProps {
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const theme = useTheme();
   const { handleRemoveItem } = useCartActions();
   const dispatch = useDispatch();
   const isFav = useAppSelector(isFavorite(item.id));
@@ -47,7 +39,7 @@ export function CartItem({ item }: CartItemProps) {
       variant="outlined"
       sx={{
         p: 2,
-        borderRadius: 2,
+        borderRadius: 1,
         boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
       }}
     >
@@ -55,7 +47,7 @@ export function CartItem({ item }: CartItemProps) {
         {/* Checkbox */}
         <Checkbox
           checked={item.selected}
-          onChange={(e) => dispatch(setItemSelected(item.id))}
+          onChange={() => dispatch(setItemSelected(item.id))}
           sx={{
             flexShrink: 0,
             color: '#9e9e9e', // grey for border & unchecked state

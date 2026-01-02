@@ -21,7 +21,10 @@ public class ResLoginDTO {
     public static class UserLogin {
         private UUID id;
         private String email;
-        private String name;
+        private String username;
+        private String fullname;
+        private String address;
+        private String phoneNum;
         private String avatarUrl;
         private List<String> roles;
     }
