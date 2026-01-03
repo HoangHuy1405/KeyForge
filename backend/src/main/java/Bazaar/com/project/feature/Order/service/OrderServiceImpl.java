@@ -170,4 +170,10 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderMapper.toOrderDetailResponseDto(order);
     }
+
+    @Override
+    public ResultPaginationDTO getOrdersBySeller(UUID sellerId, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrdersBySellerIdPageable(sellerId, pageable);
+        return OrderMapper.toResultPaginationDTO(orders);
+    }
 }

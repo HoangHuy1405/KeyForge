@@ -193,3 +193,16 @@ export const getMyOrders = async (
 export const getOrderDetail = async (orderId: string): Promise<OrderDetailResponseDto> => {
   return api.get<OrderDetailResponseDto>(`${BASE}/${orderId}`);
 };
+
+/**
+ * Get seller's orders with pagination
+ */
+export const getSellerOrders = async (
+  page: number = 0,
+  size: number = 10
+): Promise<ResultPaginationDTO> => {
+  const params = new URLSearchParams();
+  params.append('page', String(page));
+  params.append('size', String(size));
+  return api.get<ResultPaginationDTO>(`${BASE}/seller-orders?${params.toString()}`);
+};

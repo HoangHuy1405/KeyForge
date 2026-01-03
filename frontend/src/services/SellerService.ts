@@ -36,3 +36,26 @@ export async function configureShipping(
     data,
   );
 }
+
+// Analytics types
+export interface DailyRevenue {
+  date: string;
+  revenue: number;
+  orderCount: number;
+}
+
+export interface AnalyticsSummary {
+  totalRevenue: number;
+  totalOrders: number;
+  pendingOrders: number;
+  completedOrders: number;
+  revenueChart: DailyRevenue[];
+}
+
+/**
+ * Get analytics summary for the current seller
+ */
+export async function getAnalyticsSummary(): Promise<AnalyticsSummary> {
+  const response = await api.get<AnalyticsSummary>('seller/analytics/summary');
+  return response;
+}

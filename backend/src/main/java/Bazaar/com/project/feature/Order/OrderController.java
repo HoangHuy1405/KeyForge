@@ -89,4 +89,16 @@ public class OrderController {
     public OrderResponseDto refundOrder(@PathVariable UUID id) {
         return orderService.refundOrder(id);
     }
+
+    /**
+     * Get paginated list of orders for the current seller
+     */
+    @GetMapping("/seller-orders")
+    @ApiMessage("Seller orders fetched successfully")
+    public ResultPaginationDTO getSellerOrders(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        UUID sellerId = SecurityUtil.getCurrentUserId()
+                .orElseThrow(() -> new UserNotFoundException("Not authenticated"));
+        return orderService.getOrdersBySeller(sellerId, pageable);
+    }
 }

@@ -26,6 +26,8 @@ import CheckoutPage from './features/Checkout/CheckoutPage';
 import PaymentReturnPage from './features/Payment/PaymentReturnPage';
 import MyOrdersPage from './features/Orders/MyOrdersPage';
 import OrderDetailPage from './features/Orders/OrderDetailPage';
+import Dashboard from './features/Seller/Dashboard/Dashboard';
+import SellerOrderManagerPage from './features/Seller/Orders/SellerOrderManagerPage';
 
 const router = createBrowserRouter([
   {
@@ -123,11 +125,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <div>Dashboard - Coming Soon</div>,
+        element: <Dashboard />,
       },
       {
         path: 'orders',
-        element: <div>Orders - Coming Soon</div>,
+        element: <SellerOrderManagerPage />,
       },
     ],
   },

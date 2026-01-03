@@ -38,4 +38,9 @@ public interface OrderService {
      * @throws AccessDeniedException if user is not the owner
      */
     OrderDetailResponseDto getOrderDetail(UUID orderId, String currentUserEmail);
+
+    /**
+     * Get paginated list of orders for a seller (orders containing their products)
+     */
+    ResultPaginationDTO getOrdersBySeller(UUID sellerId, Pageable pageable);
 }
