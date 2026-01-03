@@ -17,21 +17,21 @@ const categories: CategoryItem[] = [
     image: '/images/keyboard_hero.jpg',
     title: 'Keyboards',
     description: 'Premium custom mechanical keyboards',
-    link: '/products?category=keyboard',
+    link: '/products?categories=KEYBOARD_KIT',
   },
   {
     id: 'keycap',
     image: '/images/keycap_hero.png',
     title: 'Keycaps',
     description: 'Artisan and profile keycap sets',
-    link: '/products?category=keycap',
+    link: '/products?categories=KEYCAP',
   },
   {
     id: 'switch',
     image: '/images/switch_hero.jpg',
     title: 'Switches',
     description: 'Linear, tactile & clicky switches',
-    link: '/products?category=switch',
+    link: '/products?categories=SWITCH',
   },
 ];
 

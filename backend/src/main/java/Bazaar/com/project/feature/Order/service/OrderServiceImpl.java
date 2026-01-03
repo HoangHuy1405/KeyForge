@@ -5,20 +5,23 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import Bazaar.com.project.exception.FuncErrorException;
 import Bazaar.com.project.exception.UserNotFoundException;
+import Bazaar.com.project.feature.Order.dto.OrderDetailResponseDto;
 import Bazaar.com.project.feature.Order.dto.OrderItemResponseDto;
 import Bazaar.com.project.feature.Order.dto.OrderMapper;
 import Bazaar.com.project.feature.Order.dto.OrderRequestDto;
+import Bazaar.com.project.feature._common.response.ResultPaginationDTO;
 import Bazaar.com.project.feature.Order.dto.OrderRequestDto.OrderItemRequestDto;
 import Bazaar.com.project.feature.Order.dto.OrderResponseDto;
 import Bazaar.com.project.feature.Order.model.Order;
 import Bazaar.com.project.feature.Order.model.OrderItem;
 import Bazaar.com.project.feature.Order.model.OrderStatus;
-import Bazaar.com.project.feature.Order.model.PaymentMethod;
 import Bazaar.com.project.feature.Order.repository.OrderRepository;
 import Bazaar.com.project.feature.Product.model.Product;
 import Bazaar.com.project.feature.Product.repository.ProductRepository;
@@ -68,8 +71,8 @@ public class OrderServiceImpl implements OrderService {
                 requestDto.getShippingAddress(),
                 requestDto.getPaymentMethod(),
                 requestDto.getShippingMethod(),
-                requestDto.getRecieverName(),
-                requestDto.getRecieverPhone(),
+                requestDto.getReceiverName(),
+                requestDto.getReceiverPhone(),
                 orderItems);
         if (order == null) {
             throw new FuncErrorException("Failed to create order");
@@ -95,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto cancelOrder(@NonNull UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
-        order.changeOrderStatus(OrderStatus.CANCELLED);
+        order.updateStatus(OrderStatus.CANCELLED);
         Order updatedOrder = orderRepository.save(order);
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
         return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
@@ -105,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto updateOrderStatus(@NonNull UUID orderId, OrderStatus orderStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
-        order.changeOrderStatus(orderStatus);
+        order.updateStatus(orderStatus);
         Order updatedOrder = orderRepository.save(order);
         List<OrderItemResponseDto> itemResponseDtos = OrderMapper.toOrderItemResponses(updatedOrder.getItems());
         return OrderMapper.toOrderResponseDto(updatedOrder, itemResponseDtos);
@@ -146,5 +149,25 @@ public class OrderServiceImpl implements OrderService {
         }
         List<Order> orders = orderRepository.findByBuyerId(userId);
         return OrderMapper.toOrderResponseList(orders);
+    }
+
+    @Override
+    public ResultPaginationDTO getMyOrders(String currentUserEmail, Pageable pageable) {
+        Page<Order> orders = orderRepository.findByCreatedBy(currentUserEmail, pageable);
+        return OrderMapper.toResultPaginationDTO(orders);
+    }
+
+    @Override
+    public OrderDetailResponseDto getOrderDetail(UUID orderId, String currentUserEmail) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("Order not found with ID: " + orderId));
+
+        // Ownership validation
+        if (!order.getCreatedBy().equals(currentUserEmail)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "You do not have permission to view this order");
+        }
+
+        return OrderMapper.toOrderDetailResponseDto(order);
     }
 }

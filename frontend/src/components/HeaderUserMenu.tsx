@@ -138,7 +138,7 @@ function HeaderUserMenu() {
           My Account
         </MenuItem>
 
-        <MenuItem component={RouterLink} to="/user/purchase" onClick={handleClose}>
+        <MenuItem component={RouterLink} to="/user/orders" onClick={handleClose}>
           <ListItemIcon>
             <ReceiptLong fontSize="small" />
           </ListItemIcon>

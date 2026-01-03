@@ -41,6 +41,9 @@ public class SecurityConfiguration {
     private final String[] SELLER = {
             "/seller", "/seller/**",
     };
+    private final String[] DELIVERER = {
+            "/orders/*/order-status",
+    };
     @Value("${jwt.secret}")
     private String jwtKey;
 
@@ -62,6 +65,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/products", "/products/{id}").permitAll()
                         .requestMatchers(ADMIN).hasAuthority("ADMIN")
                         .requestMatchers(SELLER).hasAuthority("SELLER")
+                        .requestMatchers(DELIVERER).hasAnyAuthority("DELIVERER", "ADMIN")
                         .anyRequest().authenticated())
 
                 .oauth2ResourceServer(oauth2 -> oauth2

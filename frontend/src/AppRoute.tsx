@@ -23,6 +23,9 @@ import ProductManagerPage from './features/Seller/ProductManagerPage';
 import CreateProductPage from './features/Seller/CreateProduct/CreateProductPage';
 import EditProductPage from './features/Seller/EditProduct/EditProductPage';
 import CheckoutPage from './features/Checkout/CheckoutPage';
+import PaymentReturnPage from './features/Payment/PaymentReturnPage';
+import MyOrdersPage from './features/Orders/MyOrdersPage';
+import OrderDetailPage from './features/Orders/OrderDetailPage';
 
 const router = createBrowserRouter([
   {
@@ -61,6 +64,7 @@ const router = createBrowserRouter([
       },
       { path: '/cart', element: <Cart /> },
       { path: '/checkout', element: <CheckoutPage /> },
+      { path: '/payment-return', element: <PaymentReturnPage /> },
       { path: '/seller/register', element: <RegisterSellerPage /> },
     ],
   },
@@ -80,7 +84,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'orders',
-        element: <div>Orders - Coming Soon</div>,
+        element: <MyOrdersPage />,
+      },
+      {
+        path: 'orders/:id',
+        element: <OrderDetailPage />,
       },
       {
         path: 'purchase-history',

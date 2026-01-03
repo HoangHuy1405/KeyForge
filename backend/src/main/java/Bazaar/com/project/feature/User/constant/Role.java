@@ -16,6 +16,7 @@ import static Bazaar.com.project.feature.User.constant.Permission.*;
 public enum Role {
     USER(Collections.emptySet()),
     SELLER(Collections.emptySet()),
+    DELIVERER(Collections.emptySet()),
     ADMIN(
             Set.of(
                     ADMIN_READ,

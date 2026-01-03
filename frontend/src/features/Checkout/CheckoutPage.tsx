@@ -22,11 +22,44 @@ import ShippingMethodSection, { SHIPPING_OPTIONS } from './components/ShippingMe
 import PaymentMethodSection from './components/PaymentMethodSection';
 import OrderTotalSection from './components/OrderTotalSection';
 
+// Order API
+import { useCreateOrder } from '../../hooks/mutation/useOrderMutations';
+import { useVnPayCheckout } from '../../hooks/mutation/usePaymentMutations';
+import { PaymentMethod, ShippingMethod, CreateOrderRequest } from '../../services/OrderService';
+
 interface DeliveryAddress {
   fullname: string;
   phoneNumber: string;
   address: string;
 }
+
+// Map frontend shipping method to backend ShippingMethod enum
+const mapShippingMethod = (method: string): ShippingMethod => {
+  switch (method) {
+    case 'express':
+      return ShippingMethod.EXPRESS;
+    case 'standard':
+      return ShippingMethod.STANDARD;
+    case 'economy':
+      return ShippingMethod.ECONOMY;
+    default:
+      return ShippingMethod.STANDARD;
+  }
+};
+
+// Map frontend payment method to backend PaymentMethod enum
+const mapPaymentMethod = (method: string): PaymentMethod => {
+  switch (method) {
+    case 'vnpay':
+      return PaymentMethod.VNPAY;
+    case 'card':
+      return PaymentMethod.CREDIT_CARD;
+    case 'cod':
+      return PaymentMethod.CASH_ON_DELIVERY;
+    default:
+      return PaymentMethod.CASH_ON_DELIVERY;
+  }
+};
 
 export default function CheckoutPage() {
   const theme = useTheme();
@@ -47,9 +80,22 @@ export default function CheckoutPage() {
     address: user.address || '',
   });
 
-  // ⭐ Fix: Sync delivery address when user data changes (e.g., after page refresh)
+  // Order creation mutation (Cash on Delivery)
+  const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrder({
+    onSuccess: (order) => {
+      // Navigate to order confirmation or orders page
+      navigate(`/user/orders?success=${order.orderId}`);
+    },
+  });
+
+  // VNPay checkout mutation
+  const { mutate: vnpayCheckout, isPending: isVnPayPending } = useVnPayCheckout();
+
+  // Combined loading state
+  const isPlacingOrder = isCreatingOrder || isVnPayPending;
+
+  // Sync delivery address when user data changes (e.g., after page refresh)
   useEffect(() => {
-    // Only update if user data is now available and deliveryAddress is empty
     if (user.fullname || user.address || user.phoneNumber) {
       setDeliveryAddress((prev) => ({
         fullname: prev.fullname || user.fullname || '',
@@ -92,18 +138,47 @@ export default function CheckoutPage() {
   }
 
   const handlePlaceOrder = () => {
+    // Validate delivery address
     if (!deliveryAddress.fullname || !deliveryAddress.phoneNumber || !deliveryAddress.address) {
       toast.error('Please provide a complete delivery address');
       return;
     }
-    
-    if (paymentMethod === 'vnpay') {
-      toast.info('Redirecting to VNPay...');
-    } else if (paymentMethod === 'card') {
-      toast.info('Redirecting to payment gateway...');
-    } else {
-      toast.success('Order placed successfully! You will receive a confirmation shortly.');
+
+    // Validate user is logged in
+    if (!user.id) {
+      toast.error('Please log in to place an order');
+      navigate('/login');
+      return;
     }
+
+    // Build order request
+    const orderRequest: CreateOrderRequest = {
+      buyerId: user.id,
+      items: selectedItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+      })),
+      shippingAddress: deliveryAddress.address,
+      paymentMethod: mapPaymentMethod(paymentMethod),
+      shippingMethod: mapShippingMethod(shippingMethod),
+      receiverName: deliveryAddress.fullname,
+      receiverPhone: deliveryAddress.phoneNumber,
+    };
+
+    // Handle payment method specific flows
+    if (paymentMethod === 'vnpay') {
+      // VNPay checkout - creates order and redirects to VNPay payment page
+      vnpayCheckout(orderRequest);
+      return;
+    }
+
+    if (paymentMethod === 'card') {
+      toast.info('Card payment integration coming soon. Please use Cash on Delivery for now.');
+      return;
+    }
+
+    // Cash on Delivery - Create order directly
+    createOrder(orderRequest);
   };
 
   return (
@@ -122,6 +197,7 @@ export default function CheckoutPage() {
               onClick={() => navigate('/cart')}
               color="inherit"
               size="large"
+              disabled={isCreatingOrder}
             >
               Back to Cart
             </Button>
@@ -163,6 +239,7 @@ export default function CheckoutPage() {
           total={total}
           itemCount={selectedItems.length}
           onPlaceOrder={handlePlaceOrder}
+          isLoading={isPlacingOrder}
         />
       </Container>
     </Box>

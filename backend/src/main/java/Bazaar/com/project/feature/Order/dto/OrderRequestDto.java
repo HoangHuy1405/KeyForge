@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import Bazaar.com.project.feature.Order.model.PaymentMethod;
-import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo.ShippingOptions;
+import Bazaar.com.project.feature.Order.model.ShippingMethod;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,11 +28,11 @@ public class OrderRequestDto {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
     @NotNull(message = "Shipping method is required")
-    private ShippingOptions shippingMethod;
-    @NotNull(message = "Reciever name is required")
-    private String recieverName;
-    @NotNull(message = "Reciever phone is required")
-    private String recieverPhone;
+    private ShippingMethod shippingMethod;
+    @NotNull(message = "Receiver name is required")
+    private String receiverName;
+    @NotNull(message = "Receiver phone is required")
+    private String receiverPhone;
 
     @Data
     @NoArgsConstructor

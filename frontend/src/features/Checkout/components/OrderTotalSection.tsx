@@ -14,6 +14,7 @@ interface OrderTotalSectionProps {
   total: number;
   itemCount: number;
   onPlaceOrder: () => void;
+  isLoading?: boolean;
 }
 
 export default function OrderTotalSection({ 
@@ -23,6 +24,7 @@ export default function OrderTotalSection({
   total,
   itemCount,
   onPlaceOrder,
+  isLoading = false,
 }: OrderTotalSectionProps) {
   const theme = useTheme();
 
@@ -71,6 +73,7 @@ export default function OrderTotalSection({
           variant="contained"
           size="large"
           onClick={onPlaceOrder}
+          disabled={isLoading}
           sx={{ 
             py: 2.5, 
             px: 8,
@@ -83,7 +86,7 @@ export default function OrderTotalSection({
             },
           }}
         >
-          Place Order
+          {isLoading ? 'Placing Order...' : 'Place Order'}
         </Button>
       </Stack>
     </Paper>

@@ -1,9 +1,9 @@
 package Bazaar.com.project.feature.Order.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
-import Bazaar.com.project.feature.Product.model.embeddables.LogisticsInfo.ShippingOptions;
 import Bazaar.com.project.feature.User.model.User;
 import Bazaar.com.project.feature._common.model.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -40,8 +40,8 @@ public class Order extends BaseEntity {
     @NotNull(message = "Buyer is required")
     private User buyer;
 
-    private String recieverName;
-    private String recieverPhone;
+    private String receiverName;
+    private String receiverPhone;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotEmpty(message = "Order must have at least one item")
@@ -74,21 +74,37 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private ShippingOptions shippingMethod;
+    private ShippingMethod shippingMethod;
+
+    // Timeline timestamps - null until that status is reached
+    @Column(name = "processing_at")
+    private Instant processingAt;
+
+    @Column(name = "shipped_at")
+    private Instant shippedAt;
+
+    @Column(name = "delivered_at")
+    private Instant deliveredAt;
+
+    @Column(name = "completed_at")
+    private Instant completedAt;
+
+    @Column(name = "cancelled_at")
+    private Instant cancelledAt;
 
     // Handle create, set back-reference and calculate totalAmount
     public static Order Create(
             User buyer,
             String shippingAddress,
             PaymentMethod paymentMethod,
-            ShippingOptions shippingMethod,
-            String recieverName,
-            String recieverPhone,
+            ShippingMethod shippingMethod,
+            String receiverName,
+            String receiverPhone,
             List<OrderItem> orderItems) {
         Order order = new Order();
         order.setBuyer(buyer);
-        order.setRecieverName(recieverName);
-        order.setRecieverPhone(recieverPhone);
+        order.setReceiverName(receiverName);
+        order.setReceiverPhone(receiverPhone);
         order.setShippingAddress(shippingAddress);
         order.setOrderStatus(OrderStatus.PROCESSING);
         order.setPaymentMethod(paymentMethod);
@@ -106,12 +122,29 @@ public class Order extends BaseEntity {
         return order;
     }
 
-    public void changeOrderStatus(OrderStatus orderStatus) {
-        // Example rule: can't go back from DELIVERED to PROCESSING
-        if (orderStatus == this.orderStatus) {
-            throw new IllegalStateException("The status is already set to " + orderStatus);
+    /**
+     * Updates the order status and automatically populates the corresponding
+     * timeline timestamp.
+     * 
+     * @param newStatus The new order status
+     */
+    public void updateStatus(OrderStatus newStatus) {
+        if (newStatus == this.orderStatus) {
+            throw new IllegalStateException("The status is already set to " + newStatus);
         }
-        this.orderStatus = orderStatus;
+
+        this.orderStatus = newStatus;
+        Instant now = Instant.now();
+
+        switch (newStatus) {
+            case PENDING -> {
+            } // createdAt from BaseEntity handles PENDING
+            case PROCESSING -> this.processingAt = now;
+            case SHIPPED -> this.shippedAt = now;
+            case DELIVERED -> this.deliveredAt = now;
+            case COMPLETED -> this.completedAt = now;
+            case CANCELLED -> this.cancelledAt = now;
+        }
     }
 
     public boolean isCompleted() {
